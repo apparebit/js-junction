@@ -1,0 +1,51 @@
+{
+  "name": "js-junction",
+  "private": true,
+  "version": "6.6.5",
+  "description": "@grr's monorepo for all things JavaScript",
+  "repository": "https://github.com/grimmr/js-junction",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "dependencies": {
+    "hyperx": "2.3.2",
+    "@std/esm": "0.18.0"
+  },
+  "devDependencies": {
+    "chalk": "2.3.0",
+    "cross-env": "5.1.1",
+    "eslint": "4.12.1",
+    "nyc": "11.3.0",
+    "rimraf": "2.6.2",
+    "tap": "11.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "nyc": {
+    "exclude": [
+      ".nyc_output",
+      ".vscode",
+      "coverage",
+      "scripts",
+      "tests",
+      "**/node_modules"
+    ],
+    "include": [
+      "packages/**/*.js"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ]
+  },
+  "@std/esm": "js",
+  "scripts": {
+    "clean": "rimraf .nyc_output coverage **/node_modules/.cache",
+    "lint": "eslint .",
+    "cover": "nyc --require @std/esm node tests/index.js",
+    "test": "tap --node-arg=-r --node-arg=@std/esm tests/*.test.js"
+  }
+}
