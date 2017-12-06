@@ -7,6 +7,9 @@ module.exports = {
       "experimentalObjectRestSpread": true,
     },
   },
+  "env": {
+    "es6": true,
+  },
   "extends": "eslint:recommended",
   "rules": {
     "accessor-pairs": "error",
@@ -234,10 +237,7 @@ module.exports = {
     "operator-linebreak": ["error", "before", {
         "overrides": { "=": "after" },
     }],
-    "padded-blocks": ["error", {
-        "classes": "always",
-        "switches": "never",
-    }],
+    "padded-blocks": ["error", "never"],
     "padding-line-between-statements": [
       "error",
       { "blankLine": "always", "prev": "directive", "next": "*" },
