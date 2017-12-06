@@ -1,0 +1,18 @@
+{
+  "name": "@grr/oddjob",
+  "description": "Letting you can focus on the flying circus!",
+  "keywords": [
+    "odd job",
+    "utility",
+    "flying circus"
+  ],
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "main": "index.js",
+  "@std/esm": "js",
+  "repository": "https://github.com/grimmr/js-junction/tree/master/packages/oddjob"
+}
