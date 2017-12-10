@@ -13,5 +13,5 @@ packages:
     making server-side rendering great again.
 
 All packages have 100% test coverage across statements, branches, functions,
-and lines alike. Anything else would be uncivilized — and somewhat reckless for
-a dynamically typed programming language!
+and lines alike. Anything less would be uncivilized — and a tad reckless for a
+dynamically typed programming language!
