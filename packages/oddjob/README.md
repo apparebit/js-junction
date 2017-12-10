@@ -2,8 +2,8 @@
 
 > Letting you focus on the flying circus!
 
-This package provides an assortment of utility functions for transforming
-strings.
+This package provides an assortment of utility functions for signalling errors,
+formatting human-readable messages, and transforming strings.
 
 --------------------------------------------------------------------------------
 
