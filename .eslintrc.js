@@ -9,6 +9,7 @@ module.exports = {
   },
   "env": {
     "es6": true,
+    "node": true,
   },
   "extends": "eslint:recommended",
   "rules": {
@@ -114,7 +115,7 @@ module.exports = {
     "newline-after-var": "off",
     "newline-before-return": "off",
     "newline-per-chained-call": ["error", {
-      "ignoreChainWithDepth": 3,
+      "ignoreChainWithDepth": 5,
     }],
     "no-alert": "error",
     "no-array-constructor": "error",

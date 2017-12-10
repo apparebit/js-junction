@@ -12,3 +12,6 @@ packages:
  *  [@grr/proact](https://github.com/grimmr/js-junction/tree/master/packages/proact):
     making server-side rendering great again.
 
+All packages have 100% test coverage across statements, branches, functions,
+and lines alike. Anything else would be uncivilized — and somewhat reckless for
+a dynamically typed programming language!
