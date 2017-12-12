@@ -1,0 +1,27 @@
+{
+  "name": "@grr/proact",
+  "description": "Proactive UI components for server-side rendering",
+  "keywords": [
+    "vDOM",
+    "virtual DOM",
+    "simple DOM",
+    "server DOM",
+    "hyperscript",
+    "hyperx",
+    "server-side rendering",
+    "SSR",
+    "proactive"
+  ],
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "dependencies": {
+    "@grr/oddjob": "0.1.0"
+  },
+  "main": "index.js",
+  "@std/esm": "js",
+  "repository": "https://github.com/grimmr/js-junction/tree/master/packages/proact"
+}
