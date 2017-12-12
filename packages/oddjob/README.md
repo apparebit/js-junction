@@ -2,8 +2,12 @@
 
 > Letting you focus on the flying circus!
 
-This package provides an assortment of utility functions for signalling errors,
-formatting human-readable messages, and transforming strings.
+This package provides an assortment of utility functions for:
+ *  detecting built-in types,
+ *  traversing property chains,
+ *  transforming strings,
+ *  formatting humane error messages,
+ *  and signalling errors.
 
 --------------------------------------------------------------------------------
 

@@ -17,3 +17,7 @@ export function hyphenate(name) {
     .replace(HYPHENATABLE, '-$1')
     .toLowerCase();
 }
+
+export function toSymbolKey(symbol) {
+  return String(symbol).slice(7, -1);
+}

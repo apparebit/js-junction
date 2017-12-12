@@ -7,7 +7,7 @@ const INSTRUCTIONS = Symbol('INSTRUCTIONS');
 
 // Instead of requiring an explicit method call to lock the instructions,
 // we delay some checks until use but also lock the instructions upon use.
-function check(show) {
+function checkNotLocked(show) {
   assert(!show[LOCKED], `show()'s format cannot be modified after use`);
 }
 
@@ -17,28 +17,28 @@ class Show {
   }
 
   verbatim(word) {
-    check(this);
+    checkNotLocked(this);
 
     this[INSTRUCTIONS].push({ opcode: 'verbatim', word });
     return this;
   }
 
   length() {
-    check(this);
+    checkNotLocked(this);
 
     this[INSTRUCTIONS].push({ opcode: 'length' });
     return this;
   }
 
   get quoted() {
-    check(this);
+    checkNotLocked(this);
 
     this[INSTRUCTIONS].push({ opcode: 'quoted' });
     return this;
   }
 
   elements(conjunctive = true) {
-    check(this);
+    checkNotLocked(this);
 
     const word = conjunctive ? 'and' : 'or';
     this[INSTRUCTIONS].push({ opcode: 'elements', word });
@@ -46,14 +46,14 @@ class Show {
   }
 
   noun(word) {
-    check(this);
+    checkNotLocked(this);
 
     this[INSTRUCTIONS].push({ opcode: 'noun', word });
     return this;
   }
 
   verb(word = 'be') {
-    check(this);
+    checkNotLocked(this);
 
     this[INSTRUCTIONS].push({ opcode: 'verb', word });
     return this;
@@ -64,6 +64,31 @@ class Show {
 
     const instructions = this[INSTRUCTIONS];
     const steps = instructions.length;
+
+    const showElements = step => {
+      const elements = step > 0 && instructions[step - 1].opcode === 'quoted'
+        ? list.map(element => `"${element}"`)
+        : list;
+
+      switch( list.length ) {
+        case 0:
+          return step + 1 < steps && instructions[step + 1].opcode === 'noun'
+            ? 'no'
+            : 'none';
+        case 1:
+          return `${elements[0]}`;
+        case 2:
+          return `${elements[0]} ${instructions[step].word} ${elements[1]}`;
+        default:
+          return `${
+            elements.slice(0, -1).join(', ')
+          }, ${
+            instructions[step].word
+          } ${
+            elements[list.length - 1]
+          }`;
+      }
+    };
 
     let message = '';
 
@@ -86,35 +111,10 @@ class Show {
             '"quoted" must be followed by "elements()"');
           break;
 
-        case 'elements': {
+        case 'elements':
           if( message ) message += ' ';
-
-          const elements = step && instructions[step - 1].opcode === 'quoted'
-            ? list.map(element => `"${element}"`)
-            : list;
-
-          switch( list.length ) {
-            case 0:
-              message += step < steps - 1 && instructions[step + 1].opcode === 'noun'
-                ? 'no'
-                : 'none';
-              break;
-            case 1:
-              message += `${elements[0]}`;
-              break;
-            case 2:
-              message += `${elements[0]} ${word} ${elements[1]}`;
-              break;
-            default:
-              message += `${
-                elements.slice(0, list.length - 1).join(', ')
-              }, ${
-                word
-              } ${
-                elements[list.length - 1]
-              }`;
-          }
-        } break;
+          message += showElements(step);
+          break;
 
         case 'noun':
           if( message ) message += ' ';

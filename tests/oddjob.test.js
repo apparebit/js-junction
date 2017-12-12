@@ -7,13 +7,78 @@ import {
   InvalidArgType,
   InvalidArgValue,
   InvalidArrayLength,
+  isObject,
   MissingArgs,
   show,
+  toPath,
+  toSymbolKey,
+  withPath,
+  withExistingPath,
 } from '@grr/oddjob';
 
 import harness from './harness';
 
+const { create } = Object;
+
+const CodeInvalidArgType = { code: 'ERR_INVALID_ARG_TYPE' };
+
 harness.test( '@grr/oddjob', t => {
+  t.test('types', t => {
+    t.notOk(isObject(void 0));
+    t.notOk(isObject(null));
+    t.ok(isObject({}));
+    t.ok(isObject(create(null)));
+    t.ok(isObject(() => {}));
+    t.ok(isObject(function fn() {}));
+    t.end();
+  });
+
+  // ---------------------------------------------------------------------------
+
+  t.test('properties', t => {
+    const sym = Symbol('symbolic');
+
+    t.test('.toPath()', t => {
+      t.same(toPath(), []);
+      t.same(toPath(''), []);
+      t.same(toPath('one'), ['one']);
+      t.same(toPath('one.two'), ['one', 'two']);
+      t.same(toPath('one.two.three'), ['one', 'two', 'three']);
+      t.same(toPath(1), ['1']);
+      t.same(toPath(sym), [sym]);
+      t.same(toPath(['a', 'b', 'c']), ['a', 'b', 'c']);
+
+      t.throws(() => toPath(true), CodeInvalidArgType);
+      t.end();
+    });
+
+    t.test('.withPath()', t => {
+      t.throws(() => withPath(0, '', () => {}),
+        CodeInvalidArgType);
+      t.throws(() => withPath({ a: { b: 665 }}, 'a.b.c'),
+        CodeInvalidArgType);
+
+      const root = {};
+      withPath(root, 'a.b.c', (object, key) => { object[key] = 42; });
+      t.same(root, { a: { b: { c: 42 }}});
+
+      t.end();
+    });
+
+    t.test('withExistingPath', t => {
+      const root = { a: { b: { c: 665 }}};
+      t.is(withExistingPath(root, 'a.b.c')[2], 665);
+      t.is(withExistingPath({ a: { b: { c: 665 }}}, 'a.c'), undefined);
+      t.is(withExistingPath({ a: { b: { c: 665 }}}, 'a.c.d'), undefined);
+
+      t.end();
+    });
+
+    t.end();
+  });
+
+  // ---------------------------------------------------------------------------
+
   t.test('errors', t => {
     t.is(DuplicateBinding('k', 'v', 'w').code, 'ERR_DUPLICATE_BINDING');
     t.is(InvalidArgType('k', 'v', 't').code, 'ERR_INVALID_ARG_TYPE');
@@ -79,6 +144,13 @@ harness.test( '@grr/oddjob', t => {
       t.is(hyphenate(''), '');
       t.is(hyphenate('someName'), 'some-name');
       t.is(hyphenate('SomeName'), '-some-name');
+      t.end();
+    });
+
+    t.test('.toSymbolKey()', t => {
+      // eslint-disable-next-line symbol-description
+      t.is(toSymbolKey(Symbol()), '');
+      t.is(toSymbolKey(Symbol('665')), '665');
       t.end();
     });
 
