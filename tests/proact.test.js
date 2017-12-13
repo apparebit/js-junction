@@ -1,6 +1,6 @@
 /* (c) Copyright 2017 Robert Grimm */
 
-import Tag from '@grr/proact/util/tags';
+import Tag from '@grr/proact/util/tag';
 import typeAttribute from '@grr/proact/model/attributes';
 import typeElement from '@grr/proact/model/elements';
 

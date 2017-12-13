@@ -1,7 +1,7 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import Tag from '../util/tags';
 import { DuplicateBinding } from '@grr/oddjob';
+import Tag from '../util/tag';
 
 const {
   CommaSeparated,
