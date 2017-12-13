@@ -45,13 +45,15 @@ export const DuplicateBinding = E('ERR_DUPLICATE_BINDING',
   (key, value, replacement) =>
     `"${key}" is bound to "${value}", cannot be rebound to "${replacement}"`);
 export const InvalidArgType = E('ERR_INVALID_ARG_TYPE',
-  (name, value, type) =>
-    `argument "${name}" is "${value}", but should be ${type}`, CodedTypeError);
+  (key, value, type) =>
+    `argument "${key}" is "${value}", but should be ${type}`, CodedTypeError);
 export const InvalidArgValue = E('ERR_INVALID_ARG_VALUE',
-  (name, value) =>
-    `argument "${name}" is invalid "${value}"`);
+  (key, value) =>
+    `argument "${key}" is invalid "${value}"`);
 export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
-  (name, value, expected) =>
-    `array "${name}" has ${showCount.of(value)}, but should have ${expected}`);
+  (key, value, expected) =>
+    `array "${key}" has ${showCount.of(value)}, but should have ${expected}`);
+export const MethodNotImplemented = E('ERR_METHOD_NOT_IMPLEMENTED',
+  name => `the ${name}() method is not implemented`);
 export const MissingArgs = E('ERR_MISSING_ARGS',
   (...names) => `the ${showArgNames.of(names)} missing`);

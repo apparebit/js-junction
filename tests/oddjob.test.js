@@ -8,28 +8,38 @@ import {
   InvalidArgValue,
   InvalidArrayLength,
   isObject,
+  MethodNotImplemented,
   MissingArgs,
+  realm,
   show,
   toPath,
+  toRealm,
   toSymbolKey,
-  withPath,
   withExistingPath,
+  withPath,
 } from '@grr/oddjob';
 
 import harness from './harness';
 
 const { create } = Object;
-
-const CodeInvalidArgType = { code: 'ERR_INVALID_ARG_TYPE' };
+const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 
 harness.test( '@grr/oddjob', t => {
-  t.test('types', t => {
-    t.notOk(isObject(void 0));
-    t.notOk(isObject(null));
-    t.ok(isObject({}));
-    t.ok(isObject(create(null)));
-    t.ok(isObject(() => {}));
-    t.ok(isObject(function fn() {}));
+  // ---------------------------------------------------------------------------
+
+  t.test('errors', t => {
+    t.is(DuplicateBinding('k', 'v', 'w').code, 'ERR_DUPLICATE_BINDING');
+    t.is(InvalidArgType('k', 'v', 't').code, 'ERR_INVALID_ARG_TYPE');
+    t.is(InvalidArgValue('k', 'v').code, 'ERR_INVALID_ARG_VALUE');
+    t.is(InvalidArrayLength('k', 1, 2).code, 'ERR_INVALID_ARRAY_LENGTH');
+    t.is(MethodNotImplemented('m').code, 'ERR_METHOD_NOT_IMPLEMENTED');
+    t.is(MissingArgs('n1', 'n2').code, 'ERR_MISSING_ARGS');
+
+    t.is(InvalidArgType('k', 'v', 't').name,
+      'TypeError [ERR_INVALID_ARG_TYPE]');
+    t.is(InvalidArgValue('k', 'v').name,
+      'Error [ERR_INVALID_ARG_VALUE]');
+
     t.end();
   });
 
@@ -48,15 +58,15 @@ harness.test( '@grr/oddjob', t => {
       t.same(toPath(sym), [sym]);
       t.same(toPath(['a', 'b', 'c']), ['a', 'b', 'c']);
 
-      t.throws(() => toPath(true), CodeInvalidArgType);
+      t.throws(() => toPath(true), CODE_INVALID_ARG_TYPE);
       t.end();
     });
 
     t.test('.withPath()', t => {
       t.throws(() => withPath(0, '', () => {}),
-        CodeInvalidArgType);
+        CODE_INVALID_ARG_TYPE);
       t.throws(() => withPath({ a: { b: 665 }}, 'a.b.c'),
-        CodeInvalidArgType);
+        CODE_INVALID_ARG_TYPE);
 
       const root = {};
       withPath(root, 'a.b.c', (object, key) => { object[key] = 42; });
@@ -79,16 +89,13 @@ harness.test( '@grr/oddjob', t => {
 
   // ---------------------------------------------------------------------------
 
-  t.test('errors', t => {
-    t.is(DuplicateBinding('k', 'v', 'w').code, 'ERR_DUPLICATE_BINDING');
-    t.is(InvalidArgType('k', 'v', 't').code, 'ERR_INVALID_ARG_TYPE');
-    t.is(InvalidArgValue('k', 'v').code, 'ERR_INVALID_ARG_VALUE');
-    t.is(InvalidArrayLength('k', 1, 2).code, 'ERR_INVALID_ARRAY_LENGTH');
-    t.is(MissingArgs('n1', 'n2').code, 'ERR_MISSING_ARGS');
-
-    t.is(InvalidArgType('k', 'v', 't').name, 'TypeError [ERR_INVALID_ARG_TYPE]');
-    t.is(InvalidArgValue('k', 'v').name, 'Error [ERR_INVALID_ARG_VALUE]');
-
+  t.test('realm', t => {
+    t.is(realm, 'development');
+    t.is(toRealm(), 'development');
+    t.is(toRealm('dev'), 'development');
+    t.is(toRealm('prod'), 'production');
+    t.is(toRealm('PROD'), 'production');
+    t.is(toRealm('QA'), 'qa');
     t.end();
   });
 
@@ -154,6 +161,18 @@ harness.test( '@grr/oddjob', t => {
       t.end();
     });
 
+    t.end();
+  });
+
+  // ---------------------------------------------------------------------------
+
+  t.test('types', t => {
+    t.notOk(isObject(void 0));
+    t.notOk(isObject(null));
+    t.ok(isObject({}));
+    t.ok(isObject(create(null)));
+    t.ok(isObject(() => {}));
+    t.ok(isObject(function fn() {}));
     t.end();
   });
 
