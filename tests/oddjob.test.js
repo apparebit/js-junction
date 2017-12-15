@@ -31,6 +31,7 @@ harness.test( '@grr/oddjob', t => {
     t.is(DuplicateBinding('k', 'v', 'w').code, 'ERR_DUPLICATE_BINDING');
     t.is(InvalidArgType('k', 'v', 't').code, 'ERR_INVALID_ARG_TYPE');
     t.is(InvalidArgValue('k', 'v').code, 'ERR_INVALID_ARG_VALUE');
+    t.is(InvalidArgValue(5, 'v', 'a number').code, 'ERR_INVALID_ARG_VALUE');
     t.is(InvalidArrayLength('k', 1, 2).code, 'ERR_INVALID_ARRAY_LENGTH');
     t.is(MethodNotImplemented('m').code, 'ERR_METHOD_NOT_IMPLEMENTED');
     t.is(MissingArgs('n1', 'n2').code, 'ERR_MISSING_ARGS');
