@@ -1,11 +1,11 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import { withPath } from '@grr/oddjob';
+import { withKeyPath } from '@grr/oddjob';
 
 const { create } = Object;
 const toSymbol = Symbol.for;
 
-const Tag = create(null);
+const tag = create(null);
 
 [
   'HTML.Attribute.CommaSeparated',
@@ -28,9 +28,9 @@ const Tag = create(null);
   'Proact.Element.Builtin',       // Instances
   'Proact.Element.Custom',
 ].forEach(path => {
-  withPath(Tag, path, (enclosing, key) => {
+  withKeyPath(tag, path, (enclosing, key) => {
     enclosing[key] = toSymbol(path);
   });
 });
 
-export default Tag;
+export default tag;
