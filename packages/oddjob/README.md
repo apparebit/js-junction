@@ -2,12 +2,13 @@
 
 > Letting you focus on the flying circus!
 
-This package provides an assortment of utility functions for:
- *  detecting built-in types,
- *  traversing property chains,
- *  transforming strings,
- *  formatting humane error messages,
- *  and signalling errors.
+This package provides an assortment of utility functions. The intent is to
+abstract over the little annoyances when writing everyday JavaScript. This
+includes detecting types, wrangling object properties, composing functions, and
+raising errors. Consistent with the intent, `@grr/oddjob` has *no* external
+package dependencies and minimizes internal module dependencies. Surprisingly,
+modules inside the `internal` directory are *not* part of this package's public
+API.
 
 --------------------------------------------------------------------------------
 
