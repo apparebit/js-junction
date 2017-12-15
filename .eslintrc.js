@@ -30,7 +30,6 @@ module.exports = {
     "callback-return": "error",
     "camelcase": "error",
     "capitalized-comments": "off",
-    "class-methods-use-this": "error",
     "comma-dangle": ["error", {
       "arrays": "only-multiline",
       "objects": "only-multiline",
@@ -227,9 +226,6 @@ module.exports = {
     "object-curly-newline": ["error", {
       "consistent": true,
     }],
-    "object-curly-spacing": ["error", "always", {
-      "objectsInObjects": false
-    }],
     "object-property-newline": ["error", {
       "allowMultiplePropertiesPerLine": true,
     }],
@@ -240,7 +236,6 @@ module.exports = {
     "operator-linebreak": ["error", "before", {
         "overrides": { "=": "after" },
     }],
-    "padded-blocks": ["error", "never"],
     "padding-line-between-statements": [
       "error",
       { "blankLine": "always", "prev": "directive", "next": "*" },
