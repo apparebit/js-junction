@@ -1,6 +1,6 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import { InvalidArgType } from './errors';
+import { InvalidArgType } from './internal/errors';
 import { isObject } from './types';
 
 const { create } = Object;
