@@ -12,11 +12,11 @@ import {
   MissingArgs,
   realm,
   show,
-  toPath,
+  toKeyPath,
   toRealm,
   toSymbolKey,
-  withExistingPath,
-  withPath,
+  withExistingKeyPath,
+  withKeyPath,
 } from '@grr/oddjob';
 
 import harness from './harness';
@@ -48,38 +48,38 @@ harness.test( '@grr/oddjob', t => {
   t.test('properties', t => {
     const sym = Symbol('symbolic');
 
-    t.test('.toPath()', t => {
-      t.same(toPath(), []);
-      t.same(toPath(''), []);
-      t.same(toPath('one'), ['one']);
-      t.same(toPath('one.two'), ['one', 'two']);
-      t.same(toPath('one.two.three'), ['one', 'two', 'three']);
-      t.same(toPath(1), ['1']);
-      t.same(toPath(sym), [sym]);
-      t.same(toPath(['a', 'b', 'c']), ['a', 'b', 'c']);
+    t.test('.toKeyPath()', t => {
+      t.same(toKeyPath(), []);
+      t.same(toKeyPath(''), []);
+      t.same(toKeyPath('one'), ['one']);
+      t.same(toKeyPath('one.two'), ['one', 'two']);
+      t.same(toKeyPath('one.two.three'), ['one', 'two', 'three']);
+      t.same(toKeyPath(1), ['1']);
+      t.same(toKeyPath(sym), [sym]);
+      t.same(toKeyPath(['a', 'b', 'c']), ['a', 'b', 'c']);
 
-      t.throws(() => toPath(true), CODE_INVALID_ARG_TYPE);
+      t.throws(() => toKeyPath(true), CODE_INVALID_ARG_TYPE);
       t.end();
     });
 
-    t.test('.withPath()', t => {
-      t.throws(() => withPath(0, '', () => {}),
+    t.test('.withKeyPath()', t => {
+      t.throws(() => withKeyPath(0, '', () => {}),
         CODE_INVALID_ARG_TYPE);
-      t.throws(() => withPath({ a: { b: 665 }}, 'a.b.c'),
+      t.throws(() => withKeyPath({ a: { b: 665 }}, 'a.b.c'),
         CODE_INVALID_ARG_TYPE);
 
       const root = {};
-      withPath(root, 'a.b.c', (object, key) => { object[key] = 42; });
+      withKeyPath(root, 'a.b.c', (object, key) => { object[key] = 42; });
       t.same(root, { a: { b: { c: 42 }}});
 
       t.end();
     });
 
-    t.test('withExistingPath', t => {
+    t.test('withExistingKeyPath', t => {
       const root = { a: { b: { c: 665 }}};
-      t.is(withExistingPath(root, 'a.b.c')[2], 665);
-      t.is(withExistingPath({ a: { b: { c: 665 }}}, 'a.c'), undefined);
-      t.is(withExistingPath({ a: { b: { c: 665 }}}, 'a.c.d'), undefined);
+      t.is(withExistingKeyPath(root, 'a.b.c')[2], 665);
+      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c'), undefined);
+      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c.d'), undefined);
 
       t.end();
     });

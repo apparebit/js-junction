@@ -10,10 +10,10 @@ export {
 } from './errors';
 
 export {
-  toPath,
-  withExistingPath,
-  withPath,
-} from './properties';
+  toKeyPath,
+  withExistingKeyPath,
+  withKeyPath,
+} from './key-path';
 
 export {
   toRealm,

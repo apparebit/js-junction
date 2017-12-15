@@ -7,7 +7,7 @@ const { create } = Object;
 const { hasOwnProperty } = Object.prototype;
 const { isArray } = Array;
 
-export function toPath(path) {
+export function toKeyPath(path) {
   const type = typeof path;
 
   if( path == null ) {
@@ -25,10 +25,10 @@ export function toPath(path) {
   }
 }
 
-function doWithPath(existingOnly, root, path, task) {
+function doWithKeyPath(existingOnly, root, path, task) {
   if( !isObject(root) ) throw InvalidArgType('root', root, 'an object');
 
-  const keys = toPath(path);
+  const keys = toKeyPath(path);
   const { length } = keys;
 
   let enclosing = root;
@@ -57,7 +57,7 @@ function doWithPath(existingOnly, root, path, task) {
   return task ? task.apply(enclosing, state) : state;
 }
 
-export const withPath =
-  (root, path, task) => doWithPath(false, root, path, task);
-export const withExistingPath =
-  (root, path, task) => doWithPath(true, root, path, task);
+export const withKeyPath =
+  (root, path, task) => doWithKeyPath(false, root, path, task);
+export const withExistingKeyPath =
+  (root, path, task) => doWithKeyPath(true, root, path, task);
