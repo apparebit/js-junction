@@ -143,8 +143,8 @@ harness.test( '@grr/oddjob', t => {
     t.test('.withExistingKeyPath()', t => {
       const root = { a: { b: { c: 665 }}};
       t.is(withExistingKeyPath(root, 'a.b.c')[2], 665);
-      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c'), undefined);
-      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c.d'), undefined);
+      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c'), void 0);
+      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c.d'), void 0);
 
       t.end();
     });
