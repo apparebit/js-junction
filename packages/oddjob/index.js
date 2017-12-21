@@ -16,8 +16,19 @@ export {
 } from './key-path';
 
 export {
-  toRealm,
+  default as isObject,
+} from './internal/is-object';
+
+export {
+  isPropertyKey,
+  getOwnPropertyKeys,
+  toKeyValue,
+  withKeyValue,
+} from './internal/key-value';
+
+export {
   default as realm,
+  toRealm,
 } from './realm';
 
 export {
@@ -29,7 +40,3 @@ export {
   hyphenate,
   toSymbolKey,
 } from './strings';
-
-export {
-  isObject,
-} from './types';
