@@ -41,13 +41,20 @@ export function toArgumentId(id) {
   return typeof id === 'number' ? `#${id + 1}` : `"${String(id)}"`;
 }
 
-export function InvalidArgValueMsg(key, value, required = null) {
-  required = required ? `, but should be ${required}` : '';
-  return `argument ${toArgumentId(key)} is invalid "${value}"${required}`;
+export function InvalidArgTypeMsg(key, value, spec, nspec = null) {
+  const prefix = `argument ${toArgumentId(key)} is "${value}", but should`;
+  return nspec ? `${prefix} not be ${nspec}` : `${prefix} be ${spec}`;
 }
 
-export function InvalidArgTypeMsg(key, value, type) {
-  return `argument ${toArgumentId(key)} is "${value}", but should be ${type}`;
+export function InvalidArgValueMsg(key, value, spec = null, nspec = null) {
+  const base = `argument ${toArgumentId(key)} is "${value}"`;
+  if( nspec ) {
+    return `${base}, but should not be ${nspec}`;
+  } else if( spec ) {
+    return `${base}, but should be ${spec}`;
+  } else {
+    return base;
+  }
 }
 
 export const InvalidArgType =
