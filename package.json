@@ -16,8 +16,8 @@
   "devDependencies": {
     "chalk": "2.3.0",
     "cross-env": "5.1.1",
-    "eslint": "4.13.0",
-    "nyc": "11.3.0",
+    "eslint": "4.13.1",
+    "nyc": "11.4.1",
     "rimraf": "2.6.2",
     "tap": "11.0.0"
   },
