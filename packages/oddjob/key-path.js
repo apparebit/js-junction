@@ -1,7 +1,7 @@
 /* (C) Copyright 2017 Robert Grimm */
 
 import { InvalidArgType } from './internal/errors';
-import { isObject } from './types';
+import { default as isObject } from './internal/is-object';
 
 const { create } = Object;
 const { hasOwnProperty } = Object.prototype;
@@ -12,14 +12,12 @@ export function toKeyPath(path) {
 
   if( path == null ) {
     return [];
-  } else if( type === 'string' ) {
-    return path ? path.split('.') : [];
-  } else if( type === 'number' ) {
-    return [String(path)];
-  } else if( type === 'symbol' ) {
-    return [path];
   } else if( isArray(path) ) {
     return path;
+  } else if( type === 'string' ) {
+    return path.split('.');
+  } else if( type === 'number' || type === 'symbol' ) {
+    return [path];
   } else {
     throw InvalidArgType('path', path, 'a string, symbol, or array');
   }
