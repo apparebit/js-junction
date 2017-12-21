@@ -61,6 +61,6 @@ export function toComponent(value, name = null) {
   } else if( typeof value === 'function' ) {
     return new RenderFunction(value, name || value.name);
   } else {
-    throw InvalidArgType('value', value, 'a render function or component');
+    throw InvalidArgType({ value }, 'a render function or component');
   }
 }

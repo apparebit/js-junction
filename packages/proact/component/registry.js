@@ -17,7 +17,7 @@ export function define(renderer) {
   // To support both ReactLike and html-like component naming, only normalize
   // name to lower case when checking for HTML tags.
   if( !name || typeElement(name.toLowerCase()) ) {
-    throw InvalidArgValue('name', name);
+    throw InvalidArgValue({ name });
   } else if( registry.has(name) ) {
     throw DuplicateBinding(name, registry.get(name), component);
   }
