@@ -1,7 +1,7 @@
 /* (C) Copyright 2017 Robert Grimm */
 
 import { DuplicateBinding } from '@grr/oddjob';
-import Tag from '../util/tag';
+import Tag from './tag';
 
 const {
   ContainsPhrasing,
