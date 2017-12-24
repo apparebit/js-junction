@@ -5,7 +5,7 @@ import { withKeyPath } from '@grr/oddjob';
 const { create } = Object;
 const toSymbol = Symbol.for;
 
-const tag = create(null);
+const Tag = create(null);
 
 [
   'HTML.Attribute.CommaSeparated',
@@ -21,16 +21,10 @@ const tag = create(null);
   'HTML.Content.Transparent',
   'HTML.Content.Unspecified',
   'HTML.Content.Void',
-
-  'Proact.Component.Functional',  // Blueprints
-  'Proact.Component.Class',
-
-  'Proact.Element.Builtin',       // Instances
-  'Proact.Element.Custom',
 ].forEach(path => {
-  withKeyPath(tag, path, (enclosing, key) => {
-    enclosing[key] = toSymbol(path);
+  withKeyPath(Tag, path, (object, key) => {
+    object[key] = toSymbol(path);
   });
 });
 
-export default tag;
+export default Tag;
