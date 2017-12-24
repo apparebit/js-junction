@@ -3,24 +3,23 @@
 import {
   InvalidArgType,
   MethodNotImplemented,
-  toSymbolKey,
 } from '@grr/oddjob';
 
-import tag from '../util/tag';
+import isComponent from './is-component';
 
 const { toStringTag } = Symbol;
 
-// -----------------------------------------------------------------------------
+const NAME = Symbol('name');
 
-const NAME = Symbol('NAME');
+// -----------------------------------------------------------------------------
 
 export class ComponentBase {
   constructor(name) {
-    this[NAME] = name;
+    this[NAME] = String(name);
   }
 
   get [toStringTag]() {
-    throw MethodNotImplemented('toStringTag');
+    throw MethodNotImplemented('@@toStringTag');
   }
 
   get name() {
@@ -34,23 +33,19 @@ export class ComponentBase {
 
 // -----------------------------------------------------------------------------
 
-const RENDER_FUNCTION_TAG = toSymbolKey(tag.Proact.Component.Functional);
-
 export class RenderFunction extends ComponentBase {
   constructor(renderer, name = renderer.name) {
     super(name);
+
+    if( typeof renderer !== 'function' ) {
+      throw InvalidArgType({ renderer}, 'a function');
+    }
     this.render = renderer;
   }
 
   get [toStringTag]() {
-    return RENDER_FUNCTION_TAG;
+    return 'Proact.Component.Functional';
   }
-}
-
-// -----------------------------------------------------------------------------
-
-export function isComponent(value) {
-  return value != null && typeof value.render === 'function';
 }
 
 // -----------------------------------------------------------------------------
