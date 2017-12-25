@@ -10,8 +10,10 @@ import {
   InvalidArrayLength,
   isObject,
   isPropertyKey,
+  maybe,
   MethodNotImplemented,
   MissingArgs,
+  PRODUCTION,
   realm,
   show,
   toKeyPath,
@@ -154,6 +156,32 @@ harness.test( '@grr/oddjob', t => {
 
   // ---------------------------------------------------------------------------
 
+  t.test('functions', t => {
+    t.test('.maybe()', t => {
+      const fn = (...args) => String(args);
+
+      t.is(maybe(fn, null, 2, 3), null);
+      t.is(maybe(fn, 1, null, 3), null);
+      t.is(maybe(fn, 1, 2, null), null);
+      t.is(maybe(fn, 1, 2, 3), '1,2,3');
+
+      const mfn = maybe(fn);
+
+      t.is(mfn(null, 2, 3), null);
+      t.is(mfn(1, null, 3), null);
+      t.is(mfn(1, 2, null), null);
+      t.is(mfn(1, 2, 3), '1,2,3');
+
+      t.is(mfn.name, 'fn');
+      t.is(mfn.length, 0);
+      t.end();
+    });
+
+    t.end();
+  });
+
+  // ---------------------------------------------------------------------------
+
   t.test('strings', t => {
     t.test('.dehyphenate()', t => {
       t.is(dehyphenate(''), '');
@@ -259,13 +287,14 @@ harness.test( '@grr/oddjob', t => {
   // ---------------------------------------------------------------------------
 
   t.test('realm', t => {
-    t.is(realm, 'development');
-
     t.is(toRealm(), 'development');
     t.is(toRealm('dev'), 'development');
     t.is(toRealm('prod'), 'production');
     t.is(toRealm('PROD'), 'production');
     t.is(toRealm('QA'), 'qa');
+
+    t.is(realm, 'development');
+    t.is(PRODUCTION, false);
     t.end();
   });
 

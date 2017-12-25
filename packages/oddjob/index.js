@@ -27,7 +27,12 @@ export {
 } from './internal/key-value';
 
 export {
-  default as realm,
+  maybe,
+} from './functions';
+
+export {
+  default as PRODUCTION,
+  realm,
   toRealm,
 } from './realm';
 
