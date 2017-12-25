@@ -58,7 +58,7 @@ export function withKeyValue(original, ...indices) {
   if( !indices.length ) indices = [0];
 
   return new Proxy(original, { apply(target, that, args) {
-    for(const index of indices) {
+    for( const index of indices ) {
       const arg = args[index];
 
       if( isObject(arg) ) {

@@ -92,7 +92,7 @@ class Show {
 
     let message = '';
 
-    for(let step = 0; step < steps; step++) {
+    for( let step = 0; step < steps; step++ ) {
       const { opcode, word } = instructions[step];
 
       switch( opcode ) {
