@@ -1,10 +1,13 @@
 # @grr/proact-dom
 
-> Proactive UI components and elements
+> Proactive UI components and elements for server-side rendering
 
-This package defines the representation of components and elements for
-serer-side rendering. Consistent with Proact's server-side bias, its DOM is not
-virtual but rather _simple_ or _server-side_. Call it the _sDOM_ if you will!
+Proact provides UI components for server-side rendering. It is, of course, yet
+another React clone. However, its raison d’être is to explore the design and API
+space when starting with the server instead of the client. In other words, this
+package helps with _proactive_ content generation, hence the name. Consistent
+with Proact's server-side bias, its DOM is not virtual but rather _simple_ or
+_server-side_. Call it the _sDOM_ if you will!
 
 --------------------------------------------------------------------------------
 

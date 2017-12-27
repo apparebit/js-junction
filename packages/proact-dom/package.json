@@ -1,6 +1,6 @@
 {
   "name": "@grr/proact-dom",
-  "description": "Proactive UI components and elements",
+  "description": "Proactive UI components and elements for server-side rendering",
   "keywords": [
     "document object model",
     "virtual DOM",
@@ -16,7 +16,8 @@
     "node": ">=8.3.0"
   },
   "dependencies": {
-    "@grr/oddjob": "0.1.0"
+    "@grr/oddjob": "0.1.0",
+    "@grr/proact-semantics": "0.1.0"
   },
   "main": "index.js",
   "@std/esm": "js",
