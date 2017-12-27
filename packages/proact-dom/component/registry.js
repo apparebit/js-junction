@@ -3,10 +3,10 @@
 import {
   DuplicateBinding,
   InvalidArgValue,
-} from '@grr/oddjob';
+} from '@grr/oddjob/errors';
 
 import { toComponent } from './index';
-import typeElement from '../model/elements';
+import typeElement from '@grr/proact-semantics/elements';
 
 const registry = new Map();
 

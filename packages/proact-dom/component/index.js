@@ -3,7 +3,7 @@
 import {
   InvalidArgType,
   MethodNotImplemented,
-} from '@grr/oddjob';
+} from '@grr/oddjob/errors';
 
 import isComponent from './is-component';
 

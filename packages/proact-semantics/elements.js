@@ -1,6 +1,6 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import { DuplicateBinding } from '@grr/oddjob';
+import { DuplicateBinding } from '@grr/oddjob/errors';
 import Tag from './tag';
 
 const {

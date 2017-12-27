@@ -1,6 +1,6 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import { withKeyPath } from '@grr/oddjob';
+import { withKeyPath } from '@grr/oddjob/key-path';
 
 const { create } = Object;
 const toSymbol = Symbol.for;

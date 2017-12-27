@@ -3,9 +3,9 @@
 import {
   InvalidArgType,
   MethodNotImplemented,
-} from '@grr/oddjob';
+} from '@grr/oddjob/errors';
 
-import isComponent from '../component/is-component';
+import isComponent from './component/is-component';
 
 const { isArray } = Array;
 const { toStringTag } = Symbol;
