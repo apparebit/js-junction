@@ -2,6 +2,7 @@
 
 import {
   dehyphenate,
+  deobjectify,
   DuplicateBinding,
   getOwnPropertyKeys,
   hyphenate,
@@ -11,6 +12,7 @@ import {
   isObject,
   isPropertyKey,
   maybe,
+  memoize,
   MethodNotImplemented,
   MissingArgs,
   PRODUCTION,
@@ -158,6 +160,8 @@ harness.test( '@grr/oddjob', t => {
 
   t.test('functions', t => {
     t.test('.maybe()', t => {
+      t.throws(() => maybe(null), CODE_INVALID_ARG_TYPE);
+
       const fn = (...args) => String(args);
 
       t.is(maybe(fn, null, 2, 3), null);
@@ -165,15 +169,49 @@ harness.test( '@grr/oddjob', t => {
       t.is(maybe(fn, 1, 2, null), null);
       t.is(maybe(fn, 1, 2, 3), '1,2,3');
 
-      const mfn = maybe(fn);
+      const maybeFn = maybe(fn);
 
-      t.is(mfn(null, 2, 3), null);
-      t.is(mfn(1, null, 3), null);
-      t.is(mfn(1, 2, null), null);
-      t.is(mfn(1, 2, 3), '1,2,3');
+      t.is(maybeFn(null, 2, 3), null);
+      t.is(maybeFn(1, null, 3), null);
+      t.is(maybeFn(1, 2, null), null);
+      t.is(maybeFn(1, 2, 3), '1,2,3');
 
-      t.is(mfn.name, 'fn');
-      t.is(mfn.length, 0);
+      t.is(maybeFn.name, 'fn');
+      t.is(maybeFn.length, 0);
+      t.end();
+    });
+
+    t.test('.deobjectify()', t => {
+      const fn = () => {};
+
+      t.is(deobjectify([void 0]), void 0);
+      t.is(deobjectify([null]), null);
+      t.is(deobjectify([false]), false);
+      t.is(deobjectify([0]), 0);
+      t.is(deobjectify(['']), '');
+      t.is(deobjectify(['yo']), 'yo');
+      t.is(deobjectify([fn]), fn);
+      t.is(deobjectify([]), '[]');
+      t.is(deobjectify([{}]), '[{}]');
+      t.is(deobjectify([{}, {}]), '[{},{}]');
+      t.end();
+    });
+
+    t.test('.memoize()', t => {
+      t.throws(() => memoize(null), CODE_INVALID_ARG_TYPE);
+
+      let counter = 0;
+      const fn = () => ++counter;
+      const memoFn = memoize(fn);
+
+      t.is(memoFn(void 0), 1);
+      t.is(memoFn(void 0), 1);
+      t.is(memoFn(null), 2);
+      t.is(memoFn(null), 2);
+      t.is(memoFn('yo'), 3);
+      t.is(memoFn('yo'), 3);
+      t.is(memoFn(1, 2, 3), 4);
+      t.is(memoFn(1, 2, 3), 4);
       t.end();
     });
 

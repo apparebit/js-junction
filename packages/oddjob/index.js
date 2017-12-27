@@ -27,7 +27,9 @@ export {
 } from './internal/key-value';
 
 export {
+  deobjectify,
   maybe,
+  memoize,
 } from './functions';
 
 export {
