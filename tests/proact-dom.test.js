@@ -1,28 +1,23 @@
 /* (c) Copyright 2017 Robert Grimm */
 
-import Tag from '@grr/proact/model/tag';
-import typeAttribute from '@grr/proact/model/attributes';
-import typeElement from '@grr/proact/model/elements';
-
 import {
   ComponentBase,
   RenderFunction,
   toComponent,
-} from '@grr/proact/component';
+} from '@grr/proact-dom/component';
 
-import isComponent from '@grr/proact/component/is-component';
-import { define, lookup } from '@grr/proact/component/registry';
+import isComponent from '@grr/proact-dom/component/is-component';
+import { define, lookup } from '@grr/proact-dom/component/registry';
 
 import {
   ElementBase,
   StandardElement,
   CustomElement,
-} from '@grr/proact/element';
+} from '@grr/proact-dom';
 
 import harness from './harness';
 
 const { toStringTag } = Symbol;
-const { HTML } = Tag;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
@@ -34,33 +29,7 @@ const TAG_CUSTOM_ELEMENT = 'Proact.Element.Custom';
 
 // -----------------------------------------------------------------------------
 
-harness.test('@grr/proact', t => {
-  t.test('model', t => {
-    t.test('.typeAttribute()', t => {
-      t.is(typeAttribute('aria-disabled'), HTML.Attribute.TrueFalse);
-      t.is(typeAttribute('aria-hidden'), HTML.Attribute.TrueFalseUndefined);
-      t.is(typeAttribute('aria-pressed'), HTML.Attribute.TrueFalseMixed);
-      t.is(typeAttribute('autocomplete'), HTML.Attribute.OnOff);
-      t.is(typeAttribute('disabled'), HTML.Attribute.TrueUndefined);
-      t.is(typeAttribute('non-existent'), void 0);
-      t.is(typeAttribute('sizes'), HTML.Attribute.CommaSeparated);
-      t.is(typeAttribute('translate'), HTML.Attribute.YesNo);
-      t.end();
-    });
-
-    t.test('.typeElement()', t => {
-      t.is(typeElement('a'), HTML.Content.Transparent);
-      t.is(typeElement('br'), HTML.Content.Void);
-      t.is(typeElement('div'), HTML.Content.Unspecified);
-      t.is(typeElement('span'), HTML.Content.ContainsPhrasing);
-      t.end();
-    });
-
-    t.end();
-  });
-
-  // ---------------------------------------------------------------------------
-
+harness.test('@grr/proact-dom', t => {
   t.test('component', t => {
     const fn = function fn() {};
     const c1 = new ComponentBase('abstract');
