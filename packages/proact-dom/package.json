@@ -18,7 +18,7 @@
   "dependencies": {
     "@grr/oddjob": "0.1.0"
   },
-  "main": "element.js",
+  "main": "index.js",
   "@std/esm": "js",
   "repository": "https://github.com/grimmr/js-junction/tree/master/packages/proact-dom"
 }
