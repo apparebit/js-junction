@@ -7,10 +7,13 @@ npm. Conveniently, the latter also serves as namespace for his open source
 packages:
 
  *  [@grr/oddjob](https://github.com/grimmr/js-junction/tree/master/packages/oddjob):
-    letting you focus on the flying circus.
+    Letting you focus on the flying circus.
 
- *  [@grr/proact](https://github.com/grimmr/js-junction/tree/master/packages/proact):
-    making server-side rendering great again.
+ *  [@grr/proact-semantics](https://github.com/grimmr/js-junction/tree/master/packages/proact-semantics):
+    Web semantics for a more semantic web.
+
+ *  [@grr/proact-dom](https://github.com/grimmr/js-junction/tree/master/packages/proact-dom):
+    Proactive UI components and elements for server-side rendering
 
 All packages have 100% test coverage across statements, branches, functions,
 and lines alike. Anything less would be uncivilized — and a tad reckless for a
