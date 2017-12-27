@@ -3,6 +3,7 @@
 // Loosely inspired by
 // https://github.com/nodejs/node/blob/master/lib/internal/errors.js
 
+const CAUSE = Symbol('cause');
 const CODE = Symbol('code');
 const { defineProperty } = Object;
 
@@ -23,6 +24,15 @@ export function makeCodedError(Base) {
 
     get code() {
       return this[CODE];
+    }
+
+    causedBy(cause) {
+      this[CAUSE] = cause;
+      return this;
+    }
+
+    get cause() {
+      return this[CAUSE];
     }
   };
 }

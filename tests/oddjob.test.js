@@ -288,36 +288,59 @@ harness.test( '@grr/oddjob', t => {
   // ---------------------------------------------------------------------------
 
   t.test('errors', t => {
-    [
-      [DuplicateBinding('k', 'v', 'w'),     'ERR_DUPLICATE_BINDING'],
-      [InvalidArgType('k', 'v', 't'),       'ERR_INVALID_ARG_TYPE'],
-      [InvalidArgValue('k', 'v'),           'ERR_INVALID_ARG_VALUE'],
-      [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
-      [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
-      [MethodNotImplemented('m'),           'ERR_METHOD_NOT_IMPLEMENTED'],
-      [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
-    ].forEach(([err, code]) => {
-      t.is(err.code, code);
+    t.test('.cause', t => {
+      const err = InvalidArgValue('k', 'v');
+      t.is(err.cause, void 0);
+
+      const cause = Error('boo');
+      err.causedBy(cause);
+      t.is(err.cause, cause);
+
+      t.end();
     });
 
-    [
-      [InvalidArgType('k', 'v', 't'), 'TypeError [ERR_INVALID_ARG_TYPE]'],
-      [InvalidArgValue('k', 'v'),     'Error [ERR_INVALID_ARG_VALUE]'],
-    ].forEach(([err, name]) => {
-      t.is(err.name, name);
+    t.test('.code', t => {
+      [
+        [DuplicateBinding('k', 'v', 'w'),     'ERR_DUPLICATE_BINDING'],
+        [InvalidArgType('k', 'v', 't'),       'ERR_INVALID_ARG_TYPE'],
+        [InvalidArgValue('k', 'v'),           'ERR_INVALID_ARG_VALUE'],
+        [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
+        [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
+        [MethodNotImplemented('m'),           'ERR_METHOD_NOT_IMPLEMENTED'],
+        [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
+      ].forEach(([err, code]) => {
+        t.is(err.code, code);
+      });
+
+      t.end();
     });
 
-    const arg = null;
-    t.is(InvalidArgType({ arg }, 'a number').message,
-      'argument "arg" is "null", but should be a number');
-    t.is(InvalidArgType({ arg }, 'not', 'a number').message,
-      'argument "arg" is "null", but should not be a number');
-    t.is(InvalidArgValue({ arg }).message,
-      'argument "arg" is "null"');
-    t.is(InvalidArgValue({ arg }, 'an even number').message,
-      'argument "arg" is "null", but should be an even number');
-    t.is(InvalidArgValue({ arg }, 'not', 'falsy').message,
-      'argument "arg" is "null", but should not be falsy');
+    t.test('.message', t => {
+      const arg = null;
+      t.is(InvalidArgType({ arg }, 'a number').message,
+        'argument "arg" is "null", but should be a number');
+      t.is(InvalidArgType({ arg }, 'not', 'a number').message,
+        'argument "arg" is "null", but should not be a number');
+      t.is(InvalidArgValue({ arg }).message,
+        'argument "arg" is "null"');
+      t.is(InvalidArgValue({ arg }, 'an even number').message,
+        'argument "arg" is "null", but should be an even number');
+      t.is(InvalidArgValue({ arg }, 'not', 'falsy').message,
+        'argument "arg" is "null", but should not be falsy');
+
+      t.end();
+    });
+
+    t.test('.name', t => {
+      [
+        [InvalidArgType('k', 'v', 't'), 'TypeError [ERR_INVALID_ARG_TYPE]'],
+        [InvalidArgValue('k', 'v'),     'Error [ERR_INVALID_ARG_VALUE]'],
+      ].forEach(([err, name]) => {
+        t.is(err.name, name);
+      });
+
+      t.end();
+    });
 
     t.end();
   });
