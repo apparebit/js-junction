@@ -2,13 +2,30 @@
 
 import Tag from '@grr/proact-semantics/tag';
 import typeAttribute from '@grr/proact-semantics/attributes';
-import typeElement from '@grr/proact-semantics/elements';
+
+import {
+  default as typeElement,
+  isHTML,
+} from '@grr/proact-semantics/elements';
 
 import harness from './harness';
 
 const { HTML } = Tag;
 
 harness.test('@grr/proact-semantics', t => {
+  t.test('.isHTML()', t => {
+    t.notOk(isHTML(void 0));
+    t.notOk(isHTML(null));
+    t.notOk(isHTML(665));
+    t.notOk(isHTML('non-existent'));
+
+    t.ok(isHTML('a'));
+    t.ok(isHTML('A'));
+    t.ok(isHTML('meta'));
+    t.ok(isHTML('mEtA'));
+    t.end();
+  });
+
   t.test('.typeAttribute()', t => {
     t.is(typeAttribute('aria-disabled'), HTML.Attribute.TrueFalse);
     t.is(typeAttribute('aria-hidden'), HTML.Attribute.TrueFalseUndefined);

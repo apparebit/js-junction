@@ -10,15 +10,15 @@ const {
   Void,
 } = Tag.HTML.Content;
 
-const ELEMENTS = new Map();
+const HTML = new Map();
 
 function setType(type) {
-  return function binder(name) {
+  return function binder(tag) {
     /* istanbul ignore next */
-    if( ELEMENTS.has(name) ) {
-      throw DuplicateBinding(name, ELEMENTS.get(name), type);
+    if( HTML.has(tag) ) {
+      throw DuplicateBinding(tag, HTML.get(tag), type);
     }
-    ELEMENTS.set(name, type);
+    HTML.set(tag, type);
   };
 }
 
@@ -149,5 +149,10 @@ function setType(type) {
 ].forEach(setType(Unspecified));
 
 export default function typeElement(name) {
-  return ELEMENTS.get(name);
+  return HTML.get(name);
+}
+
+export function isHTML(tag) {
+  if( typeof tag !== 'string' ) return false;
+  return HTML.has(tag.toLowerCase());
 }
