@@ -13,13 +13,15 @@ const NAME = Symbol('name');
 
 // -----------------------------------------------------------------------------
 
+export const COMPONENT_TAG = 'Proact.Component';
+
 export class ComponentBase {
   constructor(name) {
     this[NAME] = String(name);
   }
 
   get [toStringTag]() {
-    throw MethodNotImplemented('@@toStringTag');
+    return COMPONENT_TAG;
   }
 
   get name() {
@@ -42,17 +44,13 @@ export class ComponentBase {
 // -----------------------------------------------------------------------------
 
 export class RenderFunction extends ComponentBase {
-  constructor(renderer, name = renderer.name) {
+  constructor(renderFn, name = renderFn.name) {
     super(name);
 
-    if( typeof renderer !== 'function' ) {
-      throw InvalidArgType({ renderer}, 'a function');
+    if( typeof renderFn !== 'function' ) {
+      throw InvalidArgType({ renderFn }, 'a function');
     }
-    this.render = renderer;
-  }
-
-  get [toStringTag]() {
-    return 'Proact.Component.Functional';
+    this.render = renderFn;
   }
 }
 

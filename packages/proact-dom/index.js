@@ -1,10 +1,6 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import {
-  InvalidArgType,
-  MethodNotImplemented,
-} from '@grr/oddjob/errors';
-
+import { InvalidArgType } from '@grr/oddjob/errors';
 import isComponent from './component/is-component';
 
 const { isArray } = Array;
@@ -16,6 +12,8 @@ const COMPONENT = Symbol('component');
 const NAME = Symbol('name');
 
 // -----------------------------------------------------------------------------
+
+export const ELEMENT_TAG = 'Proact.Element';
 
 export class ElementBase {
   constructor(name, attributes = {}, ...children) {
@@ -29,7 +27,7 @@ export class ElementBase {
   }
 
   get [toStringTag]() {
-    throw MethodNotImplemented('@@toStringTag');
+    return ELEMENT_TAG;
   }
 
   get name() {
@@ -59,10 +57,6 @@ export class StandardElement extends ElementBase {
   constructor(name, attributes = {}, ...children) {
     super(name, attributes, ...children);
   }
-
-  get [toStringTag]() {
-    return 'Proact.Element.Standard';
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -75,9 +69,5 @@ export class CustomElement extends ElementBase {
       throw InvalidArgType({ component }, 'a Proact component');
     }
     this[COMPONENT] = component;
-  }
-
-  get [toStringTag]() {
-    return 'Proact.Element.Custom';
   }
 }
