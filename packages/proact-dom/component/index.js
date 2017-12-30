@@ -26,8 +26,16 @@ export class ComponentBase {
     return this[NAME];
   }
 
+  get context() {
+    throw MethodNotImplemented('context');
+  }
+
+  style() {
+    throw MethodNotImplemented('style()');
+  }
+
   render() {
-    throw MethodNotImplemented('render');
+    throw MethodNotImplemented('render()');
   }
 }
 

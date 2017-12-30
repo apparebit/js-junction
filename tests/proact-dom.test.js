@@ -38,7 +38,9 @@ harness.test('@grr/proact-dom', t => {
 
     t.test('ComponentBase', t => {
       t.is(c1.name, 'abstract');
+      t.throws(() => c1.context, CODE_METHOD_NOT_IMPLEMENTED);
       t.throws(() => c1.render(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.throws(() => c1.style(), CODE_METHOD_NOT_IMPLEMENTED);
       t.throws(() => c1[toStringTag], CODE_METHOD_NOT_IMPLEMENTED);
       t.end();
     });
