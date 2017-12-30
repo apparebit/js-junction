@@ -3,24 +3,13 @@
 import { InvalidArgValue } from './errors';
 import { default as isObject } from './is-object';
 
-const {
-  getOwnPropertyNames,
-  getOwnPropertySymbols,
-} = Object;
-
 const { isArray } = Array;
+const keysOf = Object.keys;
 
 const KEY_TYPES = new Set(['number', 'string', 'symbol']);
 
 export function isPropertyKey(value) {
   return KEY_TYPES.has(typeof value);
-}
-
-export function getOwnPropertyKeys(object) {
-  return [
-    ...getOwnPropertyNames(object),
-    ...getOwnPropertySymbols(object)
-  ];
 }
 
 /**
@@ -33,7 +22,7 @@ export function toKeyValue(object) {
       return object;
     }
   } else {
-    const keys = getOwnPropertyKeys(object);
+    const keys = keysOf(object);
 
     if( keys.length === 1 ) {
       const [key] = keys;

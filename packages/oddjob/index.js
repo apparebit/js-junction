@@ -21,7 +21,6 @@ export {
 
 export {
   isPropertyKey,
-  getOwnPropertyKeys,
   toKeyValue,
   withKeyValue,
 } from './internal/key-value';

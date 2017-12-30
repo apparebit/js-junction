@@ -4,7 +4,6 @@ import {
   dehyphenate,
   deobjectify,
   DuplicateBinding,
-  getOwnPropertyKeys,
   hyphenate,
   InvalidArgType,
   InvalidArgValue,
@@ -55,18 +54,6 @@ harness.test( '@grr/oddjob', t => {
       t.ok(isPropertyKey(''));
       t.ok(isPropertyKey('key'));
       t.ok(isPropertyKey(Symbol('ooh special')));
-      t.end();
-    });
-
-    t.test('.getOwnPropertyKeys()', t => {
-      const sym = Symbol('ooh special');
-      const oh = {
-        a: 1,
-        [sym]: 42,
-        __proto__: { b: 2 },
-      };
-
-      t.same(getOwnPropertyKeys(oh), ['a', sym]);
       t.end();
     });
 
