@@ -1,6 +1,6 @@
 {
   "name": "@grr/proact-dom",
-  "description": "Proactive UI components and elements for server-side rendering",
+  "description": "Proactive UI components and elements for server-side rendering.",
   "keywords": [
     "document object model",
     "virtual DOM",

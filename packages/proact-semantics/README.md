@@ -1,6 +1,6 @@
 # @grr/proact-semantics
 
-> Web semantics for a more semantic web!
+> Web semantics for a more semantic web.
 
 This package defines (some of) the semantics of HTML elements and attributes.
 

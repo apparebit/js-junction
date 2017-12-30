@@ -1,6 +1,6 @@
 # @grr/proact-dom
 
-> Proactive UI components and elements for server-side rendering
+> Proactive UI components and elements for server-side rendering.
 
 Proact provides UI components for server-side rendering. It is, of course, yet
 another React clone. However, its raison d’être is to explore the design and API
