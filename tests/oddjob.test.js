@@ -151,16 +151,26 @@ harness.test( '@grr/oddjob', t => {
 
       const fn = (...args) => String(args);
 
+      t.is(maybe(fn, void 0, 2, 3), null);
+      t.is(maybe(fn, 1, void 0, 3), null);
+      t.is(maybe(fn, 1, 2, void 0), null);
+
       t.is(maybe(fn, null, 2, 3), null);
       t.is(maybe(fn, 1, null, 3), null);
       t.is(maybe(fn, 1, 2, null), null);
+
       t.is(maybe(fn, 1, 2, 3), '1,2,3');
 
       const maybeFn = maybe(fn);
 
+      t.is(maybeFn(void 0, 2, 3), null);
+      t.is(maybeFn(1, void 0, 3), null);
+      t.is(maybeFn(1, 2, void 0), null);
+
       t.is(maybeFn(null, 2, 3), null);
       t.is(maybeFn(1, null, 3), null);
       t.is(maybeFn(1, 2, null), null);
+
       t.is(maybeFn(1, 2, 3), '1,2,3');
 
       t.is(maybeFn.name, 'fn');
