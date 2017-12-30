@@ -6,7 +6,7 @@ import {
 } from '@grr/oddjob/errors';
 
 import { toComponent } from './index';
-import { isHTML } from '@grr/proact-semantics/elements';
+import { isHtmlTag } from '@grr/proact-semantics/elements';
 
 const registry = new Map();
 
@@ -16,7 +16,7 @@ export function define(renderer) {
 
   // To support both ReactLike and html-like component naming, leave name as is.
   // However, isHTML() internally normalizes to lower case for correctness.
-  if( !name || isHTML(name) ) {
+  if( !name || isHtmlTag(name) ) {
     throw InvalidArgValue({ name });
   } else if( registry.has(name) ) {
     throw DuplicateBinding(name, registry.get(name), component);

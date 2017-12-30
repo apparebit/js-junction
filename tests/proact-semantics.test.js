@@ -1,28 +1,37 @@
 /* (c) Copyright 2017 Robert Grimm */
 
 import Tag from '@grr/proact-semantics/tag';
-import typeAttribute from '@grr/proact-semantics/attributes';
 
 import {
-  default as typeElement,
-  isHTML,
-} from '@grr/proact-semantics/elements';
+  isHtmlTag,
+  isVoidTag,
+  typeAttribute,
+} from '@grr/proact-semantics';
 
 import harness from './harness';
 
 const { HTML } = Tag;
 
 harness.test('@grr/proact-semantics', t => {
-  t.test('.isHTML()', t => {
-    t.notOk(isHTML(void 0));
-    t.notOk(isHTML(null));
-    t.notOk(isHTML(665));
-    t.notOk(isHTML('non-existent'));
+  t.test('.isHtmlTag()', t => {
+    t.notOk(isHtmlTag(void 0));
+    t.notOk(isHtmlTag(null));
+    t.notOk(isHtmlTag(665));
+    t.notOk(isHtmlTag('non-existent'));
 
-    t.ok(isHTML('a'));
-    t.ok(isHTML('A'));
-    t.ok(isHTML('meta'));
-    t.ok(isHTML('mEtA'));
+    t.ok(isHtmlTag('a'));
+    t.ok(isHtmlTag('A'));
+    t.ok(isHtmlTag('meta'));
+    t.ok(isHtmlTag('mEtA'));
+    t.end();
+  });
+
+  t.test('.isVoidTag()', t => {
+    t.notOk(isVoidTag('a'));
+    t.notOk(isVoidTag('div'));
+
+    t.ok(isVoidTag('br'));
+    t.ok(isVoidTag('meta'));
     t.end();
   });
 
@@ -35,14 +44,6 @@ harness.test('@grr/proact-semantics', t => {
     t.is(typeAttribute('non-existent'), void 0);
     t.is(typeAttribute('sizes'), HTML.Attribute.CommaSeparated);
     t.is(typeAttribute('translate'), HTML.Attribute.YesNo);
-    t.end();
-  });
-
-  t.test('.typeElement()', t => {
-    t.is(typeElement('a'), HTML.Content.Transparent);
-    t.is(typeElement('br'), HTML.Content.Void);
-    t.is(typeElement('div'), HTML.Content.Unspecified);
-    t.is(typeElement('span'), HTML.Content.ContainsPhrasing);
     t.end();
   });
 
