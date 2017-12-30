@@ -8,13 +8,15 @@ const toSymbol = Symbol.for;
 const Tag = create(null);
 
 [
+  // A comma-separated list or set.
   'HTML.Attribute.CommaSeparated',
-  'HTML.Attribute.Empty',
+
+  // The many ways of expressing boolean values, optionally including bottom.
   'HTML.Attribute.OnOff',
-  'HTML.Attribute.TrueUndefined',  // Also known as boolean attribute.
+  'HTML.Attribute.PresentAbsent',       // A "boolean attribute" in HTML5.
   'HTML.Attribute.TrueFalse',
-  'HTML.Attribute.TrueFalseMixed',
-  'HTML.Attribute.TrueFalseUndefined',
+  'HTML.Attribute.TrueFalseMixed',      // A "tristate" value in ARIA.
+  'HTML.Attribute.TrueFalseUndefined',  // ARIA.
   'HTML.Attribute.YesNo',
 
   'HTML.Content.ContainsPhrasing',

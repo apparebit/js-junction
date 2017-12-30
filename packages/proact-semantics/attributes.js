@@ -6,7 +6,7 @@ import Tag from './tag';
 const {
   CommaSeparated,
   OnOff,
-  TrueUndefined,
+  PresentAbsent,
   TrueFalse,
   TrueFalseMixed,
   TrueFalseUndefined,
@@ -58,7 +58,7 @@ setType(YesNo         )('translate'   );
   'reversed',
   'selected',
   'typemustmatch',
-].forEach(setType(TrueUndefined));
+].forEach(setType(PresentAbsent));
 
 [
   // HTML
