@@ -52,9 +52,6 @@ export function toKeyValue(object) {
 }
 
 export function withKeyValue(original, ...indices) {
-  // Use a proxy instead of a function calling a function. The proxy not only
-  // traps function calls, but also transparently exposes the wrapped function's
-  // properties, including `length` and `name`. #Winning!
   if( !indices.length ) indices = [0];
 
   return new Proxy(original, { apply(target, that, args) {

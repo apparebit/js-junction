@@ -10,6 +10,8 @@ package dependencies and minimizes internal module dependencies. Surprisingly,
 modules inside the `internal` directory are *not* part of this package's public
 API.
 
+## Notes
+
 Technically, JavaScript only supports strings and symbols as property keys. That
 includes the empty string but does not include numbers, which, like all other
 values, are transparently coerced to strings when using square-bracket notation.
@@ -17,6 +19,11 @@ Doing so seems too permissive, as it masks usually invalid keys such as
 `undefined` or `null`. To support array indices while still providing (some)
 error detection, this package makes a pragmatic compromise and treats strings,
 symbols, and numbers as valid property keys.
+
+When wrapping functions to interpose on their calls, `@grr/oddjob` does rely on
+functions to call the originals. It instead relies on proxies, which not only
+trap the calls but also transparently expose wrapped functions properties,
+including `length` and `name`.
 
 --------------------------------------------------------------------------------
 
