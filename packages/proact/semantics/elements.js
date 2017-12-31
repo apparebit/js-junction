@@ -148,10 +148,10 @@ function setType(type) {
   'ul',
 ].forEach(setType(Unspecified));
 
-export function isHtmlTag(tag) {
-  return HTML.has(String(tag).toLowerCase());
+export function isHtmlElement(name) {
+  return HTML.has(String(name).toLowerCase());
 }
 
-export function isVoidTag(tag) {
-  return HTML.get(String(tag)) === Void;
+export function isVoidElement(name) {
+  return HTML.get(String(name)) === Void;
 }
