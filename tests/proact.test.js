@@ -1,25 +1,36 @@
 /* (c) Copyright 2017 Robert Grimm */
 
+import Tag from '@grr/proact/semantics/tag';
+
+import {
+  isHtmlElement,
+  isVoidElement,
+} from '@grr/proact/semantics/elements';
+
+import typeAttribute from '@grr/proact/semantics/attributes';
+
 import {
   COMPONENT_TAG,
   ComponentBase,
   RenderFunction,
   toComponent,
-} from '@grr/proact-dom/component';
+} from '@grr/proact/component';
 
-import isComponent from '@grr/proact-dom/component/is-component';
-import { define, lookup } from '@grr/proact-dom/component/registry';
+import isComponent from '@grr/proact/component/is-component';
+import { define, lookup } from '@grr/proact/component/registry';
 
 import {
   ELEMENT_TAG,
   ElementBase,
   StandardElement,
   CustomElement,
-} from '@grr/proact-dom';
+} from '@grr/proact/element';
 
 import harness from './harness';
 
 const { toStringTag } = Symbol;
+
+const { Attribute } = Tag.HTML;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
@@ -28,7 +39,47 @@ const CODE_METHOD_NOT_IMPLEMENTED = { code: 'ERR_METHOD_NOT_IMPLEMENTED' };
 
 // -----------------------------------------------------------------------------
 
-harness.test('@grr/proact-dom', t => {
+harness.test('@grr/proact', t => {
+  t.test('semantics', t => {
+    t.test('.isHtmlElement()', t => {
+      t.notOk(isHtmlElement(void 0));
+      t.notOk(isHtmlElement(null));
+      t.notOk(isHtmlElement(665));
+      t.notOk(isHtmlElement('non-existent'));
+
+      t.ok(isHtmlElement('a'));
+      t.ok(isHtmlElement('A'));
+      t.ok(isHtmlElement('meta'));
+      t.ok(isHtmlElement('mEtA'));
+      t.end();
+    });
+
+    t.test('.isVoidElement()', t => {
+      t.notOk(isVoidElement('a'));
+      t.notOk(isVoidElement('div'));
+
+      t.ok(isVoidElement('br'));
+      t.ok(isVoidElement('meta'));
+      t.end();
+    });
+
+    t.test('.typeAttribute()', t => {
+      t.is(typeAttribute('aria-disabled'), Attribute.TrueFalse);
+      t.is(typeAttribute('aria-hidden'), Attribute.TrueFalseUndefined);
+      t.is(typeAttribute('aria-pressed'), Attribute.TrueFalseMixed);
+      t.is(typeAttribute('autocomplete'), Attribute.OnOff);
+      t.is(typeAttribute('disabled'), Attribute.PresentAbsent);
+      t.is(typeAttribute('non-existent'), void 0);
+      t.is(typeAttribute('sizes'), Attribute.CommaSeparated);
+      t.is(typeAttribute('translate'), Attribute.YesNo);
+      t.end();
+    });
+
+    t.end();
+  });
+
+  // ---------------------------------------------------------------------------
+
   t.test('component', t => {
     const fn = function fn() {};
     const c1 = new ComponentBase('abstract');
