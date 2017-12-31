@@ -9,11 +9,8 @@ packages:
  *  [@grr/oddjob](https://github.com/grimmr/js-junction/tree/master/packages/oddjob):
     Letting you focus on the flying circus.
 
- *  [@grr/proact-semantics](https://github.com/grimmr/js-junction/tree/master/packages/proact-semantics):
-    Web semantics for a more semantic web.
-
- *  [@grr/proact-dom](https://github.com/grimmr/js-junction/tree/master/packages/proact-dom):
-    Proactive UI components and elements for server-side rendering
+ *  [@grr/proact](https://github.com/grimmr/js-junction/tree/master/packages/proact):
+    Making server-side rendering great again.
 
 All packages have 100% test coverage across statements, branches, functions,
 and lines alike. Anything less would be uncivilized — and a tad reckless for a
