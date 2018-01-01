@@ -26,6 +26,8 @@ import {
   CustomElement,
 } from '@grr/proact/element';
 
+import renderAttributes from '@grr/proact/syntax/attributes';
+
 import harness from './harness';
 
 const { toStringTag } = Symbol;
@@ -188,6 +190,54 @@ harness.test('@grr/proact', t => {
       t.ok(custom.isCustom());
 
       t.throws(() => new CustomElement('br'));
+      t.end();
+    });
+
+    t.end();
+  });
+
+  // ---------------------------------------------------------------------------
+
+  t.test('syntax', t => {
+    t.test('.renderAttributes()', t => {
+      const NIL = Symbol('nil');
+
+      const render = attributes => {
+        const result = [...renderAttributes(attributes)];
+
+        switch( result.length ) {
+          case 0:
+            return NIL;
+          case 1:
+            return result[0];
+          default:
+            return t.fail(
+              `${result.length} attributes where 0 or 1 expected`);
+        }
+      };
+
+      t.is(render({ hidden: true }), 'hidden');
+      t.is(render({ hidden: false }), NIL);
+
+      t.is(render({ ariaDisabled: true }), 'aria-disabled=true');
+      t.is(render({ ariaDisabled: false }), 'aria-disabled=false');
+
+      t.is(render({ ariaChecked: 'mixed' }), 'aria-checked=mixed');
+      t.is(render({ ariaChecked: true }), 'aria-checked=true');
+      t.is(render({ ariaChecked: false }), 'aria-checked=false');
+
+      t.is(render({ ariaHidden: 'undefined'}), 'aria-hidden=undefined');
+      t.is(render({ ariaHidden: true }), 'aria-hidden=true');
+      t.is(render({ ariaHidden: false }), 'aria-hidden=false');
+
+      t.is(render({ translate: true }), 'translate=yes');
+      t.is(render({ translate: false }), 'translate=no');
+
+      t.is(render({ sizes: [1, 2] }), 'sizes=1,2');
+
+      t.is(render({ title: '"Ahoi!"' }), 'title="&quot;Ahoi!&quot;"');
+      t.is(render({ class: ['a', 'b']}), 'class="a b"');
+
       t.end();
     });
 
