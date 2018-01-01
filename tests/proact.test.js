@@ -235,7 +235,7 @@ harness.test('@grr/proact', t => {
 
       t.is(render({ sizes: [1, 2] }), 'sizes=1,2');
 
-      t.is(render({ title: '"Ahoi!"' }), 'title="&quot;Ahoi!&quot;"');
+      t.is(render({ title: '"Ahoy!"' }), 'title="&quot;Ahoy!&quot;"');
       t.is(render({ class: ['a', 'b']}), 'class="a b"');
 
       t.end();
