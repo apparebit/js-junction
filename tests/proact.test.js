@@ -26,6 +26,8 @@ import {
   CustomElement,
 } from '@grr/proact/element';
 
+import isElement from '@grr/proact/element/is-element';
+
 import renderAttributes from '@grr/proact/syntax/attributes';
 
 import harness from './harness';
@@ -156,8 +158,10 @@ harness.test('@grr/proact', t => {
       t.end();
     });
 
+    const span = new StandardElement('span', null, ['text']);
+    const br = new StandardElement('br');
+
     t.test('StandardElement', t => {
-      const span = new StandardElement('span', null, ['text']);
 
       t.is(span[toStringTag], ELEMENT_TAG);
       t.is(span.name, 'span');
@@ -165,8 +169,6 @@ harness.test('@grr/proact', t => {
       t.same(span.children, ['text']);
       t.is(span.component, void 0);
       t.notOk(span.isCustom());
-
-      const br = new StandardElement('br');
 
       t.is(br[toStringTag], ELEMENT_TAG);
       t.is(br.name, 'br');
@@ -178,10 +180,10 @@ harness.test('@grr/proact', t => {
       t.end();
     });
 
-    t.test('CustomElement', t => {
-      const rf = new RenderFunction(function custom() {});
-      const custom = new CustomElement(rf, null, 'text');
+    const rf = new RenderFunction(function custom() {});
+    const custom = new CustomElement(rf, null, 'text');
 
+    t.test('CustomElement', t => {
       t.is(custom[toStringTag], ELEMENT_TAG);
       t.is(custom.name, 'custom');
       t.same(custom.attributes, {});
@@ -190,6 +192,20 @@ harness.test('@grr/proact', t => {
       t.ok(custom.isCustom());
 
       t.throws(() => new CustomElement('br'));
+      t.end();
+    });
+
+    t.test('.isElement()', t => {
+      t.notOk(isElement(void 0));
+      t.notOk(isElement(null));
+      t.notOk(isElement({ name: 'span' }));
+      t.notOk(isElement({ name: 'span', attributes: {} }));
+      t.notOk(isElement({ name: 'span', attributes: {}, children: 13 }));
+
+      t.ok(isElement({ name: 'span', attributes: {}, children: [] }));
+      t.ok(isElement(span));
+      t.ok(isElement(br));
+      t.ok(isElement(custom));
       t.end();
     });
 
