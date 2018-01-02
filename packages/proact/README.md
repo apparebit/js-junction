@@ -21,5 +21,5 @@ a light-weight just-in-time transpiler for Node.js 4.0.0 or later.
 
 ## Copyright and License
 
-© 2017 [Robert Grimm](http://apparebit.com), released under the [MIT
+© 2017–2018 [Robert Grimm](http://apparebit.com), released under the [MIT
 license](LICENSE).
