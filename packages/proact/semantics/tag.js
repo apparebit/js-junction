@@ -1,6 +1,7 @@
 /* (C) Copyright 2017 Robert Grimm */
 
 import { withKeyPath } from '@grr/oddjob/key-path';
+import { toSymbolKey } from '@grr/oddjob/strings';
 
 const { create } = Object;
 const toSymbol = Symbol.for;
@@ -23,6 +24,10 @@ const Tag = create(null);
   'HTML.Content.Transparent',
   'HTML.Content.Unspecified',
   'HTML.Content.Void',
+
+  'Proact.Test',
+  'Proact.Element',
+  'Proact.Component.Pure',
 ].forEach(path => {
   withKeyPath(Tag, path, (object, key) => {
     object[key] = toSymbol(path);
@@ -30,3 +35,10 @@ const Tag = create(null);
 });
 
 export default Tag;
+
+const DocumentNodeTags =
+  new Set([Tag.Proact.Element, Tag.Proact.Component.Pure].map(toSymbolKey));
+
+export function isDocumentNodeTag(value) {
+  return DocumentNodeTags.has(value);
+}
