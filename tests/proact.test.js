@@ -1,39 +1,32 @@
 /* (c) Copyright 2017 Robert Grimm */
 
+// -----------------------------------------------------------------------------
+// Semantics
+
 import Tag from '@grr/proact/semantics/tag';
+import typeAttribute from '@grr/proact/semantics/attributes';
 
 import {
   isHtmlElement,
   isVoidElement,
 } from '@grr/proact/semantics/elements';
 
-import typeAttribute from '@grr/proact/semantics/attributes';
-
 import {
-  COMPONENT_TAG,
-  ComponentBase,
-  RenderFunction,
-  toComponent,
-} from '@grr/proact/component';
+  createPrototype,
+  createNode,
+  ElementTag,
+  createElementConstructor,
+  PureComponentTag,
+  createPureComponentFactory,
+} from '@grr/proact/node';
 
-import isComponent from '@grr/proact/component/is-component';
-import { define, lookup } from '@grr/proact/component/registry';
-
-import {
-  ELEMENT_TAG,
-  ElementBase,
-  StandardElement,
-  CustomElement,
-} from '@grr/proact/element';
-
-import isElement from '@grr/proact/element/is-element';
-
+import isDocumentNode from '@grr/proact/node/is-node';
+import { define, lookup } from '@grr/proact/node/registry';
 import renderAttributes from '@grr/proact/syntax/attributes';
 
 import harness from './harness';
 
 const { toStringTag } = Symbol;
-
 const { Attribute } = Tag.HTML;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
@@ -84,52 +77,118 @@ harness.test('@grr/proact', t => {
 
   // ---------------------------------------------------------------------------
 
-  t.test('component', t => {
-    const fn = function fn() {};
-    const c1 = new ComponentBase('abstract');
-    const c2 = new RenderFunction(fn);
-    const c3 = new RenderFunction(fn, 'renderer');
+  t.test('content', t => {
+    const noop = function noop() {};
+    const proto = createPrototype(noop, 'nope');
+    const node = createNode(proto, 'no',
+      { title: 'No Hope!' }, [[1], null, void 0, '', [2, [3]]]);
 
-    t.test('ComponentBase', t => {
-      t.is(c1.name, 'abstract');
-      t.throws(() => c1.context, CODE_METHOD_NOT_IMPLEMENTED);
-      t.throws(() => c1.render(), CODE_METHOD_NOT_IMPLEMENTED);
-      t.throws(() => c1.style(), CODE_METHOD_NOT_IMPLEMENTED);
-      t.is(c1[toStringTag], COMPONENT_TAG);
+    t.test('.createPrototype()', t => {
+      t.throws(() => createPrototype(665), CODE_INVALID_ARG_TYPE);
+      t.throws(() => createPrototype(noop, 665), CODE_INVALID_ARG_TYPE);
+      t.throws(() => createPrototype(noop, ''), CODE_INVALID_ARG_TYPE);
+
+      t.throws(() => proto.context(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.throws(() => proto.script(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.throws(() => proto.style(), CODE_METHOD_NOT_IMPLEMENTED);
+
+      t.is(proto.render, noop);
+      t.is(proto[toStringTag], 'nope');
       t.end();
     });
 
-    t.test('RenderFunction', t => {
-      t.is(c2[toStringTag], COMPONENT_TAG);
-      t.is(c3[toStringTag], COMPONENT_TAG);
-      t.is(c2.name, 'fn');
-      t.is(c3.name, 'renderer');
-
-      t.throws(() => new RenderFunction('boo'));
+    t.test('.createNode()', t => {
+      t.is(node.name, 'no');
+      t.same(node.attributes, { title: 'No Hope!' });
+      t.same(node.children, [1, 2, 3]);
       t.end();
     });
 
-    t.test('.isComponent()', t => {
-      t.notOk(isComponent());
-      t.notOk(isComponent(null));
-      t.notOk(isComponent(665));
-      t.notOk(isComponent('render'));
-      t.notOk(isComponent(fn));
+    t.test('.createElementConstructor()', t => {
+      const Element = createElementConstructor();
 
-      t.ok(isComponent(c1));
-      t.ok(isComponent(c2));
-      t.ok(isComponent(c3));
-      t.ok(isComponent({ render() {} }));
+      const miniel = Element('a');
+      const el = Element('a', { href: 'location' }, ['somewhere']);
+
+      t.is(miniel[toStringTag], ElementTag);
+      t.is(miniel.name, 'a');
+      t.same(miniel.attributes, {});
+      t.same(miniel.children, []);
+      t.is(miniel.render(), miniel);
+
+      t.is(el[toStringTag], ElementTag);
+      t.is(el.name, 'a');
+      t.same(el.attributes, { href: 'location' });
+      t.same(el.children, ['somewhere']);
+      t.is(el.render(), el);
+
       t.end();
     });
 
-    t.test('.toComponent()', t => {
-      t.is(toComponent(c1), c1);
-      t.is(toComponent(c2), c2);
-      t.is(toComponent(c3), c3);
-      t.is(toComponent(fn).render, fn);
+    t.test('.createPureComponentFactory()', t => {
+      const PureComponentFactory = createPureComponentFactory();
+      const NoopComponent = PureComponentFactory(noop);
 
-      t.throw(() => toComponent(null), CODE_INVALID_ARG_TYPE);
+      const minicomp = NoopComponent('no');
+      const comp = NoopComponent('no', { title: 'nada' }, ['niente']);
+
+      function check(value) {
+        t.throws(() => value.context(), CODE_METHOD_NOT_IMPLEMENTED);
+        t.throws(() => value.script(), CODE_METHOD_NOT_IMPLEMENTED);
+        t.throws(() => value.style(), CODE_METHOD_NOT_IMPLEMENTED);
+
+        t.is(value[toStringTag], PureComponentTag);
+        t.is(value.name, 'no');
+        t.is(value.render(), void 0);
+      }
+
+      check(minicomp);
+      t.same(minicomp.attributes, {});
+      t.same(minicomp.children, []);
+
+      check(comp);
+      t.same(comp.attributes, { title: 'nada' });
+      t.same(comp.children, ['niente']);
+
+      t.end();
+    });
+
+    t.test('.isDocumentNode()', t => {
+      t.notOk(isDocumentNode('blah blah blah'));
+      t.notOk(isDocumentNode(void 0));
+      t.notOk(isDocumentNode(null));
+
+      // Fast check.
+      t.ok(isDocumentNode({ [toStringTag]: 'Proact.Element' })); // Oops!
+
+      // Slow check.
+      t.notOk(isDocumentNode({ name: 665 }));
+
+      t.notOk(isDocumentNode({
+        name: 'no',
+        attributes: 13,
+      }));
+
+      t.notOk(isDocumentNode({
+        name: 'no',
+        attributes: { title: 'boo' },
+        children: 42,
+      }));
+
+      t.notOk(isDocumentNode({
+        name: 'no',
+        attributes: { title: 'boo' },
+        children: [0],
+        render: 'whatever',
+      }));
+
+      t.ok(isDocumentNode({
+        name: 'no',
+        attributes: { title: 'boo' },
+        children: [0],
+        render() { return this; },
+      }));
+
       t.end();
     });
 
@@ -140,75 +199,14 @@ harness.test('@grr/proact', t => {
 
   t.test('registry', t => {
     function renderer() {}
-    define(renderer);
+    define('renderer', renderer);
 
-    t.throws(() => define(() => {}), CODE_INVALID_ARG_VALUE);
-    t.throws(() => define(function article() {}), CODE_INVALID_ARG_VALUE);
-    t.throws(() => define(renderer), CODE_DUPLICATE_BINDING);
+    t.throws(() => define('', () => {}), CODE_INVALID_ARG_VALUE);
+    t.throws(() => define('meta', () => {}), CODE_INVALID_ARG_VALUE);
+    t.throws(() => define('boo', 665), CODE_INVALID_ARG_TYPE);
+    t.throws(() => define({ renderer }), CODE_DUPLICATE_BINDING);
 
-    t.is(lookup('renderer').render, renderer);
-    t.end();
-  });
-
-  // ---------------------------------------------------------------------------
-
-  t.test('element', t => {
-    t.test('ElementBase', t => {
-      t.is(new ElementBase()[toStringTag], ELEMENT_TAG);
-      t.end();
-    });
-
-    const span = new StandardElement('span', null, ['text']);
-    const br = new StandardElement('br');
-
-    t.test('StandardElement', t => {
-
-      t.is(span[toStringTag], ELEMENT_TAG);
-      t.is(span.name, 'span');
-      t.same(span.attributes, {});
-      t.same(span.children, ['text']);
-      t.is(span.component, void 0);
-      t.notOk(span.isCustom());
-
-      t.is(br[toStringTag], ELEMENT_TAG);
-      t.is(br.name, 'br');
-      t.same(br.attributes, {});
-      t.same(br.children, []);
-      t.is(br.component, void 0);
-      t.notOk(br.isCustom());
-
-      t.end();
-    });
-
-    const rf = new RenderFunction(function custom() {});
-    const custom = new CustomElement(rf, null, 'text');
-
-    t.test('CustomElement', t => {
-      t.is(custom[toStringTag], ELEMENT_TAG);
-      t.is(custom.name, 'custom');
-      t.same(custom.attributes, {});
-      t.same(custom.children, ['text']);
-      t.is(custom.component, rf);
-      t.ok(custom.isCustom());
-
-      t.throws(() => new CustomElement('br'));
-      t.end();
-    });
-
-    t.test('.isElement()', t => {
-      t.notOk(isElement(void 0));
-      t.notOk(isElement(null));
-      t.notOk(isElement({ name: 'span' }));
-      t.notOk(isElement({ name: 'span', attributes: {} }));
-      t.notOk(isElement({ name: 'span', attributes: {}, children: 13 }));
-
-      t.ok(isElement({ name: 'span', attributes: {}, children: [] }));
-      t.ok(isElement(span));
-      t.ok(isElement(br));
-      t.ok(isElement(custom));
-      t.end();
-    });
-
+    t.is(lookup('renderer'), renderer);
     t.end();
   });
 
