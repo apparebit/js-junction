@@ -17,10 +17,14 @@ export function isPropertyKey(value) {
  * an object.
  */
 export function toKeyValue(object) {
-  if( isArray(object) ) {
+  if( typeof object === 'function' ) {
+    return [object.name, object];
+
+  } else if( isArray(object) ) {
     if( object.length === 2 && isPropertyKey(object[0]) ) {
       return object;
     }
+
   } else {
     const keys = keysOf(object);
 

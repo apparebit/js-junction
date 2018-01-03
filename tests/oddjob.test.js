@@ -63,6 +63,9 @@ harness.test( '@grr/oddjob', t => {
       t.same(toKeyValue({ k: 9 }), ['k', 9]);
       t.same(toKeyValue({ key: 'k', value: 9 }), ['k', 9]);
 
+      function helo() {}
+      t.same(toKeyValue(helo), ['helo', helo]);
+
       [
         [],
         [null, 2],
