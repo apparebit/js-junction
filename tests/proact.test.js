@@ -248,8 +248,10 @@ harness.test('@grr/proact', t => {
       t.is(render({ translate: false }), 'translate=no');
 
       t.is(render({ sizes: [1, 2] }), 'sizes=1,2');
+      t.is(render({ sizes: [' 1 ', ' 2 '] }), 'sizes=1,2');
 
       t.is(render({ title: '"Ahoy!"' }), 'title="&quot;Ahoy!&quot;"');
+      t.is(render({ title: '   Yo   ' }), 'title=Yo');
       t.is(render({ class: ['a', 'b']}), 'class="a b"');
 
       t.end();

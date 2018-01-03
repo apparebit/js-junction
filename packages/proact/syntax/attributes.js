@@ -42,9 +42,12 @@ const ESCAPABLE = new RegExp(`[${keys(ESCAPES).join('')}]`, 'g');
 
 function formatKeyValue(key, value, separator = ' ') {
   if( isArray(value) ) {
-    value = value.filter(el => el != null).join(separator);
+    value = value
+      .filter(el => el != null)
+      .map(el => String(el).trim())
+      .join(separator);
   } else {
-    value = String(value);
+    value = String(value).trim();
   }
 
   if( value === '' || NEEDS_QUOTING.test(value) ) {
