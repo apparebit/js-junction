@@ -240,7 +240,7 @@ harness.test('@grr/proact', t => {
       t.is(render({ ariaChecked: true }), 'aria-checked=true');
       t.is(render({ ariaChecked: false }), 'aria-checked=false');
 
-      t.is(render({ ariaHidden: 'undefined'}), 'aria-hidden=undefined');
+      t.is(render({ ariaHidden: 'undefined' }), 'aria-hidden=undefined');
       t.is(render({ ariaHidden: true }), 'aria-hidden=true');
       t.is(render({ ariaHidden: false }), 'aria-hidden=false');
 
@@ -252,7 +252,7 @@ harness.test('@grr/proact', t => {
 
       t.is(render({ title: '"Ahoy!"' }), 'title="&quot;Ahoy!&quot;"');
       t.is(render({ title: '   Yo   ' }), 'title=Yo');
-      t.is(render({ class: ['a', 'b']}), 'class="a b"');
+      t.is(render({ class: ['a', 'b'] }), 'class="a b"');
 
       t.end();
     });
