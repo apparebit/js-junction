@@ -1,4 +1,4 @@
-/* (C) Copyright 2017 Robert Grimm */
+/* (C) Copyright 2017–2018 Robert Grimm */
 
 import { withKeyPath } from '@grr/oddjob/key-path';
 import { toSymbolKey } from '@grr/oddjob/strings';
