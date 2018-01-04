@@ -8,6 +8,7 @@ import {
   InvalidArgType,
   InvalidArgValue,
   InvalidArrayLength,
+  InvalidPropertyValue,
   isObject,
   isPropertyKey,
   maybe,
@@ -306,6 +307,7 @@ harness.test( '@grr/oddjob', t => {
         [InvalidArgValue('k', 'v'),           'ERR_INVALID_ARG_VALUE'],
         [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
         [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
+        [InvalidPropertyValue('v', 'bad'),    'ERR_INVALID_PROPERTY_VALUE'],
         [MethodNotImplemented('m'),           'ERR_METHOD_NOT_IMPLEMENTED'],
         [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
       ].forEach(([err, code]) => {

@@ -26,6 +26,11 @@ export const InvalidArgValue = E('ERR_INVALID_ARG_VALUE',
 export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
   withKeyValue((key, value, expected) =>
     `array "${key}" has ${showCount.of(value)}, but should have ${expected}`));
+export const InvalidPropertyValue = E('ERR_INVALID_PROPERTY_VALUE',
+  (value, spec, nspec = null) => {
+    const prefix = `ptoperty value "${value}" should`;
+    return nspec ? `${prefix} not be ${nspec}` : `${prefix} be ${spec}`;
+  });
 export const MethodNotImplemented = E('ERR_METHOD_NOT_IMPLEMENTED',
   name => `the ${name}() method is not implemented`);
 export const MissingArgs = E('ERR_MISSING_ARGS',
