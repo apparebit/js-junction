@@ -93,7 +93,7 @@ module.exports = {
     "max-depth": "off",
     "max-len": ["error", {
       "code": 100,
-      "comments": 80,
+      "comments": 100,
       "tabWidth": 2,
       "ignoreUrls": true,
       "ignorePattern": "\\s*// ([-]+|[=]+)",
