@@ -8,7 +8,6 @@ import {
   InvalidArgType,
   InvalidArgValue,
   InvalidArrayLength,
-  InvalidPropertyValue,
   isObject,
   isPropertyKey,
   maybe,
@@ -33,7 +32,7 @@ const { create } = Object;
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
 
-// -----------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
 harness.test( '@grr/oddjob', t => {
   t.test('objects', t => {
@@ -103,7 +102,7 @@ harness.test( '@grr/oddjob', t => {
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   t.test('key-path', t => {
     const sym = Symbol('ooh special');
@@ -147,7 +146,7 @@ harness.test( '@grr/oddjob', t => {
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   t.test('functions', t => {
     t.test('.maybe()', t => {
@@ -219,7 +218,7 @@ harness.test( '@grr/oddjob', t => {
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   t.test('strings', t => {
     t.test('.dehyphenate()', t => {
@@ -246,7 +245,7 @@ harness.test( '@grr/oddjob', t => {
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   t.test('.show()', t => {
     const showElements = show().elements();
@@ -286,7 +285,7 @@ harness.test( '@grr/oddjob', t => {
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   t.test('errors', t => {
     t.test('.cause', t => {
@@ -307,7 +306,6 @@ harness.test( '@grr/oddjob', t => {
         [InvalidArgValue('k', 'v'),           'ERR_INVALID_ARG_VALUE'],
         [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
         [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
-        [InvalidPropertyValue('v', 'bad'),    'ERR_INVALID_PROPERTY_VALUE'],
         [MethodNotImplemented('m'),           'ERR_METHOD_NOT_IMPLEMENTED'],
         [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
       ].forEach(([err, code]) => {
@@ -325,10 +323,8 @@ harness.test( '@grr/oddjob', t => {
         'argument "arg" is "null", but should not be a number');
       t.is(InvalidArgValue({ arg }).message,
         'argument "arg" is "null"');
-      t.is(InvalidArgValue({ arg }, 'an even number').message,
+      t.is(InvalidArgValue({ arg }, 'should be an even number').message,
         'argument "arg" is "null", but should be an even number');
-      t.is(InvalidArgValue({ arg }, 'not', 'falsy').message,
-        'argument "arg" is "null", but should not be falsy');
 
       t.end();
     });
@@ -347,7 +343,7 @@ harness.test( '@grr/oddjob', t => {
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   t.test('realm', t => {
     t.is(toRealm(), 'development');

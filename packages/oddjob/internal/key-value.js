@@ -40,8 +40,7 @@ export function toKeyValue(object) {
     }
   }
 
-  throw InvalidArgValue(
-    'object', object, 'an object representing a single key-value pair');
+  throw InvalidArgValue('object', object, 'should be an object specifying a single key-value pair');
 }
 
 export function withKeyValue(original, ...indices) {

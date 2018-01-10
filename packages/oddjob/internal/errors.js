@@ -52,19 +52,13 @@ export function toArgumentId(id) {
 }
 
 export function InvalidArgTypeMsg(key, value, spec, nspec = null) {
-  const prefix = `argument ${toArgumentId(key)} is "${value}", but should`;
+  const prefix = `argument ${toArgumentId(key)} is "${String(value)}", but should`;
   return nspec ? `${prefix} not be ${nspec}` : `${prefix} be ${spec}`;
 }
 
-export function InvalidArgValueMsg(key, value, spec = null, nspec = null) {
-  const base = `argument ${toArgumentId(key)} is "${value}"`;
-  if( nspec ) {
-    return `${base}, but should not be ${nspec}`;
-  } else if( spec ) {
-    return `${base}, but should be ${spec}`;
-  } else {
-    return base;
-  }
+export function InvalidArgValueMsg(key, value, spec = null) {
+  const base = `argument ${toArgumentId(key)} is "${String(value)}"`;
+  return spec ? `${base}, but ${spec}` : base;
 }
 
 export const InvalidArgType =

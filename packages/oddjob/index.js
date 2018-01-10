@@ -5,7 +5,6 @@ export {
   InvalidArgType,
   InvalidArgValue,
   InvalidArrayLength,
-  InvalidPropertyValue,
   MethodNotImplemented,
   MissingArgs,
 } from './errors';
