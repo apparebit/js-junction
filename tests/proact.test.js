@@ -1,31 +1,26 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
-// -----------------------------------------------------------------------------
-// Semantics
+// -------------------------------------------------------------------------------------------------
 
+// Content Model
 import Tag from '@grr/proact/semantics/tag';
 import typeAttribute from '@grr/proact/semantics/attributes';
+import { isHtmlElement, isVoidElement } from '@grr/proact/semantics/elements';
 
-import {
-  isHtmlElement,
-  isVoidElement,
-} from '@grr/proact/semantics/elements';
+// vDOM
+import Node from '@grr/proact/content/node';
+import Element from '@grr/proact/content/element';
+import Component from '@grr/proact/content/component';
+import { define, lookup } from '@grr/proact/content/registry';
 
-import {
-  createPrototype,
-  createNode,
-  ElementTag,
-  createElementConstructor,
-  PureComponentTag,
-  createPureComponentFactory,
-} from '@grr/proact/node';
-
-import isDocumentNode from '@grr/proact/node/is-node';
-import { define, lookup } from '@grr/proact/node/registry';
-import renderAttributes from '@grr/proact/syntax/attributes';
+// Render to HTML
+import createContext from '@grr/proact/syntax/context';
+import renderAttributes from '@grr/proact/syntax/render-attributes';
+import { default as render } from '@grr/proact/syntax/render';
 
 import harness from './harness';
 
+const { getPrototypeOf } = Object;
 const { toStringTag } = Symbol;
 const { Attribute } = Tag.HTML;
 
@@ -34,7 +29,7 @@ const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
 const CODE_METHOD_NOT_IMPLEMENTED = { code: 'ERR_METHOD_NOT_IMPLEMENTED' };
 
-// -----------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
 harness.test('@grr/proact', t => {
   t.test('semantics', t => {
@@ -75,142 +70,102 @@ harness.test('@grr/proact', t => {
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
-  t.test('content', t => {
-    const noop = function noop() {};
-    const proto = createPrototype(noop, 'nope');
-    const node = createNode(proto, 'no',
-      { title: 'No Hope!' }, [[1], null, void 0, '', [2, [3]]]);
+  t.test('vdom', t => {
+    const somewhere = Element('a', { href: 'location' }, ['somewhere']);
+    const renderSomething =
+      (_, atts, children) => Element('div', { class: 'something' }, children);
+    const Something = Component.from(renderSomething, 'Something');
+    const thing = Something(null, {}, 'a thing');
 
-    t.test('.createPrototype()', t => {
-      t.throws(() => createPrototype(665), CODE_INVALID_ARG_TYPE);
-      t.throws(() => createPrototype(noop, 665), CODE_INVALID_ARG_TYPE);
-      t.throws(() => createPrototype(noop, ''), CODE_INVALID_ARG_TYPE);
+    t.test('Node()', t => {
+      t.is(Node.prototype.isProactNode, true);
+      t.is(Node.prototype.isProactElement, void 0);
+      t.is(Node.prototype.isProactComponent, void 0);
 
-      t.throws(() => proto.context(), CODE_METHOD_NOT_IMPLEMENTED);
-      t.throws(() => proto.script(), CODE_METHOD_NOT_IMPLEMENTED);
-      t.throws(() => proto.style(), CODE_METHOD_NOT_IMPLEMENTED);
-
-      t.is(proto.render, noop);
-      t.is(proto[toStringTag], 'nope');
+      t.same(Node(null, 'much-ado', {}, void 0, null, '', [], [[true, false]]).children, []);
       t.end();
     });
 
-    t.test('.createNode()', t => {
-      t.is(node.name, 'no');
-      t.same(node.attributes, { title: 'No Hope!' });
-      t.same(node.children, [1, 2, 3]);
-      t.end();
-    });
+    t.test('Element()', t => {
+      t.is(Element.tag, 'Proact.Element');
+      t.is(Element.prototype.constructor, Element);
+      t.is(Element.prototype.isProactNode, true);
+      t.is(Element.prototype.isProactElement, true);
+      t.is(Element.prototype.isProactComponent, void 0);
+      t.is(Element.prototype[toStringTag], Element.tag);
 
-    t.test('.createElementConstructor()', t => {
-      const Element = createElementConstructor();
-
-      const miniel = Element('a');
-      const el = Element('a', { href: 'location' }, ['somewhere']);
-
-      t.is(miniel[toStringTag], ElementTag);
-      t.is(miniel.name, 'a');
-      t.same(miniel.attributes, {});
-      t.same(miniel.children, []);
-      t.is(miniel.render(), miniel);
-
-      t.is(el[toStringTag], ElementTag);
-      t.is(el.name, 'a');
-      t.same(el.attributes, { href: 'location' });
-      t.same(el.children, ['somewhere']);
-      t.is(el.render(), el);
+      t.is(somewhere.constructor, Element);
+      t.is(getPrototypeOf(somewhere), Element.prototype);
+      t.ok(somewhere.isProactElement);
+      t.is(somewhere[toStringTag], Element.tag);
+      t.is(somewhere.name, 'a');
+      t.same(somewhere.attributes, { href: 'location' });
+      t.same(somewhere.children, ['somewhere']);
 
       t.end();
     });
 
-    t.test('.createPureComponentFactory()', t => {
-      const PureComponentFactory = createPureComponentFactory();
-      const NoopComponent = PureComponentFactory(noop);
+    t.test('Component()', t => {
+      t.throws(() => Component(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.end();
+    });
 
-      const minicomp = NoopComponent('no');
-      const comp = NoopComponent('no', { title: 'nada' }, ['niente']);
+    t.test('.Component.from()', t => {
+      t.throws(() => Component.from(() => {}), CODE_INVALID_ARG_VALUE);
+      t.is(Component.from(function fn() {}).prototype.name, 'fn');
+      t.is(Component.from(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
+      t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
 
-      function check(value) {
-        t.throws(() => value.context(), CODE_METHOD_NOT_IMPLEMENTED);
-        t.throws(() => value.script(), CODE_METHOD_NOT_IMPLEMENTED);
-        t.throws(() => value.style(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.is(Component.tag, 'Proact.Component');
+      t.is(Something.prototype.constructor, Something);
+      t.is(Something.prototype.isProactNode, true);
+      t.is(Something.prototype.isProactElement, void 0);
+      t.is(Something.prototype.isProactComponent, true);
+      t.is(Something.prototype[toStringTag], Component.tag);
+      t.throws(() => Component.prototype.render(), CODE_METHOD_NOT_IMPLEMENTED);
 
-        t.is(value[toStringTag], PureComponentTag);
-        t.is(value.name, 'no');
-        t.is(value.render(), void 0);
-      }
-
-      check(minicomp);
-      t.same(minicomp.attributes, {});
-      t.same(minicomp.children, []);
-
-      check(comp);
-      t.same(comp.attributes, { title: 'nada' });
-      t.same(comp.children, ['niente']);
+      t.is(thing.constructor, Something);
+      t.is(getPrototypeOf(getPrototypeOf(thing)), Component.prototype);
+      t.is(getPrototypeOf(getPrototypeOf(getPrototypeOf(thing))), Node.prototype);
+      t.ok(thing.isProactComponent);
+      t.throws(() => thing.metadata(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.throws(() => thing.script(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.throws(() => thing.style(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.is(thing.name, 'Something');
+      t.is(Something('OrOther').name, 'OrOther');
+      t.same(thing.attributes, {});
+      t.same(thing.children, ['a thing']);
 
       t.end();
     });
 
-    t.test('.isDocumentNode()', t => {
-      t.notOk(isDocumentNode('blah blah blah'));
-      t.notOk(isDocumentNode(void 0));
-      t.notOk(isDocumentNode(null));
-
-      // Fast check.
-      t.ok(isDocumentNode({ [toStringTag]: 'Proact.Element' })); // Oops!
-
-      // Slow check.
-      t.notOk(isDocumentNode({ name: 665 }));
-
-      t.notOk(isDocumentNode({
-        name: 'no',
-        attributes: 13,
-      }));
-
-      t.notOk(isDocumentNode({
-        name: 'no',
-        attributes: { title: 'boo' },
-        children: 42,
-      }));
-
-      t.notOk(isDocumentNode({
-        name: 'no',
-        attributes: { title: 'boo' },
-        children: [0],
-        render: 'whatever',
-      }));
-
-      t.ok(isDocumentNode({
-        name: 'no',
-        attributes: { title: 'boo' },
-        children: [0],
-        render() { return this; },
-      }));
-
-      t.end();
-    });
-
-    t.end();
-  });
-
-  // ---------------------------------------------------------------------------
-
-  t.test('registry', t => {
     function renderer() {}
-    define('renderer', renderer);
 
-    t.throws(() => define('', () => {}), CODE_INVALID_ARG_VALUE);
-    t.throws(() => define('meta', () => {}), CODE_INVALID_ARG_VALUE);
-    t.throws(() => define('boo', 665), CODE_INVALID_ARG_TYPE);
-    t.throws(() => define({ renderer }), CODE_DUPLICATE_BINDING);
+    t.test('.define()', t => {
+      define('renderer', renderer);
 
-    t.is(lookup('renderer'), renderer);
+      t.throws(() => define('', () => {}), CODE_INVALID_ARG_VALUE);
+      t.throws(() => define('meta', () => {}), CODE_INVALID_ARG_VALUE);
+      t.throws(() => define('boo', 665), CODE_INVALID_ARG_TYPE);
+      t.throws(() => define('boo', class {}), CODE_INVALID_ARG_TYPE);
+      t.throws(() => define({ renderer }), CODE_DUPLICATE_BINDING);
+
+      t.end();
+    });
+
+    t.test('.lookup()', t => {
+      t.is(lookup('non-existent-component-class-name'), void 0);
+      t.is(lookup('renderer'), renderer);
+
+      t.end();
+    });
+
     t.end();
   });
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   t.test('syntax', t => {
     t.test('.renderAttributes()', t => {
@@ -253,6 +208,46 @@ harness.test('@grr/proact', t => {
       t.is(render({ title: '"Ahoy!"' }), 'title="&quot;Ahoy!&quot;"');
       t.is(render({ title: '   Yo   ' }), 'title=Yo');
       t.is(render({ class: ['a', 'b'] }), 'class="a b"');
+
+      t.end();
+    });
+
+    t.test('.render()', t => {
+      // >>> Elements with and without attributes.
+      const Link = Component.from(function renderLink(name, attributes, children) {
+        return Element('a', attributes, children);
+      }, 'Link');
+
+      t.is(render(Link('Mine', null, 'landing page')).toString(),
+        '<a>landing page</a>');
+      t.is(render(Link('Mine', { href: 'apparebit.com', rel: 'home' }, 'landing page')).toString(),
+        '<a href=apparebit.com rel=home>landing page</a>');
+
+      // >>> Void elements.
+      t.is(render(Element('hr')).toString(), '<hr>');
+      t.throws(() => render(Element('hr', {}, 'but, but, but!')), CODE_INVALID_ARG_VALUE);
+
+      // >>> Ignored values. To circumvent the constructor's `flattenNonNullElementsOf()`,
+      // the test must use its own fake node.
+      t.is(render({
+        isProactElement: true,
+        name: 'span',
+        attributes: {},
+        children: [void 0, null, '', true, false, ['W', 0, 0, 't!']],
+      }).toString(), '<span>W00t!</span>');
+
+      // >>> Values other than nodes and strings.
+      t.is(render(665).toString(), '665');
+      t.is(render([6, 6, 5]).toString(), '665');
+      t.throws(() => render(Symbol('oops')), CODE_INVALID_ARG_TYPE);
+
+      // >>> Regular vs shallow rendering.
+      t.is(render(Element('a', null, Element('b', null, Element('i', null, 'nested')))).toString(),
+        '<a><b><i>nested</i></b></a>');
+      t.is(render(Element('a', null, Element('b', null, Element('i', null, 'nested'))),
+        createContext().forShallowNodes()).toString(), '<a></a>');
+
+      // FIXME: add larger test nesting components and nodes in each other.
 
       t.end();
     });

@@ -2,12 +2,22 @@
 
 > Making server-side rendering great again!
 
-Proact implements UI components for server-side rendering. It is, of course, yet
-another [React](https://reactjs.org) clone. However, it's raison d’être is to
-explore the design and API space when starting with the server instead of the
-client. In other words, this package facilitates _proactive_ content generation,
-hence its name. Consistent with Proact's server-side bias, its DOM is not
-virtual but rather _simple_ or _server-side_. Call it the _sDOM_ if you will!
+Proact provides the foundation for user interface components on the web. It is,
+of course, yet another component system inspired by Facebook‘s
+[React](https://reactjs.org). In contrast to React, however, Proact‘s raison
+d’être is to explore the design and API space when starting with the server
+instead of the client. In other words, this package focuses on _proactive_
+content generation, hence the name. Proact‘s modules are grouped into the
+following directories:
+
+  + `semantics` captures necessary domain knowledge about HTML elements and
+    their attributes.
+
+  * `content` defines the standard elements and custom components forming
+    Proact‘s virtual DOM (vDOM).
+
+  * `syntax` implements the rendering of vDOM components to vDOM elements to
+    HTML text.
 
 --------------------------------------------------------------------------------
 
