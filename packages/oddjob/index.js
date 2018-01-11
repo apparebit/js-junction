@@ -44,5 +44,6 @@ export {
 export {
   dehyphenate,
   hyphenate,
+  toStableJSON,
   toSymbolKey,
 } from './strings';

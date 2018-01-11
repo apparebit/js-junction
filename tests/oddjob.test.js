@@ -17,6 +17,7 @@ import {
   PRODUCTION,
   realm,
   show,
+  toStableJSON,
   toKeyPath,
   toKeyValue,
   toRealm,
@@ -239,6 +240,23 @@ harness.test( '@grr/oddjob', t => {
       // eslint-disable-next-line symbol-description
       t.is(toSymbolKey(Symbol()), '');
       t.is(toSymbolKey(Symbol('665')), '665');
+      t.end();
+    });
+
+    t.test('.toStableJSON()', t => {
+      t.is(toStableJSON(void 0), void 0);
+      t.is(toStableJSON(null), 'null');
+      t.is(toStableJSON(665), '665');
+      t.is(toStableJSON('Hello!'), '"Hello!"');
+      t.is(toStableJSON([1, void 0, '3']), '[1,null,"3"]');
+      t.is(toStableJSON({ a: void 0, b: NaN, c: 665 }), '{"b":null,"c":665}');
+      t.is(toStableJSON({ a: 1, b: 2, c: 3 }), '{"a":1,"b":2,"c":3}');
+      t.is(toStableJSON({ c: 3, b: 2, a: 1 }), '{"a":1,"b":2,"c":3}');
+      t.is(toStableJSON({
+        toJSON() { return { rating: 'completely nuts' }; },
+        rating: 'very stable genius'
+      }), '{"rating":"completely nuts"}');
+
       t.end();
     });
 
