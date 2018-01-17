@@ -14,13 +14,10 @@ import {
   memoize,
   MethodNotImplemented,
   MissingArgs,
-  PRODUCTION,
-  realm,
   show,
   toStableJSON,
   toKeyPath,
   toKeyValue,
-  toRealm,
   toSymbolKey,
   withExistingKeyPath,
   withKeyPath,
@@ -358,20 +355,6 @@ harness.test( '@grr/oddjob', t => {
       t.end();
     });
 
-    t.end();
-  });
-
-  // -----------------------------------------------------------------------------------------------
-
-  t.test('realm', t => {
-    t.is(toRealm(), 'development');
-    t.is(toRealm('dev'), 'development');
-    t.is(toRealm('prod'), 'production');
-    t.is(toRealm('PROD'), 'production');
-    t.is(toRealm('QA'), 'qa');
-
-    t.is(realm, 'development');
-    t.is(PRODUCTION, false);
     t.end();
   });
 

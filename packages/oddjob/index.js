@@ -32,12 +32,6 @@ export {
 } from './functions';
 
 export {
-  default as PRODUCTION,
-  realm,
-  toRealm,
-} from './realm';
-
-export {
   default as show
 } from './show';
 
