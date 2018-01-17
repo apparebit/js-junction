@@ -7,6 +7,9 @@ module.exports = {
       "experimentalObjectRestSpread": true,
     },
   },
+  "globals": {
+    "__DEV__": false
+  },
   "env": {
     "es6": true,
     "node": true,
@@ -200,7 +203,9 @@ module.exports = {
     "no-trailing-spaces": "error",
     "no-undef-init": "error",
     "no-undefined": "off",
-    "no-underscore-dangle": "error",
+    "no-underscore-dangle": ["error", {
+      "allow": ["__DEV__"]
+    }],
     "no-unmodified-loop-condition": "error",
     "no-unneeded-ternary": "error",
     "no-unsafe-negation": "error",

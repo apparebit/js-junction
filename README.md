@@ -6,6 +6,9 @@ GitHub, he uses the onomatopoetic alias [grr](https://www.npmjs.com/~grr) on
 npm. Conveniently, the latter also serves as namespace for his open source
 packages:
 
+ *  [@grr/mark-of-dev](https://github.com/grimmr/js-junction/tree/master/packages/mark-of-dev):
+    Advancing the globalization of `__DEV__`.
+
  *  [@grr/oddjob](https://github.com/grimmr/js-junction/tree/master/packages/oddjob):
     Letting you focus on the flying circus.
 

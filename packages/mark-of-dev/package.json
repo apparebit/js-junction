@@ -1,0 +1,13 @@
+{
+  "name": "@grr/mark-of-dev",
+  "description": "Advancing the globalization of __DEV__",
+  "keywords": [
+    "development",
+    "production"
+  ],
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": "https://github.com/grimmr/js-junction/tree/master/packages/mark-of-dev"
+}
