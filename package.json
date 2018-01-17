@@ -56,7 +56,7 @@
     "lint": "eslint .",
     "cover": "nyc node tests/index.js",
     "pretest": "rimraf .nyc_output coverage **/node_modules/.cache && eslint .",
-    "test": "tap --node-arg=-r --node-arg=@std/esm tests/*.test.js",
-    "posttest": "nyc node tests/index.js"
+    "test": "tap --node-arg=-r --node-arg=@std/esm tests/index.js",
+    "posttest": "nyc node tests/index.js --quiet"
   }
 }
