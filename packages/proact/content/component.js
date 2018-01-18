@@ -19,7 +19,7 @@ function from(renderFn, typeName) {
   function RenderFunction(name, attributes, ...children) {
     if( !name ) name = typeName;
     // eslint-disable-next-line no-use-before-define
-    return Node(RenderFunctionPrototype, name, attributes, children);
+    return Node(RenderFunctionPrototype, name, attributes, ...children);
   }
 
   // eslint-disable-next-line no-use-before-define

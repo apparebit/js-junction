@@ -51,7 +51,7 @@ function formatKeyValue(key, value, separator = ' ') {
   }
 
   if( value === '' || NEEDS_QUOTING.test(value) ) {
-    return `${key}="${value.replace(ESCAPABLE, f => ESCAPES[f])}"`;
+    return `${key}="${value.replace(ESCAPABLE, c => ESCAPES[c])}"`;
   } else {
     // This is safe as long as the characters that require quoting are a strict
     // superset of the characters that require escaping.

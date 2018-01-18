@@ -8,7 +8,7 @@ const { toStringTag } = Symbol;
 
 export default function Element(name, attributes, ...children) {
   // eslint-disable-next-line no-use-before-define
-  return Node(ElementPrototype, name, attributes, children);
+  return Node(ElementPrototype, name, attributes, ...children);
 }
 
 const ElementTag = 'Proact.Element';
