@@ -8,10 +8,10 @@ import typeAttribute from '@grr/proact/semantics/attributes';
 import { isHtmlElement, isVoidElement, hasRawText } from '@grr/proact/semantics/elements';
 
 // vDOM
-import Node from '@grr/proact/content/node';
-import Element from '@grr/proact/content/element';
-import Component from '@grr/proact/content/component';
-import { define, lookup } from '@grr/proact/content/registry';
+import Node from '@grr/proact/vdom/node';
+import Element from '@grr/proact/vdom/element';
+import Component from '@grr/proact/vdom/component';
+import { define, lookup } from '@grr/proact/vdom/registry';
 
 // Driver
 import {
