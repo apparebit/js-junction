@@ -5,7 +5,7 @@
 // Content Model
 import Tag from '@grr/proact/semantics/tag';
 import typeAttribute from '@grr/proact/semantics/attributes';
-import { isHtmlElement, isVoidElement } from '@grr/proact/semantics/elements';
+import { isHtmlElement, isVoidElement, hasRawText } from '@grr/proact/semantics/elements';
 
 // vDOM
 import Node from '@grr/proact/content/node';
@@ -13,15 +13,26 @@ import Element from '@grr/proact/content/element';
 import Component from '@grr/proact/content/component';
 import { define, lookup } from '@grr/proact/content/registry';
 
+// Driver
+import {
+  isIgnorable,
+  isTextual,
+  isIterable,
+  flatten,
+  default as Visitor,
+} from '@grr/proact/driver/visitor';
+
+import { StringRenderer } from '@grr/proact/driver';
+
 // Render to HTML
-import createContext from '@grr/proact/syntax/context';
 import renderAttributes from '@grr/proact/syntax/render-attributes';
-import { default as render } from '@grr/proact/syntax/render';
+import { renderFragment, default as render } from '@grr/proact/syntax/render';
 
 import harness from './harness';
+import StringWriter from '../packages/proact/driver/string-writer';
 
 const { getPrototypeOf } = Object;
-const { toStringTag } = Symbol;
+const { iterator, toStringTag } = Symbol;
 const { Attribute } = Tag.HTML;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
@@ -52,6 +63,21 @@ harness.test('@grr/proact', t => {
 
       t.ok(isVoidElement('br'));
       t.ok(isVoidElement('meta'));
+
+      t.notOk(isVoidElement('non-existent-totally-imaginary-element'));
+      t.end();
+    });
+
+    t.test('.hasRawText()', t => {
+      t.notOk(hasRawText('a'));
+      t.notOk(hasRawText('pre'));
+
+      t.ok(hasRawText('script'));
+      t.ok(hasRawText('style'));
+      t.ok(hasRawText('title'));
+      t.ok(hasRawText('textarea'));
+
+      t.notOk(hasRawText('non-existent-totally-imaginary-element'));
       t.end();
     });
 
@@ -72,23 +98,25 @@ harness.test('@grr/proact', t => {
 
   // -----------------------------------------------------------------------------------------------
 
-  t.test('vdom', t => {
-    const somewhere = Element('a', { href: 'location' }, ['somewhere']);
-    const renderSomething =
-      (_, atts, children) => Element('div', { class: 'something' }, children);
-    const Something = Component.from(renderSomething, 'Something');
-    const thing = Something(null, {}, 'a thing');
+  const somewhere = Element('a', { href: 'location' }, 'somewhere');
+  const renderSomething =
+    (_, atts, children) => Element('div', { class: 'something' }, children);
+  const Something = Component.from(renderSomething, 'Something');
+  const thing = Something(null, {}, 'a thing');
 
-    t.test('Node()', t => {
+  t.test('content', t => {
+    t.test('.Node()', t => {
       t.is(Node.prototype.isProactNode, true);
       t.is(Node.prototype.isProactElement, void 0);
       t.is(Node.prototype.isProactComponent, void 0);
 
-      t.same(Node(null, 'much-ado', {}, void 0, null, '', [], [[true, false]]).children, []);
+      // The children are only normalized lazily, on demand. In other words, not here.
+      t.same(Node(null, 'much-ado', {}, void 0, null, '', [], [[true, false]]).children,
+        [void 0, null, '', [], [[true, false]]]);
       t.end();
     });
 
-    t.test('Element()', t => {
+    t.test('.Element()', t => {
       t.is(Element.tag, 'Proact.Element');
       t.is(Element.prototype.constructor, Element);
       t.is(Element.prototype.isProactNode, true);
@@ -103,11 +131,10 @@ harness.test('@grr/proact', t => {
       t.is(somewhere.name, 'a');
       t.same(somewhere.attributes, { href: 'location' });
       t.same(somewhere.children, ['somewhere']);
-
       t.end();
     });
 
-    t.test('Component()', t => {
+    t.test('.Component()', t => {
       t.throws(() => Component(), CODE_METHOD_NOT_IMPLEMENTED);
       t.end();
     });
@@ -137,7 +164,6 @@ harness.test('@grr/proact', t => {
       t.is(Something('OrOther').name, 'OrOther');
       t.same(thing.attributes, {});
       t.same(thing.children, ['a thing']);
-
       t.end();
     });
 
@@ -151,14 +177,93 @@ harness.test('@grr/proact', t => {
       t.throws(() => define('boo', 665), CODE_INVALID_ARG_TYPE);
       t.throws(() => define('boo', class {}), CODE_INVALID_ARG_TYPE);
       t.throws(() => define({ renderer }), CODE_DUPLICATE_BINDING);
-
       t.end();
     });
 
     t.test('.lookup()', t => {
       t.is(lookup('non-existent-component-class-name'), void 0);
       t.is(lookup('renderer'), renderer);
+      t.end();
+    });
 
+    t.end();
+  });
+
+  // -----------------------------------------------------------------------------------------------
+
+  t.test('driver', t => {
+    t.test('.isIgnorable()', t => {
+      t.ok(isIgnorable(void 0));
+      t.ok(isIgnorable(null));
+      t.ok(isIgnorable(false));
+      t.ok(isIgnorable(true));
+      t.ok(isIgnorable(''));
+
+      t.notOk(isIgnorable(0));
+      t.notOk(isIgnorable('0'));
+      t.notOk(isIgnorable(somewhere));
+      t.notOk(isIgnorable(thing));
+      t.end();
+    });
+
+    t.test('.isTextual()', t => {
+      t.notOk(isTextual(void 0));
+      t.notOk(isTextual(null));
+      t.notOk(isTextual(false));
+      t.notOk(isTextual(true));
+      t.notOk(isTextual(''));
+
+      t.ok(isTextual(0));
+      t.ok(isTextual('0'));
+      t.end();
+    });
+
+    t.test('.isIterable()', t => {
+      t.notOk(isIterable(void 0));
+      t.notOk(isIterable(null));
+      t.notOk(isIterable(false));
+      t.notOk(isIterable(true));
+      t.notOk(isIterable({}));
+
+      t.ok(isIterable(''));
+      t.ok(isIterable([]));
+      t.ok(isIterable((function* gen() {})()));
+      t.ok(isIterable({ [iterator]() { return { next() { return { done: true }; }}; }}));
+      t.end();
+    });
+
+    t.test('.flatten()', t => {
+      t.match(flatten([void 0, null, '', [], [[true, false]]]).next(),
+        { done: true });
+      t.match(flatten(['hello', null, []]).next(),
+        { value: { tag: 'text', object: 'hello' }});
+      t.match(flatten(['hello', null, [', there!']]).next(),
+        { value: { tag: 'text', object: 'hello, there!' }});
+
+      t.same([...flatten([void 0, null, '', [], [[true, false]]], (t, o) => o)], []);
+      t.same([...flatten([1, null, 2, [], [[], 3]], (t, o) => o)], ['123']);
+      t.end();
+    });
+
+    t.test('.Visitor()', t => {
+      t.is(new Visitor().handler, void 0);
+      t.throws(() => new Visitor(665), CODE_INVALID_ARG_TYPE);
+      t.end();
+    });
+
+    t.test('.StringRenderer()', t => {
+      t.is(StringRenderer.prototype[toStringTag], 'Proact.Driver.StringRenderer');
+      t.is(StringRenderer.prototype.constructor, StringRenderer);
+      t.is(StringRenderer.prototype.setShallowMode, Visitor.prototype.setShallowMode);
+      t.isNot(StringRenderer.prototype.reset, Visitor.prototype.reset);
+      t.isNot(StringRenderer.prototype.reset, StringWriter.prototype.reset);
+      t.is(StringRenderer.prototype.parent, Visitor.prototype.parent);
+      t.is(StringRenderer.prototype.traverse, Visitor.prototype.traverse);
+      t.is(StringRenderer.prototype.write, StringWriter.prototype.write);
+      t.is(StringRenderer.prototype.toString, StringWriter.prototype.toString);
+
+      t.is(new StringRenderer(renderFragment).reset(somewhere).traverse().toString(),
+        '<a href=location>somewhere</a>');
       t.end();
     });
 
@@ -218,34 +323,44 @@ harness.test('@grr/proact', t => {
         return Element('a', attributes, children);
       }, 'Link');
 
-      t.is(render(Link('Mine', null, 'landing page')).toString(),
+      t.is(render(Link('Mine', null, 'landing page')),
         '<a>landing page</a>');
-      t.is(render(Link('Mine', { href: 'apparebit.com', rel: 'home' }, 'landing page')).toString(),
+      t.is(render(Link('Mine', { href: 'apparebit.com', rel: 'home' }, 'landing page')),
         '<a href=apparebit.com rel=home>landing page</a>');
 
       // >>> Void elements.
-      t.is(render(Element('hr')).toString(), '<hr>');
+      t.is(render(Element('hr')), '<hr>');
       t.throws(() => render(Element('hr', {}, 'but, but, but!')), CODE_INVALID_ARG_VALUE);
 
-      // >>> Ignored values. To circumvent the constructor's `flattenNonNullElementsOf()`,
-      // the test must use its own fake node.
-      t.is(render({
-        isProactElement: true,
-        name: 'span',
-        attributes: {},
-        children: [void 0, null, '', true, false, ['W', 0, 0, 't!']],
-      }).toString(), '<span>W00t!</span>');
+      // >>> Ignored values.
+      t.is(render(Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])),
+        '<span>W00t!</span>');
+
+      // >>> Text with consecutive whitespace and escapable characters.
+      t.is(render(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
+        '<span> &lt;BOO&gt; &amp; so on</span>');
+
+      // >>> Element with raw text as content.
+      t.is(render(Element('script', {}, '42 < 665 && 13 > 2')),
+        '<script>42 < 665 && 13 > 2</script>');
 
       // >>> Values other than nodes and strings.
-      t.is(render(665).toString(), '665');
-      t.is(render([6, 6, 5]).toString(), '665');
+      t.is(render(665), '665');
+      t.is(render([6, 6, 5]), '665');
       t.throws(() => render(Symbol('oops')), CODE_INVALID_ARG_TYPE);
 
+      // >>> Components that render to lists.
+      const Many = Component.from(function renderMany(name, attributes, children) {
+        return [...children, ' ', ...children, ' ', ...children];
+      }, 'Many');
+
+      t.is(render(Many('Whatever', null, 'w00t!')), 'w00t! w00t! w00t!');
+
       // >>> Regular vs shallow rendering.
-      t.is(render(Element('a', null, Element('b', null, Element('i', null, 'nested')))).toString(),
+      t.is(render(Element('a', null, Element('b', null, Element('i', null, 'nested')))),
         '<a><b><i>nested</i></b></a>');
       t.is(render(Element('a', null, Element('b', null, Element('i', null, 'nested'))),
-        createContext().forShallowNodes()).toString(), '<a></a>');
+        new StringRenderer(renderFragment).setShallowMode()), '<a></a>');
 
       // FIXME: add larger test nesting components and nodes in each other.
 
