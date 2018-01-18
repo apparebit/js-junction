@@ -2,7 +2,7 @@
 
 // -------------------------------------------------------------------------------------------------
 
-// Content Model
+// Domain Description
 import Tag from '@grr/proact/semantics/tag';
 import typeAttribute from '@grr/proact/semantics/attributes';
 import { isHtmlElement, isVoidElement, hasRawText } from '@grr/proact/semantics/elements';
@@ -15,21 +15,21 @@ import { define, lookup } from '@grr/proact/vdom/registry';
 
 // Driver
 import {
-  isIgnorable,
-  isTextual,
-  isIterable,
   flatten,
+  isIgnorable,
+  isIterable,
+  isTextual,
   default as Visitor,
 } from '@grr/proact/driver/visitor';
 
+import StringWriter from '@grr/proact/driver/string-writer';
 import { StringRenderer } from '@grr/proact/driver';
 
 // Render to HTML
-import renderAttributes from '@grr/proact/syntax/render-attributes';
-import { renderFragment, default as render } from '@grr/proact/syntax/render';
+import renderAttributes from '@grr/proact/html/render-attributes';
+import { renderFragment, default as render } from '@grr/proact/html/render';
 
 import harness from './harness';
-import StringWriter from '../packages/proact/driver/string-writer';
 
 const { getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
