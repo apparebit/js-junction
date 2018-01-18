@@ -1,20 +1,9 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-const { create, defineProperty, freeze } = Object;
-const { isArray } = Array;
+const { create, defineProperty } = Object;
 const { toStringTag } = Symbol;
 
 // -------------------------------------------------------------------------------------------------
-
-function* flattenNonNullElementsOf(list) {
-  for( const el of list ) {
-    if( isArray(el) ) {
-      yield* flattenNonNullElementsOf(el);
-    } else if( el != null && el !== '' && typeof el !== 'boolean' ) {
-      yield el;
-    }
-  }
-}
 
 export default function Node(prototype, name, attributes, ...children) {
   return create(prototype, {
@@ -28,7 +17,7 @@ export default function Node(prototype, name, attributes, ...children) {
     },
     children: {
       enumerable: true,
-      value: freeze([...flattenNonNullElementsOf(children)]),
+      value: children,
     }
   });
 }
