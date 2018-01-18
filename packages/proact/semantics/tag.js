@@ -20,10 +20,10 @@ const Tag = create(null);
   'HTML.Attribute.YesNo',
 
   'HTML.Content.ContainsPhrasing',
-  'HTML.Content.RawText',
-  'HTML.Content.EscapableRawText',
+  'HTML.Content.RawText',               // <script> and <style>.
+  'HTML.Content.EscapableRawText',      // <title> and <textarea>.
   'HTML.Content.Transparent',
-  'HTML.Content.Unspecified',
+  'HTML.Content.Unspecified',           // Placeholder due to incomplete modelling.
   'HTML.Content.Void',
 ].forEach(path => {
   withKeyPath(Tag, path, (object, key) => {
