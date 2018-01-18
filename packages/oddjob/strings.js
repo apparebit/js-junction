@@ -32,6 +32,7 @@ export function toStableJSON(value) {
   }
 
   if( value == null || typeof value !== 'object' ) {
+    // Defer to standard-issue JSON.stringify()
     return stringify(value);
 
   } else if( isArray(value) ) {
