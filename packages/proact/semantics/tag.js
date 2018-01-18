@@ -20,6 +20,8 @@ const Tag = create(null);
   'HTML.Attribute.YesNo',
 
   'HTML.Content.ContainsPhrasing',
+  'HTML.Content.RawText',
+  'HTML.Content.EscapableRawText',
   'HTML.Content.Transparent',
   'HTML.Content.Unspecified',
   'HTML.Content.Void',

@@ -1,10 +1,11 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import { DuplicateBinding } from '@grr/oddjob/errors';
 import Tag from './tag';
 
 const {
   ContainsPhrasing,
+  EscapableRawText,
+  RawText,
   Transparent,
   Unspecified,
   Void,
@@ -12,13 +13,10 @@ const {
 
 const HTML = new Map();
 
-function setType(type) {
-  return function binder(tag) {
-    /* istanbul ignore next */
-    if( HTML.has(tag) ) {
-      throw DuplicateBinding(tag, HTML.get(tag), type);
-    }
-    HTML.set(tag, type);
+function addType(type) {
+  return function toTagName(tag) {
+    if( !HTML.has(tag) ) HTML.set(tag, []);
+    HTML.get(tag).push(type);
   };
 }
 
@@ -37,7 +35,12 @@ function setType(type) {
   'source',
   'track',
   'wbr',
-].forEach(setType(Void));
+].forEach(addType(Void));
+
+addType(RawText)('script');
+addType(RawText)('style');
+addType(EscapableRawText)('title');
+addType(EscapableRawText)('textarea');
 
 [
   'abbr',
@@ -81,7 +84,7 @@ function setType(type) {
   'time',
   'u',
   'var',
-].forEach(setType(ContainsPhrasing));
+].forEach(addType(ContainsPhrasing));
 
 [
   'a',
@@ -93,7 +96,7 @@ function setType(type) {
   'object',
   'slot',
   'video',
-].forEach(setType(Transparent));
+].forEach(addType(Transparent));
 
 [
   'address',
@@ -146,12 +149,32 @@ function setType(type) {
   'title',
   'tr',
   'ul',
-].forEach(setType(Unspecified));
+].forEach(addType(Unspecified));
 
-export function isHtmlElement(name) {
-  return HTML.has(String(name).toLowerCase());
+function toTag(value) {
+  return String(value).toLowerCase();
 }
 
-export function isVoidElement(name) {
-  return HTML.get(String(name)) === Void;
+function hasType(tag, ...types) {
+  const actuals = HTML.get(String(tag).toLowerCase());
+
+  if( actuals ) {
+    for( const type of types ) {
+      if( actuals.includes(type) ) return true;
+    }
+  }
+
+  return false;
+}
+
+export function isHtmlElement(value) {
+  return HTML.has(toTag(value));
+}
+
+export function isVoidElement(value) {
+  return hasType(toTag(value), Void);
+}
+
+export function hasRawText(value) {
+  return hasType(toTag(value), EscapableRawText, RawText);
 }
