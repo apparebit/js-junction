@@ -1,4 +1,4 @@
-/* (c) Copyright 2017–2018 Robert Grimm */
+/* (c) Copyright 2018 Robert Grimm */
 
 import { default as harness, dynaload } from './harness';
 

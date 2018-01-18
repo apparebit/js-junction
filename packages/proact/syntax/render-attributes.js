@@ -1,4 +1,4 @@
-/* (C) Copyright 2017 Robert Grimm */
+/* (C) Copyright 2017–2018 Robert Grimm */
 
 import { hyphenate } from '@grr/oddjob/strings';
 import { maybe } from '@grr/oddjob/functions';

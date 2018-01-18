@@ -1,4 +1,4 @@
-/* (c) Copyright 2017 Robert Grimm */
+/* (c) Copyright 2017–2018 Robert Grimm */
 
 export {
   DuplicateBinding,
