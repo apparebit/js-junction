@@ -1,6 +1,6 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import Tag from './tag';
+import Tags from './tags';
 
 const {
   ContainsPhrasing,
@@ -9,7 +9,7 @@ const {
   Transparent,
   Unspecified,
   Void,
-} = Tag.HTML.Content;
+} = Tags.HTML.Content;
 
 const HTML = new Map();
 

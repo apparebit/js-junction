@@ -3,7 +3,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // Domain Description
-import Tag from '@grr/proact/semantics/tag';
+import Tags from '@grr/proact/semantics/tags';
 import typeAttribute from '@grr/proact/semantics/attributes';
 import { isHtmlElement, isVoidElement, hasRawText } from '@grr/proact/semantics/elements';
 
@@ -33,7 +33,7 @@ import harness from './harness';
 
 const { getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
-const { Attribute } = Tag.HTML;
+const { Attribute } = Tags.HTML;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };

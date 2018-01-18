@@ -2,7 +2,7 @@
 
 import { hyphenate } from '@grr/oddjob/strings';
 import { maybe } from '@grr/oddjob/functions';
-import Tag from '../semantics/tag';
+import Tags from '../semantics/tags';
 import typeAttribute from '../semantics/attributes';
 
 const { isArray } = Array;
@@ -15,7 +15,7 @@ const {
   TrueFalseMixed,
   TrueFalseUndefined,
   YesNo,
-} = Tag.HTML.Attribute;
+} = Tags.HTML.Attribute;
 
 // -------------------------------------------------------------------------------------------------
 

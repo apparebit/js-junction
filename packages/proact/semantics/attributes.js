@@ -1,7 +1,7 @@
 /* (C) Copyright 2017 Robert Grimm */
 
 import { DuplicateBinding } from '@grr/oddjob/errors';
-import Tag from './tag';
+import Tags from './tags';
 
 const {
   CommaSeparated,
@@ -11,7 +11,7 @@ const {
   TrueFalseMixed,
   TrueFalseUndefined,
   YesNo,
-} = Tag.HTML.Attribute;
+} = Tags.HTML.Attribute;
 
 const ATTRIBUTES = new Map();
 
