@@ -1,5 +1,7 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
+import renderAttributes from '../html/render-attributes';
+
 const { create, defineProperty } = Object;
 const { toStringTag } = Symbol;
 
@@ -30,9 +32,14 @@ export default function Node(prototype, name, attributes, ...children) {
 const NodePrototype = create(null, {
   isProactNode: { value: true },
 
-  // eslint-disable-next-line func-name-matching
-  toString: { value: function toString() {
-    return `${this[toStringTag]}(${this.name})`;
+  toString: { value() {
+    let s = `${this[toStringTag]}(${this.name}`;
+
+    const atts = [...renderAttributes(this.attributes)].join(', ');
+    if( atts ) s += `, ${atts}`;
+
+    s += ')';
+    return s;
   }},
 });
 
