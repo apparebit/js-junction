@@ -45,10 +45,6 @@ const ComponentPrototype = create(Node.prototype, {
   render: { value() { throw MethodNotImplemented('render()'); } },
 
   // ----------------------------------------------------------------- Extension Points
-  metadata: { // Retrieve content metadata.
-    configurable: true,
-    value() { throw MethodNotImplemented('metadata()'); },
-  },
   script: { // Emit the JavaScript fragment.
     configurable: true,
     value() { throw MethodNotImplemented('script()'); },
