@@ -1,6 +1,6 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { hyphenate } from '@grr/oddjob/strings';
+import { hyphenate, escapeAttribute, isAttributeQuoted } from '@grr/oddjob/strings';
 import { maybe } from '@grr/oddjob/functions';
 import Tags from '../semantics/tags';
 import typeAttribute from '../semantics/attributes';
@@ -27,19 +27,6 @@ function formatKeyToken(key, value) {
   return `${key}=${value}`;
 }
 
-const NEEDS_QUOTING = /[\t\n\f\r "&'=<>`]/;
-
-const ESCAPES = {
-  '"': '&quot;',
-  '&': '&amp;',
-  '\'': '&#x27;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '`': '&#x60;',
-};
-
-const ESCAPABLE = new RegExp(`[${keys(ESCAPES).join('')}]`, 'g');
-
 function formatKeyValue(key, value, separator = ' ') {
   if( isArray(value) ) {
     value = value
@@ -50,11 +37,9 @@ function formatKeyValue(key, value, separator = ' ') {
     value = String(value).trim();
   }
 
-  if( value === '' || NEEDS_QUOTING.test(value) ) {
-    return `${key}="${value.replace(ESCAPABLE, c => ESCAPES[c])}"`;
+  if( isAttributeQuoted(value) ) {
+    return `${key}="${escapeAttribute(value)}"`;
   } else {
-    // This is safe as long as the characters that require quoting are a strict
-    // superset of the characters that require escaping.
     return `${key}=${value}`;
   }
 }
