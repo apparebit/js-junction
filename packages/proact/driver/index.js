@@ -1,31 +1,59 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-import Visitor from './visitor';
-import StringWriter from './string-writer';
+import { InvalidArgType } from '@grr/oddjob/errors';
+import { isIterable } from './kinds';
+import doTraverse from './traverse';
 
-const { assign, create } = Object;
 const { toStringTag } = Symbol;
 
 /**
- * The driver for rendering the vDOM to a string relies on something akin to
- * mixin composition to support both vDOM traversal ({@link Visitor}) and
- * buffered output ({@link StringWriter}). This mostly just works. However, as
- * illustrated for {@link #reset} below, manual conflict resolution gets tedious
- * real fast.
+ * The driver for vDOM traversals. This class may be instantiated on its own. In
+ * that case, the constructor must be invoked with an effects handler as its
+ * only argument and binds the function to the instance. Alternatively, this
+ * class can be instantiated through a subclass that invokes the constructor
+ * with no arguments and overrides the `createHandler()` method to return an
+ * appropriate effects handler.
  */
-export function StringRenderer(handler) {
-  Visitor.call(this, handler);
-  StringWriter.call(this);
+export default class Driver {
+  constructor(handler) {
+    const type = typeof handler;
+
+    if( type === 'function' ) {
+      this.handler = handler.bind(this);
+    } else if( type !== 'undefined' ) {
+      throw InvalidArgType({ handler }, 'undefined or a function');
+    }
+  }
+
+  get [toStringTag]() {
+    return 'Proact.Driver';
+  }
+
+  /** Create a handler bound to an appropriate context. */
+  createHandler() {
+    return this.handler;
+  }
+
+  /** Mark the start of a traversal with the handler just created by the factory. */
+  traversalWillStart(handler) { // eslint-disable-line no-unused-vars
+    // Nothing to do (yet).
+  }
+
+  /** Traverse over the vDOM. */
+  * traverse(value, options) {
+    const stack = isIterable(value) ? [...value].reverse() : [value];
+    const handler = this.createHandler();
+
+    this.traversalWillStart(handler);
+    try {
+      yield* doTraverse(stack, { handler, ...options });
+    } finally {
+      this.traversalDidEnd(handler);
+    }
+  }
+
+  /** Mark the end of the traversal with the handler. */
+  traversalDidEnd(handler) { // eslint-disable-line no-unused-vars
+    // Nothing to do (yet).
+  }
 }
-
-StringRenderer.prototype = assign(create(null, {
-  [toStringTag]: { value: 'Proact.Driver.StringRenderer' },
-}), Visitor.prototype, StringWriter.prototype);
-
-StringRenderer.prototype.constructor = StringRenderer;
-
-StringRenderer.prototype.reset = function reset(...args) {
-  Visitor.prototype.reset.call(this, ...args);
-  StringWriter.prototype.reset.call(this, ...args);
-  return this;
-};
