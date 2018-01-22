@@ -4,16 +4,22 @@ import {
   dehyphenate,
   deobjectify,
   DuplicateBinding,
+  escapeAttribute,
+  escapeHTML,
+  escapeScript,
   hyphenate,
   InvalidArgType,
   InvalidArgValue,
   InvalidArrayLength,
+  isAttributeQuoted,
   isObject,
   isPropertyKey,
   maybe,
   memoize,
   MethodNotImplemented,
   MissingArgs,
+  MultipleCallback,
+  normalizeWhitespace,
   show,
   toStableJSON,
   toKeyPath,
@@ -226,10 +232,45 @@ harness.test( '@grr/oddjob', t => {
       t.end();
     });
 
+    t.test('.escapeAttribute()', t => {
+      t.is(escapeAttribute('mayhem: <&`\'">'), 'mayhem: &lt;&amp;&#x60;&#x27;&quot;&gt;');
+      t.end();
+    });
+
+    t.test('.escapeHTML()', t => {
+      t.is(escapeHTML('&lt;'), '&amp;lt;');
+      t.is(escapeHTML('<script>evil()</script>'), '&lt;script&gt;evil()&lt;/script&gt;');
+      t.end();
+    });
+
+    t.test('.escapeScript()', t => {
+      // Picture the string between <script> and </script>.
+      t.is(escapeScript(`<!-- ooh -->'<script></script>'`),
+        `<\\!-- ooh -->'<\\script><\\/script>'`);
+      t.end();
+    });
+
     t.test('.hyphenate()', t => {
       t.is(hyphenate(''), '');
       t.is(hyphenate('someName'), 'some-name');
       t.is(hyphenate('SomeName'), '-some-name');
+      t.end();
+    });
+
+    t.test('.isAttributeQuoted()', t => {
+      t.notOk(isAttributeQuoted('hallo'));
+      t.notOk(isAttributeQuoted('https://apparebit.com'));
+
+      t.ok(isAttributeQuoted('\t\n\f\r "&\'=<>'));
+      t.ok(isAttributeQuoted(' v'));
+      t.ok(isAttributeQuoted('v '));
+      t.ok(isAttributeQuoted(' v '));
+      t.end();
+    });
+
+    t.test('.normalizeWhitespace()', t => {
+      t.is(normalizeWhitespace('>>> <<<'), '>>> <<<');
+      t.is(normalizeWhitespace('>>> \t\n\f\r\t\n\f\r <<<'), '>>> <<<');
       t.end();
     });
 
@@ -323,6 +364,7 @@ harness.test( '@grr/oddjob', t => {
         [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
         [MethodNotImplemented('m'),           'ERR_METHOD_NOT_IMPLEMENTED'],
         [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
+        [MultipleCallback('cb'),              'ERR_MULTIPLE_CALLBACK'],
       ].forEach(([err, code]) => {
         t.is(err.code, code);
       });
@@ -340,6 +382,10 @@ harness.test( '@grr/oddjob', t => {
         'argument "arg" is "null"');
       t.is(InvalidArgValue({ arg }, 'should be an even number').message,
         'argument "arg" is "null", but should be an even number');
+      t.is(MultipleCallback('cb').message,
+        'repeated invocation of callback "cb"');
+      t.is(MultipleCallback('cb', 'from same handler context').message,
+        'repeated invocation of callback "cb" from same handler context');
 
       t.end();
     });

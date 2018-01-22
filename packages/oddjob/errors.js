@@ -30,3 +30,6 @@ export const MethodNotImplemented = E('ERR_METHOD_NOT_IMPLEMENTED',
   name => `the ${name}() method is not implemented`);
 export const MissingArgs = E('ERR_MISSING_ARGS',
   (...names) => `the ${showArgNames.of(names)} missing`);
+export const MultipleCallback = E('ERR_MULTIPLE_CALLBACK',
+  (name, context) =>
+    `repeated invocation of callback "${String(name)}"${context ? ` ${context}` : ''}`);

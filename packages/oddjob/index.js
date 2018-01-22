@@ -7,6 +7,7 @@ export {
   InvalidArrayLength,
   MethodNotImplemented,
   MissingArgs,
+  MultipleCallback,
 } from './errors';
 
 export {
@@ -37,7 +38,12 @@ export {
 
 export {
   dehyphenate,
+  escapeAttribute,
+  escapeHTML,
+  escapeScript,
   hyphenate,
+  isAttributeQuoted,
+  normalizeWhitespace,
   toStableJSON,
   toSymbolKey,
 } from './strings';
