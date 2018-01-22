@@ -14,22 +14,18 @@ import Component from '@grr/proact/vdom/component';
 import { define, lookup } from '@grr/proact/vdom/registry';
 
 // Driver
-import {
-  flatten,
-  isIgnorable,
-  isIterable,
-  isTextual,
-  default as Visitor,
-} from '@grr/proact/driver/visitor';
-
-import StringWriter from '@grr/proact/driver/string-writer';
-import { StringRenderer } from '@grr/proact/driver';
+import { isIgnorable, isIterable, isTextual } from '@grr/proact/driver/kinds';
+import SideChannel from '@grr/proact/driver/side-channel';
+import traverse from '@grr/proact/driver/traverse';
+import Driver from '@grr/proact/driver';
 
 // Render to HTML
 import renderAttributes from '@grr/proact/html/render-attributes';
-import { renderFragment, default as render } from '@grr/proact/html/render';
+import render from '@grr/proact/html/render';
 
+// Test Harness
 import harness from './harness';
+import { InvalidArgValue } from '@grr/oddjob/errors';
 
 const { getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
@@ -39,6 +35,7 @@ const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
 const CODE_METHOD_NOT_IMPLEMENTED = { code: 'ERR_METHOD_NOT_IMPLEMENTED' };
+const CODE_MULTIPLE_CALLBACK = { code: 'ERR_MULTIPLE_CALLBACK' };
 
 // -------------------------------------------------------------------------------------------------
 
@@ -104,7 +101,7 @@ harness.test('@grr/proact', t => {
   const Something = Component.from(renderSomething, 'Something');
   const thing = Something(null, {}, 'a thing');
 
-  t.test('content', t => {
+  t.test('vdom', t => {
     t.test('.Node()', t => {
       t.is(Node.prototype.isProactNode, true);
       t.is(Node.prototype.isProactElement, void 0);
@@ -113,6 +110,11 @@ harness.test('@grr/proact', t => {
       // The children are only normalized lazily, on demand. In other words, not here.
       t.same(Node(null, 'much-ado', {}, void 0, null, '', [], [[true, false]]).children,
         [void 0, null, '', [], [[true, false]]]);
+
+      t.is(Element('span', null,                               'hello!').toString(),
+        'Proact.Element(span)');
+      t.is(Element('span', { title: 'Greetings', lang: 'en' }, 'hello!').toString(),
+        'Proact.Element(span, title=Greetings, lang=en)');
       t.end();
     });
 
@@ -157,7 +159,6 @@ harness.test('@grr/proact', t => {
       t.is(getPrototypeOf(getPrototypeOf(thing)), Component.prototype);
       t.is(getPrototypeOf(getPrototypeOf(getPrototypeOf(thing))), Node.prototype);
       t.ok(thing.isProactComponent);
-      t.throws(() => thing.metadata(), CODE_METHOD_NOT_IMPLEMENTED);
       t.throws(() => thing.script(), CODE_METHOD_NOT_IMPLEMENTED);
       t.throws(() => thing.style(), CODE_METHOD_NOT_IMPLEMENTED);
       t.is(thing.name, 'Something');
@@ -191,12 +192,16 @@ harness.test('@grr/proact', t => {
 
   // -----------------------------------------------------------------------------------------------
 
+  const renderDriver = new Driver(render);
+  const toHTML = (value, options = {}) => [...renderDriver.traverse(value, options)].join('');
+
   t.test('driver', t => {
     t.test('.isIgnorable()', t => {
       t.ok(isIgnorable(void 0));
       t.ok(isIgnorable(null));
       t.ok(isIgnorable(false));
       t.ok(isIgnorable(true));
+      t.ok(isIgnorable(NaN));
       t.ok(isIgnorable(''));
 
       t.notOk(isIgnorable(0));
@@ -211,6 +216,7 @@ harness.test('@grr/proact', t => {
       t.notOk(isTextual(null));
       t.notOk(isTextual(false));
       t.notOk(isTextual(true));
+      t.notOk(isTextual(NaN));
       t.notOk(isTextual(''));
 
       t.ok(isTextual(0));
@@ -223,6 +229,7 @@ harness.test('@grr/proact', t => {
       t.notOk(isIterable(null));
       t.notOk(isIterable(false));
       t.notOk(isIterable(true));
+      t.notOk(isIterable(665));
       t.notOk(isIterable({}));
 
       t.ok(isIterable(''));
@@ -232,38 +239,118 @@ harness.test('@grr/proact', t => {
       t.end();
     });
 
-    t.test('.flatten()', t => {
-      t.match(flatten([void 0, null, '', [], [[true, false]]]).next(),
+    t.test('.SideChannel()', t => {
+      const aside = new SideChannel();
+      t.same(aside.accept(), { replace: void 0, skip: false });
+
+      aside.replaceChildren(somewhere);
+      t.throws(() => aside.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
+      t.throws(() => aside.skipChildren(), CODE_MULTIPLE_CALLBACK);
+      t.same(aside.accept(), { replace: somewhere, skip: false });
+      t.same(aside.accept(), { replace: void 0,    skip: false });
+
+      aside.skipChildren();
+      t.throws(() => aside.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
+      t.throws(() => aside.skipChildren(), CODE_MULTIPLE_CALLBACK);
+      t.same(aside.accept(), { replace: void 0, skip: true });
+      t.same(aside.accept(), { replace: void 0, skip: false });
+
+      t.end();
+    });
+
+    t.test('.traverse()', t => {
+      t.match(traverse([void 0, null, '', [], [[true, false]]].reverse()).next(),
         { done: true });
-      t.match(flatten(['hello', null, []]).next(),
+      t.match(traverse(['hello', null, []].reverse()).next(),
         { value: { tag: 'text', object: 'hello' }});
-      t.match(flatten(['hello', null, [', there!']]).next(),
+      t.match(traverse(['hello', null, [', there!']].reverse()).next(),
         { value: { tag: 'text', object: 'hello, there!' }});
 
-      t.same([...flatten([void 0, null, '', [], [[true, false]]], (t, o) => o)], []);
-      t.same([...flatten([1, null, 2, [], [[], 3]], (t, o) => o)], ['123']);
+      function traverseChildren(children, recurse = true) {
+        const gen = traverse(children.reverse(), { handler: (_, o) => o, recurse });
+        return [...gen];
+      }
+
+      t.same(traverseChildren([void 0, null, '', [], [[true, false]]]), []);
+      t.same(traverseChildren([1, null, 2, [], [[], 3]]), ['123']);
+
+      t.same([...traverse([somewhere], { recurse: false })], [
+        { tag: 'enter', object: somewhere },
+        { tag: 'exit',  object: somewhere }
+      ]);
+
+      // The weird element's children are 4, 2, and an iterable yielding 65.
+      const weirdo = Element('div', null, Element('span', null, 4, 2), {
+        [iterator]() {
+          return this;
+        },
+        next() {
+          if( !this.flagged ) {
+            this.flagged = true;
+            return { value: 65 };
+          } else {
+            return { done: true };
+          }
+        }
+      });
+
+      // The weird effects handler emits textual values for numbers and strings.
+      // It also emits HTML-like tags for nodes. Finally, it replaces every
+      // <span> with an iterable yielding 6.
+      function weirding(tag, object, parent, aside) {
+        if( tag === 'text') {
+          return String(object);
+        } else if( object.name === 'span' ) {
+          if( tag === 'enter' ) {
+            aside.replaceChildren({
+              [iterator]() {
+                return this;
+              },
+              next() {
+                if( !this.exhausted ) {
+                  this.exhausted = true;
+                  return { value: 6 };
+                } else {
+                  return { done: true };
+                }
+              },
+            });
+          }
+
+          return '';
+        } else if( tag === 'enter' ) {
+          return `<${object.name}>`;
+        } else if( tag === 'exit' ) {
+          return `</${object.name}>`;
+        } else {
+          throw InvalidArgValue({ tag }, 'should be "text", "enter", or "exit"');
+        }
+      }
+
+      // Rendering the weird element with the even weirder effects handler.
+      t.is([...traverse([weirdo], { handler: weirding })].join(''), '<div>665</div>');
       t.end();
     });
 
-    t.test('.Visitor()', t => {
-      t.is(new Visitor().handler, void 0);
-      t.throws(() => new Visitor(665), CODE_INVALID_ARG_TYPE);
-      t.end();
-    });
+    t.test('.Driver()', t => {
+      t.throws(() => new Driver(665), CODE_INVALID_ARG_TYPE);
 
-    t.test('.StringRenderer()', t => {
-      t.is(StringRenderer.prototype[toStringTag], 'Proact.Driver.StringRenderer');
-      t.is(StringRenderer.prototype.constructor, StringRenderer);
-      t.is(StringRenderer.prototype.setShallowMode, Visitor.prototype.setShallowMode);
-      t.isNot(StringRenderer.prototype.reset, Visitor.prototype.reset);
-      t.isNot(StringRenderer.prototype.reset, StringWriter.prototype.reset);
-      t.is(StringRenderer.prototype.parent, Visitor.prototype.parent);
-      t.is(StringRenderer.prototype.traverse, Visitor.prototype.traverse);
-      t.is(StringRenderer.prototype.write, StringWriter.prototype.write);
-      t.is(StringRenderer.prototype.toString, StringWriter.prototype.toString);
+      const nullDriver = new Driver();
+      t.is(nullDriver.handler, void 0);
+      t.is(nullDriver[toStringTag], 'Proact.Driver');
 
-      t.is(new StringRenderer(renderFragment).reset(somewhere).traverse().toString(),
-        '<a href=location>somewhere</a>');
+      const br = Element('br');
+      const img = Element('img');
+      const brimg = Element('div', null, br, img);
+      const brimg2 = Element('div', null, [br, img]);
+
+      t.is(toHTML(brimg.children, { ancestors: [brimg], recurse: false }), '<br><img>');
+      t.is(toHTML(brimg2.children, { ancestors: [brimg2], recurse: false }), '<br><img>');
+
+      t.is(toHTML(brimg), '<div><br><img></div>');
+      t.is(toHTML(brimg2), '<div><br><img></div>');
+      t.is(toHTML(somewhere), '<a href=location>somewhere</a>');
+
       t.end();
     });
 
@@ -272,10 +359,11 @@ harness.test('@grr/proact', t => {
 
   // -----------------------------------------------------------------------------------------------
 
-  t.test('syntax', t => {
+  t.test('html', t => {
     t.test('.renderAttributes()', t => {
       const NIL = Symbol('nil');
 
+      // Test renderAttributes() with at most one attribute rendered.
       const render = attributes => {
         const result = [...renderAttributes(attributes)];
 
@@ -318,49 +406,56 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('.render()', t => {
+      // Invoke the effects handler directly to test an invalid tag.
+      t.throws(() => render('mad'), CODE_INVALID_ARG_VALUE);
+
       // >>> Elements with and without attributes.
       const Link = Component.from(function renderLink(name, attributes, children) {
         return Element('a', attributes, children);
       }, 'Link');
 
-      t.is(render(Link('Mine', null, 'landing page')),
+      t.is(toHTML(Link(null, null, 'landing page')),
         '<a>landing page</a>');
-      t.is(render(Link('Mine', { href: 'apparebit.com', rel: 'home' }, 'landing page')),
+      t.is(toHTML(Link(null, { href: 'apparebit.com', rel: 'home' }, 'landing page')),
         '<a href=apparebit.com rel=home>landing page</a>');
 
       // >>> Void elements.
-      t.is(render(Element('hr')), '<hr>');
-      t.throws(() => render(Element('hr', {}, 'but, but, but!')), CODE_INVALID_ARG_VALUE);
+      t.is(toHTML(Element('hr')), '<hr>');
+      t.throws(() => toHTML(Element('hr', {}, 'but, but, but!')), CODE_INVALID_ARG_VALUE);
 
       // >>> Ignored values.
-      t.is(render(Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])),
+      t.is(toHTML(Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])),
         '<span>W00t!</span>');
 
       // >>> Text with consecutive whitespace and escapable characters.
-      t.is(render(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
+      t.is(toHTML(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
         '<span> &lt;BOO&gt; &amp; so on</span>');
 
       // >>> Element with raw text as content.
-      t.is(render(Element('script', {}, '42 < 665 && 13 > 2')),
+      t.is(toHTML(Element('script', {}, '42 < 665 && 13 > 2')),
         '<script>42 < 665 && 13 > 2</script>');
+      t.is(toHTML(Element('script', null, `<!-- ooh -->'<script></script>'`)),
+        `<script><\\!-- ooh -->'<\\script><\\/script>'</script>`);
+      t.is(toHTML(Element('style', null, '.achtung { color: red; }')),
+        '<style>.achtung { color: red; }</style>');
 
-      // >>> Values other than nodes and strings.
-      t.is(render(665), '665');
-      t.is(render([6, 6, 5]), '665');
-      t.throws(() => render(Symbol('oops')), CODE_INVALID_ARG_TYPE);
+      // >>> Values other than nodes.
+      t.is(toHTML(665), '665');
+      t.is(toHTML([6, 6, 5]), '665');
+      t.throws(() => toHTML(Element('span', null, new TypeError())), CODE_INVALID_ARG_TYPE);
+      t.throws(() => toHTML(Element('span', null, Symbol('oops'))), CODE_INVALID_ARG_TYPE);
 
       // >>> Components that render to lists.
       const Many = Component.from(function renderMany(name, attributes, children) {
         return [...children, ' ', ...children, ' ', ...children];
       }, 'Many');
 
-      t.is(render(Many('Whatever', null, 'w00t!')), 'w00t! w00t! w00t!');
+      t.is(toHTML(Many('Whatever', null, 'w00t!')), 'w00t! w00t! w00t!');
 
       // >>> Regular vs shallow rendering.
-      t.is(render(Element('a', null, Element('b', null, Element('i', null, 'nested')))),
-        '<a><b><i>nested</i></b></a>');
-      t.is(render(Element('a', null, Element('b', null, Element('i', null, 'nested'))),
-        new StringRenderer(renderFragment).setShallowMode()), '<a></a>');
+      const abi = Element('a', null, Element('b', null, Element('i', null, 'nested')));
+      t.is(toHTML(abi), '<a><b><i>nested</i></b></a>');
+      t.is(toHTML(abi, { recurse: false }), '<a></a>');
 
       // FIXME: add larger test nesting components and nodes in each other.
 
