@@ -61,7 +61,5 @@ export function InvalidArgValueMsg(key, value, spec = null) {
   return spec ? `${base}, but ${spec}` : base;
 }
 
-export const InvalidArgType =
-  E('ERR_INVALID_ARG_TYPE', InvalidArgTypeMsg, CodedTypeError);
-export const InvalidArgValue =
-  E('ERR_INVALID_ARG_VALUE', InvalidArgValueMsg);
+export const InvalidArgType = E('ERR_INVALID_ARG_TYPE', InvalidArgTypeMsg, CodedTypeError);
+export const InvalidArgValue = E('ERR_INVALID_ARG_VALUE', InvalidArgValueMsg);
