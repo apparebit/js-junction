@@ -5,25 +5,28 @@
 This package provides an assortment of utility functions. The intent is to
 abstract over the little annoyances when writing everyday JavaScript. This
 includes detecting types, wrangling object properties, composing functions, and
-raising errors. Consistent with the intent, `@grr/oddjob` has *no* external
+raising errors. Consistent with the intent, Oddjob has *no* external
 package dependencies and minimizes internal module dependencies. Surprisingly,
 modules inside the `internal` directory are *not* part of this package's public
 API.
 
 ## Notes
 
-Technically, JavaScript only supports strings and symbols as property keys. That
-includes the empty string but does not include numbers, which, like all other
-values, are transparently coerced to strings when using square-bracket notation.
-Doing so seems too permissive, as it masks usually invalid keys such as
-`undefined` or `null`. To support array indices while still providing (some)
-error detection, this package makes a pragmatic compromise and treats strings,
-symbols, and numbers as valid property keys.
+Oddjob's *key path* utilities allow strings, symbols, and numbers as property
+keys. Treating numbers as valid keys gives more flexibility in programmatically
+deriving keys. It also reflects the importance of arrays in the language, which
+pretend to use integer keys. It is unclear, however, whether it isn't already
+too late for such type concerns. After all, one pair of square brackets is all
+that's needed to turn any value into a property key.
 
-When wrapping functions to interpose on their calls, `@grr/oddjob` does rely on
-functions to call the originals. It instead relies on proxies, which not only
-trap the calls but also transparently expose wrapped functions properties,
-including `length` and `name`.
+This package's *function wrappers* help enhance existing code by tapping
+function and method invocations to perform additional work. While it might be
+possible to rewrite every call site, it generally is preferable to just modify
+the callee — by wrapping it in another entity that controls the original
+function. The problem, however, is that JavaScript functions are objects — with
+arbitrary properties *and* the special right to execute code. Before ES6, this
+implied copying all properties from the wrapped function to the wrapper
+function. Thankfully, proxies in ES6 make this much easier and more lightweight.
 
 --------------------------------------------------------------------------------
 
