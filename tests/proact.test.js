@@ -15,7 +15,7 @@ import { define, lookup } from '@grr/proact/vdom/registry';
 
 // Driver
 import { isIgnorable, isIterable, isTextual } from '@grr/proact/driver/kinds';
-import SideChannel from '@grr/proact/driver/side-channel';
+import TraversalControl from '@grr/proact/driver/traversal-control';
 import traverse from '@grr/proact/driver/traverse';
 import Driver from '@grr/proact/driver';
 
@@ -238,21 +238,21 @@ harness.test('@grr/proact', t => {
       t.end();
     });
 
-    t.test('.SideChannel()', t => {
-      const aside = new SideChannel();
-      t.same(aside.accept(), { replace: void 0, skip: false });
+    t.test('.TraversalControl()', t => {
+      const control = new TraversalControl();
+      t.same(control.accept(), { replace: void 0, skip: false });
 
-      aside.replaceChildren(somewhere);
-      t.throws(() => aside.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
-      t.throws(() => aside.skipChildren(), CODE_MULTIPLE_CALLBACK);
-      t.same(aside.accept(), { replace: somewhere, skip: false });
-      t.same(aside.accept(), { replace: void 0,    skip: false });
+      control.replaceChildren(somewhere);
+      t.throws(() => control.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
+      t.throws(() => control.skipChildren(), CODE_MULTIPLE_CALLBACK);
+      t.same(control.accept(), { replace: somewhere, skip: false });
+      t.same(control.accept(), { replace: void 0,    skip: false });
 
-      aside.skipChildren();
-      t.throws(() => aside.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
-      t.throws(() => aside.skipChildren(), CODE_MULTIPLE_CALLBACK);
-      t.same(aside.accept(), { replace: void 0, skip: true });
-      t.same(aside.accept(), { replace: void 0, skip: false });
+      control.skipChildren();
+      t.throws(() => control.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
+      t.throws(() => control.skipChildren(), CODE_MULTIPLE_CALLBACK);
+      t.same(control.accept(), { replace: void 0, skip: true });
+      t.same(control.accept(), { replace: void 0, skip: false });
 
       t.end();
     });

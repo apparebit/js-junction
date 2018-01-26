@@ -15,7 +15,7 @@
 
 import assert from 'assert';
 import { isIgnorable, isIterable, isTextual } from './kinds';
-import SideChannel from './side-channel';
+import TraversalControl from './traversal-control';
 
 const { isArray } = Array;
 
@@ -37,7 +37,8 @@ function pushInReverse(target, source) {
  * @param {string} tag - The state, which is `text`, `enter`, `exit`, or `unknown`.
  * @param {*} value - The child value.
  * @param {Node} parent - The parent node of the value.
- * @param {SideChannel} [aside] - The side channel, which is only valid for `enter`.
+ * @param {TraversalControl} [control] - The traversal control,
+ *     which is only available with an `enter` invocation.
  * @returns {*} An arbitrary value, to be yielded by `traverse()`.
  */
 
@@ -47,9 +48,9 @@ function pushInReverse(target, source) {
  * by this generator function invokes the effects handler and then yields the
  * handler's result. To reduce the need for imperative code as much as possible,
  * e.g., when rendering the vDOM as HTML, values returned from an effect handler
- * invocation are yielded as is. An explicit {@link SideChannel side channel}
- * provides a structured interface for controlling the traversal from the effect
- * handler.
+ * invocation are yielded as is. An explicit
+ * {@link TraversalControl traversal control} provides a structured interface
+ * for controlling the traversal from the effects handler.
  *
  * @param {Array} todo - The stack of values that still need to be traversed.
  * @param {Object} options - The options for this traversal.
@@ -63,7 +64,7 @@ export default function* traverse(todo, {
   recurse = true,
   handler = (tag, object) => ({ tag, object }),
 } = {}) {
-  const aside = new SideChannel();
+  const control = new TraversalControl();
 
   while( todo.length ) {
     const value = todo.pop();
@@ -91,8 +92,8 @@ export default function* traverse(todo, {
 
       yield handler('text', text, parent);
     } else if( value.isProactNode ) { // -------------------------- Enter Node
-      yield handler('enter', value, parent, aside);
-      const { skip, replace } = aside.accept();
+      yield handler('enter', value, parent, control);
+      const { skip, replace } = control.accept();
 
       ancestors.push(value);
       todo.push({ [EXIT]: value });
@@ -116,7 +117,7 @@ export default function* traverse(todo, {
       yield handler('exit', node, parent);
     } else if( !isIterable(value) ) { // -------------------------- Unknown Object
       yield handler('unknown', value, parent);
-    } else if( isArray(value) ) { // --------------------------------------------------- Iterable
+    } else if( isArray(value) ) { // ------------------------------ Iterable
       pushInReverse(todo, value);
     } else {
       pushInReverse(todo, [...value]);
