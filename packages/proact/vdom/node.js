@@ -15,14 +15,15 @@ const NodePrototype = create(null, {
     value: function toString() { // eslint-disable-line func-name-matching
       let s = `${this[toStringTag]}(${this.name}`;
 
-      const { attributes: source } = this;
+      const source = this.properties;
       const sink = [];
+
       for( const key of keys(source) ) {
         const value = source[key];
-        sink.push( `${key}="${value}"`);
+        sink.push( `${key}=${value}`);
       }
 
-      if( sink.length ) s += ` ${sink.join(' ')}`;
+      if( sink.length ) s += `, ${sink.join(', ')}`;
 
       s += ')';
       return s;
