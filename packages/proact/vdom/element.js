@@ -3,22 +3,22 @@
 import Node from './node';
 
 const { create, defineProperties } = Object;
-const NodePrototype = Node.prototype;
 const { toStringTag } = Symbol;
 
 export default function Element(name, attributes, ...children) {
-  // eslint-disable-next-line no-use-before-define
-  return Node(ElementPrototype, name, attributes, ...children);
+  if( !new.target ) return new Element(name, attributes, ...children);
+  this.name = String(name);
+  this.attributes = Object(attributes);
+  this.children = children;
 }
 
-const ElementTag = 'Proact.Element';
-const ElementPrototype = create(NodePrototype, {
+const ElementPrototype = create(Node.prototype, {
   constructor: { value: Element },
   isProactElement: { value: true },
-  [toStringTag]: { value: ElementTag },
+  [toStringTag]: { value: 'Proact.Element' },
 });
 
 defineProperties(Element, {
-  tag: { value: ElementTag },
   prototype: { value: ElementPrototype },
+  isProactNodeFactory: { value: true },
 });

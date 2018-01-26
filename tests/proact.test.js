@@ -99,19 +99,17 @@ harness.test('@grr/proact', t => {
   const renderSomething =
     (_, atts, children) => Element('div', { class: 'something' }, children);
   const Something = Component.from(renderSomething, 'Something');
-  const thing = Something(null, {}, 'a thing');
+  const thing = Something({}, 'a thing');
 
   t.test('vdom', t => {
     t.test('.Node()', t => {
+      t.is(Node.isProactNodeFactory, void 0);
       t.throws(() => Node(), CODE_FUNCTION_NOT_IMPLEMENTED);
       t.throws(() => new Node(), CODE_FUNCTION_NOT_IMPLEMENTED);
+
       t.is(Node.prototype.isProactNode, true);
       t.is(Node.prototype.isProactElement, void 0);
       t.is(Node.prototype.isProactComponent, void 0);
-
-      // The children are only normalized lazily, on demand. In other words, not here.
-      t.same(Node(null, 'much-ado', {}, void 0, null, '', [], [[true, false]]).children,
-        [void 0, null, '', [], [[true, false]]]);
 
       t.is(Element('span', null,                               'hello!').toString(),
         'Proact.Element(span)');
@@ -121,25 +119,31 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('.Element()', t => {
-      t.is(Element.tag, 'Proact.Element');
+      t.is(Element.isProactNodeFactory, true);
       t.is(Element.prototype.constructor, Element);
       t.is(Element.prototype.isProactNode, true);
       t.is(Element.prototype.isProactElement, true);
       t.is(Element.prototype.isProactComponent, void 0);
-      t.is(Element.prototype[toStringTag], Element.tag);
+      t.is(Element.prototype[toStringTag], 'Proact.Element');
 
       t.is(somewhere.constructor, Element);
       t.is(getPrototypeOf(somewhere), Element.prototype);
       t.ok(somewhere.isProactElement);
-      t.is(somewhere[toStringTag], Element.tag);
+      t.is(somewhere[toStringTag], 'Proact.Element');
       t.is(somewhere.name, 'a');
       t.same(somewhere.attributes, { href: 'location' });
       t.same(somewhere.children, ['somewhere']);
+
+      // The children are only normalized lazily, on demand. In other words, not here.
+      t.same(Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children,
+        [void 0, null, '', [], [[true, false]]]);
+
       t.end();
     });
 
     t.test('.Component()', t => {
       t.throws(() => Component(), CODE_FUNCTION_NOT_IMPLEMENTED);
+      t.throws(() => new Component(), CODE_FUNCTION_NOT_IMPLEMENTED);
       t.end();
     });
 
@@ -149,21 +153,25 @@ harness.test('@grr/proact', t => {
       t.is(Component.from(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
       t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
 
-      t.is(Component.tag, 'Proact.Component');
+      t.is(Something.isProactNodeFactory, true);
+      t.is(Something.name, 'Something');
       t.is(Something.prototype.constructor, Something);
       t.is(Something.prototype.isProactNode, true);
       t.is(Something.prototype.isProactElement, void 0);
       t.is(Something.prototype.isProactComponent, true);
-      t.is(Something.prototype[toStringTag], Component.tag);
+      t.is(Something.prototype[toStringTag], 'Proact.Component');
 
       t.is(thing.constructor, Something);
-      t.is(getPrototypeOf(getPrototypeOf(thing)), Component.prototype);
-      t.is(getPrototypeOf(getPrototypeOf(getPrototypeOf(thing))), Node.prototype);
+      t.is(getPrototypeOf(getPrototypeOf(thing)), Node.prototype);
+      t.ok(thing.isProactNode);
       t.ok(thing.isProactComponent);
       t.is(thing.name, 'Something');
-      t.is(Something('OrOther').name, 'OrOther');
       t.same(thing.attributes, {});
       t.same(thing.children, ['a thing']);
+
+      const other = Something('OrOther');
+      t.is(other.name, 'OrOther');
+      t.is(getPrototypeOf(other).name, 'Something');
       t.end();
     });
 
@@ -413,9 +421,9 @@ harness.test('@grr/proact', t => {
         return Element('a', attributes, children);
       }, 'Link');
 
-      t.is(toHTML(Link(null, null, 'landing page')),
+      t.is(toHTML(Link(null, 'landing page')),
         '<a>landing page</a>');
-      t.is(toHTML(Link(null, { href: 'apparebit.com', rel: 'home' }, 'landing page')),
+      t.is(toHTML(Link('Link', { href: 'apparebit.com', rel: 'home' }, 'landing page')),
         '<a href=apparebit.com rel=home>landing page</a>');
 
       // >>> Void elements.

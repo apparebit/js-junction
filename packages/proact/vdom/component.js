@@ -1,62 +1,57 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { InvalidArgValue, MethodNotImplemented } from '@grr/oddjob/errors';
+import { InvalidArgValue, FunctionNotImplemented } from '@grr/oddjob/errors';
 import Node from './node';
 
 const { create, defineProperties, defineProperty } = Object;
 const { toStringTag } = Symbol;
+const NodePrototype = Node.prototype;
 
-// -------------------------------------------------------------------------------------------------
+export default function Component() { throw FunctionNotImplemented('Component()'); }
 
-export default function Component() { throw MethodNotImplemented('Component()'); }
-
-function from(renderFn, typeName) {
-  if( typeName == null ) {
-    typeName = renderFn.name;
-    if( !typeName ) throw InvalidArgValue({ renderFn }, 'should have a name');
+function from(renderFn, name) {
+  if( name == null ) {
+    ({ name } = renderFn);
+    if( !name ) throw InvalidArgValue({ renderFn }, 'should have a name');
   }
 
-  function RenderFunction(name, attributes, ...children) {
-    if( !name ) name = typeName;
-    // eslint-disable-next-line no-use-before-define
-    return Node(RenderFunctionPrototype, name, attributes, ...children);
+  function RenderFunction(...args) {
+    if( !new.target ) return new RenderFunction(...args);
+
+    if( typeof args[0] === 'string' ) {
+      defineProperty(this, 'name', {
+        enumerable: true,
+        value: args.shift(),
+      });
+    }
+
+    this.attributes = Object(args.shift());
+    this.children = args;
   }
 
-  // eslint-disable-next-line no-use-before-define
-  const RenderFunctionPrototype = create(ComponentPrototype, {
+  // Some properties are independent of render function, could be moved into
+  // separate prototype. That may converse memory, but also increases latency
+  // due to longer prototype chain, for a critical data structure nonetheless.
+
+  const RenderFunctionPrototype = create(NodePrototype, {
     constructor: { value: RenderFunction },
+    isProactComponent: { value: true },
+    [toStringTag]: { value: 'Proact.Component' },
     render: { value: renderFn },
-    name: { value: typeName },
+
+    name: { value: name, enumerable: true },
   });
 
-  defineProperty(RenderFunction, 'prototype', { value: RenderFunctionPrototype });
+  defineProperties(RenderFunction, {
+    prototype: { value: RenderFunctionPrototype },
+    isProactNodeFactory: { value: true },
+    name: { value: name },
+  });
+
   return RenderFunction;
 }
 
-// -------------------------------------------------------------------------------------------------
-
-const ComponentTag = 'Proact.Component';
-const ComponentPrototype = create(Node.prototype, {
-  // ------------------------------------------------------------- Invariant Properties
-  isProactComponent: { value: true },
-  [toStringTag]: { value: ComponentTag },
-
-  // ----------------------------------------------------------------- Abstract Methods
-  render: { value() { throw MethodNotImplemented('render()'); } },
-
-  // ----------------------------------------------------------------- Extension Points
-  script: { // Emit the JavaScript fragment.
-    configurable: true,
-    value() { throw MethodNotImplemented('script()'); },
-  },
-  style: { // Emit the CSS fragment.
-    configurable: true,
-    value() { throw MethodNotImplemented('style()'); },
-  },
-});
-
 defineProperties(Component, {
-  tag: { value: ComponentTag },
-  prototype: { value: ComponentPrototype },
+  prototype: { value: null }, // Nothing to see here for now.
   from: { value: from },
 });
