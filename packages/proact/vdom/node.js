@@ -1,9 +1,8 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
 import { FunctionNotImplemented } from '@grr/oddjob/errors';
-import renderAttributes from '../html/render-attributes';
 
-const { create, defineProperty } = Object;
+const { create, defineProperty, keys } = Object;
 const { toStringTag } = Symbol;
 
 export default function Node() { throw FunctionNotImplemented('Node()'); }
@@ -14,14 +13,17 @@ const NodePrototype = create(null, {
 
   toString: {
     value: function toString() { // eslint-disable-line func-name-matching
-      // Kind and name.
       let s = `${this[toStringTag]}(${this.name}`;
 
-      // Properties, attributes, whatever
-      const atts = [...renderAttributes(this.attributes)].join(', ');
-      if( atts ) s += `, ${atts}`;
+      const { attributes: source } = this;
+      const sink = [];
+      for( const key of keys(source) ) {
+        const value = source[key];
+        sink.push( `${key}="${value}"`);
+      }
 
-      // Et voila!
+      if( sink.length ) s += ` ${sink.join(' ')}`;
+
       s += ')';
       return s;
     }
