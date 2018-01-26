@@ -2,10 +2,10 @@
 
 export {
   DuplicateBinding,
+  FunctionNotImplemented,
   InvalidArgType,
   InvalidArgValue,
   InvalidArrayLength,
-  MethodNotImplemented,
   MissingArgs,
   MultipleCallback,
 } from './errors';

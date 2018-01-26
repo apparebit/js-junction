@@ -7,6 +7,7 @@ import {
   escapeAttribute,
   escapeHTML,
   escapeScript,
+  FunctionNotImplemented,
   hyphenate,
   InvalidArgType,
   InvalidArgValue,
@@ -16,7 +17,6 @@ import {
   isPropertyKey,
   maybe,
   memoize,
-  MethodNotImplemented,
   MissingArgs,
   MultipleCallback,
   normalizeWhitespace,
@@ -358,11 +358,11 @@ harness.test( '@grr/oddjob', t => {
     t.test('.code', t => {
       [
         [DuplicateBinding('k', 'v', 'w'),     'ERR_DUPLICATE_BINDING'],
+        [FunctionNotImplemented('m'),         'ERR_FUNCTION_NOT_IMPLEMENTED'],
         [InvalidArgType('k', 'v', 't'),       'ERR_INVALID_ARG_TYPE'],
         [InvalidArgValue('k', 'v'),           'ERR_INVALID_ARG_VALUE'],
         [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
         [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
-        [MethodNotImplemented('m'),           'ERR_METHOD_NOT_IMPLEMENTED'],
         [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
         [MultipleCallback('cb'),              'ERR_MULTIPLE_CALLBACK'],
       ].forEach(([err, code]) => {
@@ -374,6 +374,10 @@ harness.test( '@grr/oddjob', t => {
 
     t.test('.message', t => {
       const arg = null;
+      t.is(FunctionNotImplemented('f').message,
+        'function "f" is not implemented');
+      t.is(FunctionNotImplemented('f', 'factory function').message,
+        'factory function "f" is not implemented');
       t.is(InvalidArgType({ arg }, 'a number').message,
         'argument "arg" is "null", but should be a number');
       t.is(InvalidArgType({ arg }, 'not', 'a number').message,

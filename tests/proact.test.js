@@ -32,9 +32,9 @@ const { iterator, toStringTag } = Symbol;
 const { Attribute } = Tags.HTML;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
+const CODE_FUNCTION_NOT_IMPLEMENTED = { code: 'ERR_FUNCTION_NOT_IMPLEMENTED' };
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
-const CODE_METHOD_NOT_IMPLEMENTED = { code: 'ERR_METHOD_NOT_IMPLEMENTED' };
 const CODE_MULTIPLE_CALLBACK = { code: 'ERR_MULTIPLE_CALLBACK' };
 
 // -------------------------------------------------------------------------------------------------
@@ -103,6 +103,8 @@ harness.test('@grr/proact', t => {
 
   t.test('vdom', t => {
     t.test('.Node()', t => {
+      t.throws(() => Node(), CODE_FUNCTION_NOT_IMPLEMENTED);
+      t.throws(() => new Node(), CODE_FUNCTION_NOT_IMPLEMENTED);
       t.is(Node.prototype.isProactNode, true);
       t.is(Node.prototype.isProactElement, void 0);
       t.is(Node.prototype.isProactComponent, void 0);
@@ -137,7 +139,7 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('.Component()', t => {
-      t.throws(() => Component(), CODE_METHOD_NOT_IMPLEMENTED);
+      t.throws(() => Component(), CODE_FUNCTION_NOT_IMPLEMENTED);
       t.end();
     });
 
@@ -153,14 +155,11 @@ harness.test('@grr/proact', t => {
       t.is(Something.prototype.isProactElement, void 0);
       t.is(Something.prototype.isProactComponent, true);
       t.is(Something.prototype[toStringTag], Component.tag);
-      t.throws(() => Component.prototype.render(), CODE_METHOD_NOT_IMPLEMENTED);
 
       t.is(thing.constructor, Something);
       t.is(getPrototypeOf(getPrototypeOf(thing)), Component.prototype);
       t.is(getPrototypeOf(getPrototypeOf(getPrototypeOf(thing))), Node.prototype);
       t.ok(thing.isProactComponent);
-      t.throws(() => thing.script(), CODE_METHOD_NOT_IMPLEMENTED);
-      t.throws(() => thing.style(), CODE_METHOD_NOT_IMPLEMENTED);
       t.is(thing.name, 'Something');
       t.is(Something('OrOther').name, 'OrOther');
       t.same(thing.attributes, {});
