@@ -25,7 +25,7 @@ function from(renderFn, name) {
       });
     }
 
-    this.attributes = Object(args.shift());
+    this.properties = Object(args.shift());
     this.children = args;
   }
 

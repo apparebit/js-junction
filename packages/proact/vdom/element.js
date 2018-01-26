@@ -5,10 +5,10 @@ import Node from './node';
 const { create, defineProperties } = Object;
 const { toStringTag } = Symbol;
 
-export default function Element(name, attributes, ...children) {
-  if( !new.target ) return new Element(name, attributes, ...children);
+export default function Element(name, properties, ...children) {
+  if( !new.target ) return new Element(name, properties, ...children);
   this.name = String(name);
-  this.attributes = Object(attributes);
+  this.properties = Object(properties);
   this.children = children;
 }
 

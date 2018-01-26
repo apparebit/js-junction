@@ -97,7 +97,7 @@ harness.test('@grr/proact', t => {
 
   const somewhere = Element('a', { href: 'location' }, 'somewhere');
   const renderSomething =
-    (_, atts, children) => Element('div', { class: 'something' }, children);
+    (context, props, children) => Element('div', { class: 'something' }, children);
   const Something = Component.from(renderSomething, 'Something');
   const thing = Something({}, 'a thing');
 
@@ -131,7 +131,7 @@ harness.test('@grr/proact', t => {
       t.ok(somewhere.isProactElement);
       t.is(somewhere[toStringTag], 'Proact.Element');
       t.is(somewhere.name, 'a');
-      t.same(somewhere.attributes, { href: 'location' });
+      t.same(somewhere.properties, { href: 'location' });
       t.same(somewhere.children, ['somewhere']);
 
       // The children are only normalized lazily, on demand. In other words, not here.
@@ -166,7 +166,7 @@ harness.test('@grr/proact', t => {
       t.ok(thing.isProactNode);
       t.ok(thing.isProactComponent);
       t.is(thing.name, 'Something');
-      t.same(thing.attributes, {});
+      t.same(thing.properties, {});
       t.same(thing.children, ['a thing']);
 
       const other = Something('OrOther');
@@ -416,9 +416,9 @@ harness.test('@grr/proact', t => {
       // Invoke the effects handler directly to test an invalid tag.
       t.throws(() => render('mad'), CODE_INVALID_ARG_VALUE);
 
-      // >>> Elements with and without attributes.
-      const Link = Component.from(function renderLink(name, attributes, children) {
-        return Element('a', attributes, children);
+      // >>> Elements with and without attributes/properties.
+      const Link = Component.from(function renderLink(name, properties, children) {
+        return Element('a', properties, children);
       }, 'Link');
 
       t.is(toHTML(Link(null, 'landing page')),
@@ -453,7 +453,7 @@ harness.test('@grr/proact', t => {
       t.throws(() => toHTML(Element('span', null, Symbol('oops'))), CODE_INVALID_ARG_TYPE);
 
       // >>> Components that render to lists.
-      const Many = Component.from(function renderMany(name, attributes, children) {
+      const Many = Component.from(function renderMany(name, properties, children) {
         return [...children, ' ', ...children, ' ', ...children];
       }, 'Many');
 

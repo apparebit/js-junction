@@ -9,17 +9,17 @@ import renderAttributes from './render-attributes';
 export default function render(tag, object, parent, aside) {
   if( tag === 'enter' ) {
     if( object.isProactComponent ) {
-      const rendered = object.render(object.name, object.attributes, object.children);
+      const rendered = object.render(object.name, object.properties, object.children);
       aside.replaceChildren(rendered);
       return '';
     }
 
-    const { name, attributes, children } = object;
+    const { name, properties, children } = object;
     if( isVoidElement(name) && children.length ) {
       throw InvalidArgValue({ object }, `<${name}> is a void element`);
     }
 
-    const renderedAttributes = [...renderAttributes(attributes)];
+    const renderedAttributes = [...renderAttributes(properties)];
     if( renderedAttributes.length ) {
       return `<${name} ${renderedAttributes.join(' ')}>`;
     } else {
