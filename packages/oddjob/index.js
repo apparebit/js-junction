@@ -27,6 +27,12 @@ export {
 } from './internal/key-value';
 
 export {
+  isIterable,
+  isIterator,
+  IteratorPrototype,
+} from './iteration';
+
+export {
   deobjectify,
   maybe,
   memoize,
