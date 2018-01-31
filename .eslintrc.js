@@ -30,7 +30,6 @@ module.exports = {
     "brace-style": ["error", "1tbs", {
       "allowSingleLine": true,
     }],
-    "callback-return": "error",
     "camelcase": "error",
     "capitalized-comments": "off",
     "comma-dangle": ["error", {
