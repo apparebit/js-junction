@@ -24,3 +24,7 @@ export const MissingArgs = E('ERR_MISSING_ARGS',
 export const MultipleCallback = E('ERR_MULTIPLE_CALLBACK',
   (name, context) =>
     `repeated invocation of callback "${String(name)}"${context ? ` ${context}` : ''}`);
+export const ResourceBusy = E('ERR_RESOURCE_BUSY',
+  resource => `${resource} is busy`);
+
+export const createErrorFactory = E;

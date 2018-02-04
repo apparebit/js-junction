@@ -25,6 +25,7 @@ import {
   MissingArgs,
   MultipleCallback,
   normalizeWhitespace,
+  ResourceBusy,
   show,
   toStableJSON,
   toKeyPath,
@@ -482,6 +483,7 @@ harness.test( '@grr/oddjob', t => {
         [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
         [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
         [MultipleCallback('cb'),              'ERR_MULTIPLE_CALLBACK'],
+        [ResourceBusy('r'),                   'ERR_RESOURCE_BUSY'],
       ].forEach(([err, code]) => {
         t.is(err.code, code);
       });
@@ -507,6 +509,8 @@ harness.test( '@grr/oddjob', t => {
         'repeated invocation of callback "cb"');
       t.is(MultipleCallback('cb', 'from same handler context').message,
         'repeated invocation of callback "cb" from same handler context');
+      t.is(ResourceBusy('the Proact driver').message,
+        'the Proact driver is busy');
 
       t.end();
     });

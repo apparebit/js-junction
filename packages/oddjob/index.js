@@ -1,6 +1,7 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
 export {
+  createErrorFactory,
   DuplicateBinding,
   FunctionNotImplemented,
   InvalidArgType,
@@ -8,6 +9,7 @@ export {
   InvalidArrayLength,
   MissingArgs,
   MultipleCallback,
+  ResourceBusy,
 } from './errors';
 
 export {
