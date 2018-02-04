@@ -3,12 +3,17 @@
 import { FunctionNotImplemented, InvalidArgType, InvalidArgValue } from '@grr/oddjob/errors';
 import { constant, enumerable, value } from '@grr/oddjob/descriptors';
 import Node from './node';
+import driver from '../driver/hook';
 
 const { create, defineProperties, defineProperty } = Object;
 const { toStringTag } = Symbol;
 const NodePrototype = Node.prototype;
 
 export default function Component() { throw FunctionNotImplemented('Component()'); }
+
+function provideContext(context) {
+  driver().provideContext(this, context);
+}
 
 function from(renderFn, name = renderFn.name) {
   if( typeof renderFn !== 'function' ) {

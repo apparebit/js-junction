@@ -6,24 +6,32 @@ import { hasRawText, isVoidElement } from '../semantics/elements';
 import renderAttributes from './render-attributes';
 
 // An effects handler for vDOM traversal that renders to HTML source.
-export default function render(tag, object, parent, aside) {
+export default function render(tag, object) {
   if( tag === 'enter' ) {
     if( object.isProactComponent ) {
-      const rendered = object.render(object.name, object.properties, object.children);
-      aside.replaceChildren(rendered);
+      const rendered = object.render(this.context, object.properties, object.children);
+
+      // Since replaceChildren() does not accept `undefined` for its `children`
+      // argument, call skipChildren() to cause exact same (lack of) behavior.
+      if( rendered == null ) {
+        this.skipChildren(object);
+      } else {
+        this.replaceChildren(object, rendered);
+      }
+
       return '';
-    }
-
-    const { name, properties, children } = object;
-    if( isVoidElement(name) && children.length ) {
-      throw InvalidArgValue({ object }, `<${name}> is a void element`);
-    }
-
-    const renderedAttributes = [...renderAttributes(properties)];
-    if( renderedAttributes.length ) {
-      return `<${name} ${renderedAttributes.join(' ')}>`;
     } else {
-      return `<${name}>`;
+      const { name, properties, children } = object;
+      if( isVoidElement(name) && children.length ) {
+        throw InvalidArgValue({ object }, `<${name}> is a void element`);
+      }
+
+      const renderedAttributes = [...renderAttributes(properties)];
+      if( renderedAttributes.length ) {
+        return `<${name} ${renderedAttributes.join(' ')}>`;
+      } else {
+        return `<${name}>`;
+      }
     }
 
   } else if( tag === 'exit' ) {
@@ -33,8 +41,8 @@ export default function render(tag, object, parent, aside) {
     return isVoidElement(name) ? '' : `</${name}>`;
 
   } else if( tag === 'text' ) {
-    if( parent != null && hasRawText(parent.name) ) {
-      if( parent.name !== 'script' ) {
+    if( this.parent != null && hasRawText(this.parent.name) ) {
+      if( this.parent.name !== 'script' ) {
         return object;
       } else {
         return escapeScript(object);

@@ -14,9 +14,7 @@ import Component from '@grr/proact/vdom/component';
 import { define, lookup } from '@grr/proact/vdom/registry';
 
 // Driver
-import { isIgnorable, isIterable, isTextual } from '@grr/proact/driver/kinds';
-import TraversalControl from '@grr/proact/driver/traversal-control';
-import traverse from '@grr/proact/driver/traverse';
+import { isIgnorable, isTextual, next, normalize, pushAll } from '@grr/proact/driver/children';
 import Driver from '@grr/proact/driver';
 
 // Render to HTML
@@ -25,17 +23,16 @@ import render from '@grr/proact/html/render';
 
 // Test Harness
 import harness from './harness';
-import { InvalidArgValue } from '@grr/oddjob/errors';
 
 const { getPrototypeOf } = Object;
-const { iterator, toStringTag } = Symbol;
+const { toStringTag } = Symbol;
 const { Attribute } = Tags.HTML;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_FUNCTION_NOT_IMPLEMENTED = { code: 'ERR_FUNCTION_NOT_IMPLEMENTED' };
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
-const CODE_MULTIPLE_CALLBACK = { code: 'ERR_MULTIPLE_CALLBACK' };
+const CODE_RESOURCE_BUSY = { code: 'ERR_RESOURCE_BUSY' };
 
 // -------------------------------------------------------------------------------------------------
 
@@ -95,11 +92,12 @@ harness.test('@grr/proact', t => {
 
   // -----------------------------------------------------------------------------------------------
 
-  const somewhere = Element('a', { href: 'location' }, 'somewhere');
-  const renderSomething =
-    (context, props, children) => Element('div', { class: 'something' }, children);
-  const Something = Component.from(renderSomething, 'Something');
-  const thing = Something({}, 'a thing');
+  const a = Element('a', { href: 'location' }, 'somewhere');
+  const renderContainer = function(context, props, children) {
+    return Element('div', { class: 'custom-container' }, children);
+  };
+  const Container = Component.from(renderContainer, 'Container');
+  const container = Container({}, 'some text');
 
   t.test('vdom', t => {
     t.test('.Node()', t => {
@@ -126,13 +124,15 @@ harness.test('@grr/proact', t => {
       t.is(Element.prototype.isProactComponent, void 0);
       t.is(Element.prototype[toStringTag], 'Proact.Element');
 
-      t.is(somewhere.constructor, Element);
-      t.is(getPrototypeOf(somewhere), Element.prototype);
-      t.ok(somewhere.isProactElement);
-      t.is(somewhere[toStringTag], 'Proact.Element');
-      t.is(somewhere.name, 'a');
-      t.same(somewhere.properties, { href: 'location' });
-      t.same(somewhere.children, ['somewhere']);
+      t.throws(() => Element('a', { children: 665 }), CODE_INVALID_ARG_VALUE);
+
+      t.is(a.constructor, Element);
+      t.is(getPrototypeOf(a), Element.prototype);
+      t.ok(a.isProactElement);
+      t.is(a[toStringTag], 'Proact.Element');
+      t.is(a.name, 'a');
+      t.same(a.properties, { href: 'location' });
+      t.same(a.children, ['somewhere']);
 
       // The children are only normalized lazily, on demand. In other words, not here.
       t.same(Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children,
@@ -148,30 +148,33 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('.Component.from()', t => {
+      t.throws(() => Component.from(665), CODE_INVALID_ARG_TYPE);
       t.throws(() => Component.from(() => {}), CODE_INVALID_ARG_VALUE);
       t.is(Component.from(function fn() {}).prototype.name, 'fn');
       t.is(Component.from(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
       t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
 
-      t.is(Something.isProactNodeFactory, true);
-      t.is(Something.name, 'Something');
-      t.is(Something.prototype.constructor, Something);
-      t.is(Something.prototype.isProactNode, true);
-      t.is(Something.prototype.isProactElement, void 0);
-      t.is(Something.prototype.isProactComponent, true);
-      t.is(Something.prototype[toStringTag], 'Proact.Component');
+      t.is(Container.isProactNodeFactory, true);
+      t.is(Container.name, 'Container');
+      t.is(Container.prototype.constructor, Container);
+      t.is(Container.prototype.isProactNode, true);
+      t.is(Container.prototype.isProactElement, void 0);
+      t.is(Container.prototype.isProactComponent, true);
+      t.is(Container.prototype[toStringTag], 'Proact.Component');
 
-      t.is(thing.constructor, Something);
-      t.is(getPrototypeOf(getPrototypeOf(thing)), Node.prototype);
-      t.ok(thing.isProactNode);
-      t.ok(thing.isProactComponent);
-      t.is(thing.name, 'Something');
-      t.same(thing.properties, {});
-      t.same(thing.children, ['a thing']);
+      t.is(container.constructor, Container);
+      t.is(getPrototypeOf(getPrototypeOf(container)), Node.prototype);
+      t.ok(container.isProactNode);
+      t.ok(container.isProactComponent);
+      t.is(container.name, 'Container');
+      t.same(container.properties, {});
+      t.same(container.children, ['some text']);
 
-      const other = Something('OrOther');
-      t.is(other.name, 'OrOther');
-      t.is(getPrototypeOf(other).name, 'Something');
+      t.throws(() => Container({ children: true }), CODE_INVALID_ARG_VALUE);
+
+      const other = Container('AnotherContainer');
+      t.is(other.name, 'AnotherContainer');
+      t.is(getPrototypeOf(other).name, 'Container');
       t.end();
     });
 
@@ -199,10 +202,7 @@ harness.test('@grr/proact', t => {
 
   // -----------------------------------------------------------------------------------------------
 
-  const renderDriver = new Driver(render);
-  const toHTML = (value, options = {}) => [...renderDriver.traverse(value, options)].join('');
-
-  t.test('driver', t => {
+  t.test('children', t => {
     t.test('.isIgnorable()', t => {
       t.ok(isIgnorable(void 0));
       t.ok(isIgnorable(null));
@@ -213,8 +213,8 @@ harness.test('@grr/proact', t => {
 
       t.notOk(isIgnorable(0));
       t.notOk(isIgnorable('0'));
-      t.notOk(isIgnorable(somewhere));
-      t.notOk(isIgnorable(thing));
+      t.notOk(isIgnorable(a));
+      t.notOk(isIgnorable(container));
       t.end();
     });
 
@@ -231,132 +231,91 @@ harness.test('@grr/proact', t => {
       t.end();
     });
 
-    t.test('.isIterable()', t => {
-      t.notOk(isIterable(void 0));
-      t.notOk(isIterable(null));
-      t.notOk(isIterable(false));
-      t.notOk(isIterable(true));
-      t.notOk(isIterable(665));
-      t.notOk(isIterable({}));
-
-      t.ok(isIterable(''));
-      t.ok(isIterable([]));
-      t.ok(isIterable((function* gen() {})()));
-      t.ok(isIterable({ [iterator]() { return { next() { return { done: true }; }}; }}));
+    t.test('.pushAll()', t => {
+      t.same(pushAll([], [1, 2, 3]), [3, 2, 1]);
+      t.same(pushAll([], '123'), ['3', '2', '1']);
       t.end();
     });
 
-    t.test('.TraversalControl()', t => {
-      const control = new TraversalControl();
-      t.same(control.accept(), { replace: void 0, skip: false });
-
-      control.replaceChildren(somewhere);
-      t.throws(() => control.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
-      t.throws(() => control.skipChildren(), CODE_MULTIPLE_CALLBACK);
-      t.same(control.accept(), { replace: somewhere, skip: false });
-      t.same(control.accept(), { replace: void 0,    skip: false });
-
-      control.skipChildren();
-      t.throws(() => control.replaceChildren(somewhere), CODE_MULTIPLE_CALLBACK);
-      t.throws(() => control.skipChildren(), CODE_MULTIPLE_CALLBACK);
-      t.same(control.accept(), { replace: void 0, skip: true });
-      t.same(control.accept(), { replace: void 0, skip: false });
-
+    t.test('.next()', t => {
+      // The order of children has been reversed for the todo stack.
+      // Nested iterables, however, are in the original order.
+      t.is(next([[null, '3', null, 4], 2, null, '1']), '1234');
       t.end();
     });
 
-    t.test('.traverse()', t => {
-      t.match(traverse([void 0, null, '', [], [[true, false]]].reverse()).next(),
-        { done: true });
-      t.match(traverse(['hello', null, []].reverse()).next(),
-        { value: { tag: 'text', object: 'hello' }});
-      t.match(traverse(['hello', null, [', there!']].reverse()).next(),
-        { value: { tag: 'text', object: 'hello, there!' }});
+    t.test('.normalize()', t => {
+      t.same(normalize([]), []);
+      t.same(normalize([void 0, null, true, false, '', [], 6, 6, 5]), ['665']);
+      t.end();
+    });
 
-      function traverseChildren(children, recurse = true) {
-        const gen = traverse(children.reverse(), { handler: (_, o) => o, recurse });
-        return [...gen];
-      }
+    t.end();
+  });
 
-      t.same(traverseChildren([void 0, null, '', [], [[true, false]]]), []);
-      t.same(traverseChildren([1, null, 2, [], [[], 3]]), ['123']);
+  const renderDriver = new Driver(render);
+  const toHTML = function toHTML(node, parent = null, context = {}) {
+    return [...renderDriver.traverse(node, parent, context)].join('');
+  };
 
-      t.same([...traverse([somewhere], { recurse: false })], [
-        { tag: 'enter', object: somewhere },
-        { tag: 'exit',  object: somewhere }
-      ]);
+  t.test('Driver()', t => {
+    t.test('.context', t => {
+      const ContextConsumer = Component.from(function ContextConsumer(context) {
+        t.same(context, { answer: 42 });
+        return Element('span');
+      });
 
-      // The weird element's children are 4, 2, and an iterable yielding 65.
-      const weirdo = Element('div', null, Element('span', null, 4, 2), {
-        [iterator]() {
-          return this;
-        },
-        next() {
-          if( !this.flagged ) {
-            this.flagged = true;
-            return { value: 65 };
-          } else {
-            return { done: true };
-          }
+      const ContextProvider = Component.from(function ContextProvider(context) {
+        t.same(context, {});
+        this.provideContext({ answer: 42 });
+        return Element('div', null, ContextConsumer());
+      });
+
+      t.is(toHTML(new ContextProvider()), '<div><span></span></div>');
+      t.end();
+    });
+
+    t.test('.handle()', t => {
+      t.throws(() => new Driver(42), CODE_INVALID_ARG_TYPE);
+
+      const nullDriver = new Driver();
+      let iter = nullDriver.at(a).traverse();
+
+      t.same(iter.next(), { done: false, value: { tag: 'enter', object: a }});
+      t.same(iter.next(), { done: false, value: { tag: 'text',  object: 'somewhere' }});
+      t.same(iter.next(), { done: false, value: { tag: 'exit',  object: a }});
+      t.same(iter.next(), { done: true,  value: void 0 });
+
+      let tested = false;
+      const driver = new Driver(function handle(tag, object) {
+        if(!tested && tag === 'enter') {
+          tested = true;
+
+          t.is(object, a);
+
+          t.is(this.skipChildren(object), this);
+          t.throws(() => this.skipChildren(), CODE_INVALID_ARG_VALUE);
+          t.throws(() => this.skipChildren(container), CODE_INVALID_ARG_VALUE);
+
+          t.is(this.replaceChildren(object, 665), this);
+          t.throws(() => this.replaceChildren(void 0, 665), CODE_INVALID_ARG_VALUE);
+          t.throws(() => this.replaceChildren(container, 665), CODE_INVALID_ARG_VALUE);
+          t.throws(() => this.replaceChildren(object), CODE_INVALID_ARG_TYPE);
+
+          t.is(this.provideContext(object, {}), this);
+          t.throws(() => this.provideContext(void 0, {}), CODE_INVALID_ARG_VALUE);
+          t.throws(() => this.provideContext(container, {}), CODE_INVALID_ARG_VALUE);
+          t.throws(() => this.provideContext(a, 665), CODE_INVALID_ARG_TYPE);
         }
       });
 
-      // The weird effects handler emits textual values for numbers and strings.
-      // It also emits HTML-like tags for nodes. Finally, it replaces every
-      // <span> with an iterable yielding 6.
-      function weirding(tag, object, parent, aside) {
-        if( tag === 'text') {
-          return String(object);
-        } else if( object.name === 'span' ) {
-          if( tag === 'enter' ) {
-            aside.replaceChildren({
-              [iterator]() {
-                return this;
-              },
-              next() {
-                if( !this.exhausted ) {
-                  this.exhausted = true;
-                  return { value: 6 };
-                } else {
-                  return { done: true };
-                }
-              },
-            });
-          }
+      t.is(driver[toStringTag], 'Proact.Driver');
 
-          return '';
-        } else if( tag === 'enter' ) {
-          return `<${object.name}>`;
-        } else if( tag === 'exit' ) {
-          return `</${object.name}>`;
-        } else {
-          throw InvalidArgValue({ tag }, 'should be "text", "enter", or "exit"');
-        }
-      }
+      iter = driver.traverse(a);
+      t.throws(() => driver.traverse(), CODE_RESOURCE_BUSY);
 
-      // Rendering the weird element with the even weirder effects handler.
-      t.is([...traverse([weirdo], { handler: weirding })].join(''), '<div>665</div>');
-      t.end();
-    });
-
-    t.test('.Driver()', t => {
-      t.throws(() => new Driver(665), CODE_INVALID_ARG_TYPE);
-
-      const nullDriver = new Driver();
-      t.is(nullDriver.handler, void 0);
-      t.is(nullDriver[toStringTag], 'Proact.Driver');
-
-      const br = Element('br');
-      const img = Element('img');
-      const brimg = Element('div', null, br, img);
-      const brimg2 = Element('div', null, [br, img]);
-
-      t.is(toHTML(brimg.children, { ancestors: [brimg], recurse: false }), '<br><img>');
-      t.is(toHTML(brimg2.children, { ancestors: [brimg2], recurse: false }), '<br><img>');
-
-      t.is(toHTML(brimg), '<div><br><img></div>');
-      t.is(toHTML(brimg2), '<div><br><img></div>');
-      t.is(toHTML(somewhere), '<a href=location>somewhere</a>');
+      let done; // eslint-disable-line no-unused-vars
+      while( !({ done } = iter.next()) );
 
       t.end();
     });
@@ -380,8 +339,7 @@ harness.test('@grr/proact', t => {
           case 1:
             return result[0];
           default:
-            return t.fail(
-              `${result.length} attributes where 0 or 1 expected`);
+            return t.fail(`${result.length} attributes where 0 or 1 expected`);
         }
       };
 
@@ -413,12 +371,29 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('.render()', t => {
-      // Invoke the effects handler directly to test an invalid tag.
+      // >>> Built-in HTML handler invoked with invalid tag.
       t.throws(() => render('mad'), CODE_INVALID_ARG_VALUE);
 
+      // >>> Custom handler overriding built-in HTML handler.
+      const deep = Element('a', null, Element('b', null, Element('i', null, 'nested')));
+      t.is([
+        ...new Driver(new Proxy(renderDriver.handle, {
+          apply(target, that, [tag, object]) {
+            try {
+              return Reflect.apply(target, that, [tag, object]);
+            } finally {
+              if( tag === 'enter' && object.name === 'b' ) that.skipChildren(object);
+            }
+          }
+        })).traverse(deep)
+      ].join(''), '<a><b></b></a>');
+
+      // >>> Deeply nested elements.
+      t.is(toHTML(deep), '<a><b><i>nested</i></b></a>');
+
       // >>> Elements with and without attributes/properties.
-      const Link = Component.from(function renderLink(name, properties, children) {
-        return Element('a', properties, children);
+      const Link = Component.from(function renderLink(context, props, children) {
+        return Element('a', props, children);
       }, 'Link');
 
       t.is(toHTML(Link(null, 'landing page')),
@@ -448,23 +423,19 @@ harness.test('@grr/proact', t => {
 
       // >>> Values other than nodes.
       t.is(toHTML(665), '665');
-      t.is(toHTML([6, 6, 5]), '665');
+      t.is(toHTML([6, 6, 5].reverse()), '665');
       t.throws(() => toHTML(Element('span', null, new TypeError())), CODE_INVALID_ARG_TYPE);
       t.throws(() => toHTML(Element('span', null, Symbol('oops'))), CODE_INVALID_ARG_TYPE);
 
+      // >>> Components that render to undefined.
+      t.is(toHTML(Component.from(function ToUndefined() {
+        return void 0;
+      })()), '');
+
       // >>> Components that render to lists.
-      const Many = Component.from(function renderMany(name, properties, children) {
+      t.is(toHTML(Component.from(function ToMany(context, props, children) {
         return [...children, ' ', ...children, ' ', ...children];
-      }, 'Many');
-
-      t.is(toHTML(Many('Whatever', null, 'w00t!')), 'w00t! w00t! w00t!');
-
-      // >>> Regular vs shallow rendering.
-      const abi = Element('a', null, Element('b', null, Element('i', null, 'nested')));
-      t.is(toHTML(abi), '<a><b><i>nested</i></b></a>');
-      t.is(toHTML(abi, { recurse: false }), '<a></a>');
-
-      // FIXME: add larger test nesting components and nodes in each other.
+      })({}, 'w00t!')), 'w00t! w00t! w00t!');
 
       t.end();
     });
