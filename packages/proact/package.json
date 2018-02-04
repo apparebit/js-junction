@@ -9,10 +9,8 @@
     "proactive rendering",
     "virtual DOM",
     "vDOM",
-    "simple DOM",
-    "server DOM",
-    "sDOM",
-    "hyperscript"
+    "hyperscript",
+    "h"
   ],
   "version": "0.1.0",
   "author": "Robert Grimm",
