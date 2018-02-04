@@ -1,9 +1,11 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
 import {
+  constant,
   dehyphenate,
   deobjectify,
   DuplicateBinding,
+  enumerable,
   escapeAttribute,
   escapeHTML,
   escapeScript,
@@ -28,6 +30,7 @@ import {
   toKeyPath,
   toKeyValue,
   toSymbolKey,
+  value,
   withExistingKeyPath,
   withKeyPath,
   withKeyValue,
@@ -106,6 +109,49 @@ harness.test( '@grr/oddjob', t => {
 
       t.end();
       /* eslint-enable key-spacing */
+    });
+
+    t.end();
+  });
+
+  // -----------------------------------------------------------------------------------------------
+
+  t.test('descriptors', t => {
+    t.test('.constant()', t => {
+      t.same(constant(665), {
+        configurable: false,
+        enumerable: false,
+        value: 665,
+        writable: false,
+      });
+
+      t.same(constant(665, enumerable), {
+        configurable: false,
+        enumerable: true,
+        value: 665,
+        writable: false,
+      });
+
+      t.end();
+    });
+
+    t.test('.value()', t => {
+      t.same(value(665), {
+        configurable: true,
+        enumerable: false,
+        value: 665,
+        writable: false,
+      });
+
+      t.same(value(665, { enumerable, numeric: true }), {
+        configurable: true,
+        enumerable: true,
+        numeric: true,
+        value: 665,
+        writable: false,
+      });
+
+      t.end();
     });
 
     t.end();

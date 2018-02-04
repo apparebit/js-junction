@@ -27,6 +27,14 @@ export {
 } from './internal/key-value';
 
 export {
+  configurable,
+  constant,
+  enumerable,
+  value,
+  writable,
+} from './descriptors';
+
+export {
   isIterable,
   isIterator,
   IteratorPrototype,
