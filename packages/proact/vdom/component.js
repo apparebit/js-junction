@@ -5,7 +5,7 @@ import { constant, enumerable, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 import driver from '../driver/hook';
 
-const { create, defineProperties, defineProperty } = Object;
+const { create, defineProperties } = Object;
 const { toStringTag } = Symbol;
 const NodePrototype = Node.prototype;
 
@@ -25,13 +25,23 @@ function from(renderFn, name = renderFn.name) {
   function RenderFunction(...args) {
     if( !new.target ) return new RenderFunction(...args);
 
-    if( typeof args[0] === 'string' ) {
-      defineProperty(this, 'name', value(args.shift(), { enumerable }));
+    // Consume leading constructor as redundant type identifier.
+    if( args[0] === RenderFunction ) args.shift();
+
+    // Consume a non-node object or null/undefined as properties.
+    if( args[0] == null ) {
+      this.properties = Object(args.shift());
+    } else if( typeof args[0] === 'object' && !args[0].isProactNode ) {
+      this.properties = args.shift();
+    } else {
+      this.properties = {};
     }
-    this.properties = Object(args.shift());
+
     if( 'children' in this.properties ) {
       throw InvalidArgValue('properties', this.properties, 'should not have a children property');
     }
+
+    // The rest are the children.
     this.children = args;
   }
 
