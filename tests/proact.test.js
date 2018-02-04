@@ -21,12 +21,16 @@ import Driver from '@grr/proact/driver';
 import renderAttributes from '@grr/proact/html/render-attributes';
 import render from '@grr/proact/html/render';
 
+// Proact
+import Proact from '@grr/proact';
+
 // Test Harness
 import harness from './harness';
 
+const { Attribute } = Tags.HTML;
 const { getPrototypeOf } = Object;
 const { toStringTag } = Symbol;
-const { Attribute } = Tags.HTML;
+const { renderToString } = Proact;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_FUNCTION_NOT_IMPLEMENTED = { code: 'ERR_FUNCTION_NOT_IMPLEMENTED' };
@@ -123,6 +127,7 @@ harness.test('@grr/proact', t => {
       t.is(Element.prototype.isProactElement, true);
       t.is(Element.prototype.isProactComponent, void 0);
       t.is(Element.prototype[toStringTag], 'Proact.Element');
+      t.is(Proact.Element, Element);
 
       t.throws(() => Element('a', { children: 665 }), CODE_INVALID_ARG_VALUE);
 
@@ -153,6 +158,7 @@ harness.test('@grr/proact', t => {
       t.is(Component.from(function fn() {}).prototype.name, 'fn');
       t.is(Component.from(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
       t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
+      t.is(Proact.Component, Component);
 
       t.is(Container.isProactNodeFactory, true);
       t.is(Container.name, 'Container');
@@ -171,10 +177,6 @@ harness.test('@grr/proact', t => {
       t.same(container.children, ['some text']);
 
       t.throws(() => Container({ children: true }), CODE_INVALID_ARG_VALUE);
-
-      const other = Container('AnotherContainer');
-      t.is(other.name, 'AnotherContainer');
-      t.is(getPrototypeOf(other).name, 'Container');
       t.end();
     });
 
@@ -253,11 +255,6 @@ harness.test('@grr/proact', t => {
     t.end();
   });
 
-  const renderDriver = new Driver(render);
-  const toHTML = function toHTML(node, parent = null, context = {}) {
-    return [...renderDriver.traverse(node, parent, context)].join('');
-  };
-
   t.test('Driver()', t => {
     t.test('.context', t => {
       const ContextConsumer = Component.from(function ContextConsumer(context) {
@@ -271,7 +268,7 @@ harness.test('@grr/proact', t => {
         return Element('div', null, ContextConsumer());
       });
 
-      t.is(toHTML(new ContextProvider()), '<div><span></span></div>');
+      t.is(renderToString(new ContextProvider()), '<div><span></span></div>');
       t.end();
     });
 
@@ -279,7 +276,7 @@ harness.test('@grr/proact', t => {
       t.throws(() => new Driver(42), CODE_INVALID_ARG_TYPE);
 
       const nullDriver = new Driver();
-      let iter = nullDriver.at(a).traverse();
+      let iter = nullDriver.traverse(a);
 
       t.same(iter.next(), { done: false, value: { tag: 'enter', object: a }});
       t.same(iter.next(), { done: false, value: { tag: 'text',  object: 'somewhere' }});
@@ -324,6 +321,8 @@ harness.test('@grr/proact', t => {
   });
 
   // -----------------------------------------------------------------------------------------------
+
+  const deep = Element('a', null, Element('b', null, Element('i', null, 'nested')));
 
   t.test('html', t => {
     t.test('.renderAttributes()', t => {
@@ -375,9 +374,8 @@ harness.test('@grr/proact', t => {
       t.throws(() => render('mad'), CODE_INVALID_ARG_VALUE);
 
       // >>> Custom handler overriding built-in HTML handler.
-      const deep = Element('a', null, Element('b', null, Element('i', null, 'nested')));
       t.is([
-        ...new Driver(new Proxy(renderDriver.handle, {
+        ...new Driver(new Proxy(render, {
           apply(target, that, [tag, object]) {
             try {
               return Reflect.apply(target, that, [tag, object]);
@@ -388,56 +386,102 @@ harness.test('@grr/proact', t => {
         })).traverse(deep)
       ].join(''), '<a><b></b></a>');
 
-      // >>> Deeply nested elements.
-      t.is(toHTML(deep), '<a><b><i>nested</i></b></a>');
+      t.end();
+    });
+
+    t.end();
+  });
+
+  // -----------------------------------------------------------------------------------------------
+
+  t.test('Proact', t => {
+    t.test('.renderToString()', t => {
+      // >>> Deeply nested elements. See above for version with custom handler.
+      t.is(renderToString(deep), '<a><b><i>nested</i></b></a>');
 
       // >>> Elements with and without attributes/properties.
       const Link = Component.from(function renderLink(context, props, children) {
         return Element('a', props, children);
       }, 'Link');
 
-      t.is(toHTML(Link(null, 'landing page')),
+      t.is(renderToString(Link('landing page')),
         '<a>landing page</a>');
-      t.is(toHTML(Link('Link', { href: 'apparebit.com', rel: 'home' }, 'landing page')),
+      t.is(renderToString(Link(null, 'landing page')),
+        '<a>landing page</a>');
+      t.is(renderToString(Link(a)),
+        '<a><a href=location>somewhere</a></a>');
+      t.is(renderToString(Link({ href: 'apparebit.com', rel: 'home' }, 'landing page')),
         '<a href=apparebit.com rel=home>landing page</a>');
+      t.is(renderToString(Link(Link, { href: 'apparebit.com', rel: 'home' }, 'landing page')),
+        '<a href=apparebit.com rel=home>landing page</a>');
+      t.is(renderToString(Link(Link, 'landing page')),
+        '<a>landing page</a>');
 
       // >>> Void elements.
-      t.is(toHTML(Element('hr')), '<hr>');
-      t.throws(() => toHTML(Element('hr', {}, 'but, but, but!')), CODE_INVALID_ARG_VALUE);
+      t.is(renderToString(Element('hr')), '<hr>');
+      t.throws(() => renderToString(Element('hr', {}, 'but, but, but!')),
+        CODE_INVALID_ARG_VALUE);
 
       // >>> Ignored values.
-      t.is(toHTML(Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])),
+      t.is(renderToString(Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])),
         '<span>W00t!</span>');
 
       // >>> Text with consecutive whitespace and escapable characters.
-      t.is(toHTML(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
+      t.is(renderToString(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
         '<span> &lt;BOO&gt; &amp; so on</span>');
 
       // >>> Element with raw text as content.
-      t.is(toHTML(Element('script', {}, '42 < 665 && 13 > 2')),
+      t.is(renderToString(Element('script', {}, '42 < 665 && 13 > 2')),
         '<script>42 < 665 && 13 > 2</script>');
-      t.is(toHTML(Element('script', null, `<!-- ooh -->'<script></script>'`)),
+      t.is(renderToString(Element('script', null, `<!-- ooh -->'<script></script>'`)),
         `<script><\\!-- ooh -->'<\\script><\\/script>'</script>`);
-      t.is(toHTML(Element('style', null, '.achtung { color: red; }')),
+      t.is(renderToString(Element('style', null, '.achtung { color: red; }')),
         '<style>.achtung { color: red; }</style>');
 
       // >>> Values other than nodes.
-      t.is(toHTML(665), '665');
-      t.is(toHTML([6, 6, 5].reverse()), '665');
-      t.throws(() => toHTML(Element('span', null, new TypeError())), CODE_INVALID_ARG_TYPE);
-      t.throws(() => toHTML(Element('span', null, Symbol('oops'))), CODE_INVALID_ARG_TYPE);
+      t.is(renderToString(665), '665');
+      t.is(renderToString([6, 6, 5].reverse()), '665');
+      t.throws(() => renderToString(Element('span', null, new TypeError())),
+        CODE_INVALID_ARG_TYPE);
+      t.throws(() => renderToString(Element('span', null, Symbol('oops'))),
+        CODE_INVALID_ARG_TYPE);
 
       // >>> Components that render to undefined.
-      t.is(toHTML(Component.from(function ToUndefined() {
+      t.is(renderToString(Component.from(function ToUndefined() {
         return void 0;
       })()), '');
 
       // >>> Components that render to lists.
-      t.is(toHTML(Component.from(function ToMany(context, props, children) {
+      t.is(renderToString(Component.from(function ToMany(context, props, children) {
         return [...children, ' ', ...children, ' ', ...children];
       })({}, 'w00t!')), 'w00t! w00t! w00t!');
 
       t.end();
+    });
+
+    t.test('.renderToStream()', t => {
+      let resolve, reject;
+      const promise = new Promise((yay, nay) => {
+        resolve = yay;
+        reject = nay;
+      });
+
+      const fragments = [];
+      const collect = chunk => fragments.push(chunk);
+      const validate = () => {
+        t.is(fragments.join(''), '<a><b><i>nested</i></b></a>');
+        t.end();
+
+        resolve(true);
+      };
+
+      Proact
+        .renderToStream(deep)
+        .on('data', collect)
+        .on('end', validate)
+        .on('error', reject);
+
+      return promise;
     });
 
     t.end();
