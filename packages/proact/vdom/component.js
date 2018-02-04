@@ -1,6 +1,7 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { InvalidArgValue, FunctionNotImplemented } from '@grr/oddjob/errors';
+import { FunctionNotImplemented, InvalidArgType, InvalidArgValue } from '@grr/oddjob/errors';
+import { constant, enumerable, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 
 const { create, defineProperties, defineProperty } = Object;
@@ -9,49 +10,50 @@ const NodePrototype = Node.prototype;
 
 export default function Component() { throw FunctionNotImplemented('Component()'); }
 
-function from(renderFn, name) {
-  if( name == null ) {
-    ({ name } = renderFn);
-    if( !name ) throw InvalidArgValue({ renderFn }, 'should have a name');
+function from(renderFn, name = renderFn.name) {
+  if( typeof renderFn !== 'function' ) {
+    throw InvalidArgType({ renderFn }, 'a function');
+  } else if( !name ) {
+    throw InvalidArgValue({ name }, 'should not be empty');
   }
 
   function RenderFunction(...args) {
     if( !new.target ) return new RenderFunction(...args);
 
     if( typeof args[0] === 'string' ) {
-      defineProperty(this, 'name', {
-        enumerable: true,
-        value: args.shift(),
-      });
+      defineProperty(this, 'name', value(args.shift(), { enumerable }));
     }
-
     this.properties = Object(args.shift());
+    if( 'children' in this.properties ) {
+      throw InvalidArgValue('properties', this.properties, 'should not have a children property');
+    }
     this.children = args;
   }
 
-  // Some properties are independent of render function, could be moved into
-  // separate prototype. That may converse memory, but also increases latency
-  // due to longer prototype chain, for a critical data structure nonetheless.
+  // The isProactComponent, toStringTag, and provideContext properties are the
+  // same for all render function components and could thus be moved into a
+  // shared prototype. While that may reduce memory pressure, it also increases
+  // the length of the prototype chain and thus property lookup latency.
 
   const RenderFunctionPrototype = create(NodePrototype, {
-    constructor: { value: RenderFunction },
-    isProactComponent: { value: true },
-    [toStringTag]: { value: 'Proact.Component' },
-    render: { value: renderFn },
-
-    name: { value: name, enumerable: true },
+    constructor: value(RenderFunction),
+    isProactComponent: value(true),
+    [toStringTag]: value('Proact.Component'),
+    name: value(name, { enumerable }),
+    render: value(renderFn),
+    provideContext: value(provideContext),
   });
 
   defineProperties(RenderFunction, {
-    prototype: { value: RenderFunctionPrototype },
-    isProactNodeFactory: { value: true },
-    name: { value: name },
+    prototype: constant(RenderFunctionPrototype),
+    isProactNodeFactory: value(true),
+    name: value(name),
   });
 
   return RenderFunction;
 }
 
 defineProperties(Component, {
-  prototype: { value: null }, // Nothing to see here for now.
-  from: { value: from },
+  prototype: constant(null), // Nothing to see here for now.
+  from: value(from),
 });
