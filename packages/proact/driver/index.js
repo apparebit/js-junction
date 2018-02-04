@@ -20,11 +20,11 @@ const REPLACE = Symbol('replace');
 const SKIP = Symbol('skip');
 const TODO = Symbol('todo');
 
-function reset(driver, busy, node, parent, context) {
+function init(driver, node, parent, context) {
+  driver[CURRENT] = true; // Mark driver as busy.
   driver[TODO] = isArray(node) ? node : [node];
   driver[PARENT] = parent;
   driver[CONTEXT] = context;
-  driver[CURRENT] = busy || void 0;
 
   driver[SKIP] = void 0;
   driver[REPLACE] = void 0;
@@ -79,7 +79,7 @@ function exit(driver) {
   if( op.context ) driver[CONTEXT] = op.context;
 }
 
-function* createGenerator(driver) {
+function* createGenerator(driver, handler) {
   const previous = setDriver(driver);
   try {
     while( true ) {
@@ -87,15 +87,15 @@ function* createGenerator(driver) {
       if( item == null ) break;
 
       if( typeof item === 'string' ) {
-        yield driver.handle('text', item);
+        yield handler('text', item);
       } else if( item.isProactNode ) {
-        yield driver.handle('enter', item);
+        yield handler('enter', item);
         enter(driver);
       } else if( item[EXIT] ) {
         exit(driver);
-        yield driver.handle('exit', item[EXIT]);
+        yield handler('exit', item[EXIT]);
       } else {
-        yield driver.handle('unknown', item);
+        yield handler('unknown', item);
       }
     }
   } finally {
@@ -106,15 +106,15 @@ function* createGenerator(driver) {
 
 export default class Driver {
   constructor(handler) {
-    if( handler === void 0 ) {
-      // Nothing to do
-    } else if( typeof handler === 'function' ) {
-      defineProperty(this, 'handle', value(handler.bind(this)));
-    } else {
+    if( handler !== void 0 && typeof handler !== 'function' ) {
       throw InvalidArgType({ handler }, 'undefined or a function');
     }
 
-    // Set all fields in constructor to fix shape of class.
+    handler = handler || this.handle;
+    // Bind handle() to this, since it is invoked as a function!
+    defineProperty(this, 'handle', value(handler.bind(this)));
+
+    // Fix shape of class.
     this[TODO] = [];             // The stack of pending items.
     this[PARENT] = null;         // The enclosing node.
     this[CONTEXT] = {};          // The current context.
@@ -130,26 +130,17 @@ export default class Driver {
 
   // ===== Generic Traversal =====
 
-  at(node, parent = null, context = {}) {
-    return reset(this, false, node, parent, context);
-  }
-
-  /**
-   * Traverse the vDOM starting at the node.
-   */
-  traverse(node = null, parent = null, context = {}) {
+  traverse(node, {
+    context = {},
+    parent = null,
+    handler = this.handle,
+  } = {}) {
     if( this[CURRENT] !== void 0 ) {
       throw ResourceBusy('Proact driver');
     }
 
-    // Always mark busy until first call to next(). Optionally reset driver.
-    if( node == null ) {
-      this[CURRENT] = true;
-    } else {
-      reset(this, true, node, parent, context);
-    }
-
-    return createGenerator(this);
+    init(this, node, parent, context);
+    return createGenerator(this, handler);
   }
 
   // ===== Handler =====
