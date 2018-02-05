@@ -1,4 +1,4 @@
-/* (C) Copyright 2017–2018 Robert Grimm */
+/* (C) Copyright 2018 Robert Grimm */
 
 import stream from 'stream';
 import Element from './vdom/element';
