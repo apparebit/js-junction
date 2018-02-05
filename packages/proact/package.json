@@ -2,7 +2,9 @@
   "name": "@grr/proact",
   "description": "Making server-side rendering great again!",
   "keywords": [
+    "Proact",
     "UI components",
+    "view components",
     "web components",
     "server-side rendering",
     "SSR",
