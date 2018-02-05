@@ -1,12 +1,26 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { FunctionNotImplemented } from '@grr/oddjob/errors';
+import { InvalidArgValue } from '@grr/oddjob/errors';
 import { constant, value } from '@grr/oddjob/descriptors';
 
 const { create, defineProperty, keys } = Object;
 const { toStringTag } = Symbol;
 
-export default function Node() { throw FunctionNotImplemented('Node()'); }
+export default function Node(...args) {
+  if( args[0] == null ) {
+    this.properties = Object(args.shift());
+  } else if( typeof args[0] === 'object' && !args[0].isProactNode ) {
+    this.properties = args.shift();
+  } else {
+    this.properties = {};
+  }
+
+  if( 'children' in this.properties ) {
+    throw InvalidArgValue('properties', this.properties, 'should not have a children property');
+  }
+
+  this.children = args;
+}
 
 const NodePrototype = create(null, {
   constructor: value(Node),

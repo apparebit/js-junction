@@ -36,6 +36,7 @@ const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_FUNCTION_NOT_IMPLEMENTED = { code: 'ERR_FUNCTION_NOT_IMPLEMENTED' };
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
+const CODE_MISSING_ARGS = { code: 'ERR_MISSING_ARGS' };
 const CODE_RESOURCE_BUSY = { code: 'ERR_RESOURCE_BUSY' };
 
 // -------------------------------------------------------------------------------------------------
@@ -106,9 +107,6 @@ harness.test('@grr/proact', t => {
   t.test('vdom', t => {
     t.test('.Node()', t => {
       t.is(Node.isProactNodeFactory, void 0);
-      t.throws(() => Node(), CODE_FUNCTION_NOT_IMPLEMENTED);
-      t.throws(() => new Node(), CODE_FUNCTION_NOT_IMPLEMENTED);
-
       t.is(Node.prototype.isProactNode, true);
       t.is(Node.prototype.isProactElement, void 0);
       t.is(Node.prototype.isProactComponent, void 0);
@@ -129,6 +127,8 @@ harness.test('@grr/proact', t => {
       t.is(Element.prototype[toStringTag], 'Proact.Element');
       t.is(Proact.Element, Element);
 
+      t.throws(() => Element(), CODE_MISSING_ARGS);
+      t.throws(() => Element(665), CODE_INVALID_ARG_TYPE);
       t.throws(() => Element('a', { children: 665 }), CODE_INVALID_ARG_VALUE);
 
       t.is(a.constructor, Element);

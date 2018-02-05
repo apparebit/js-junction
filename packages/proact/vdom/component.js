@@ -25,24 +25,10 @@ function from(renderFn, name = renderFn.name) {
   function RenderFunction(...args) {
     if( !new.target ) return new RenderFunction(...args);
 
-    // Consume leading constructor as redundant type identifier.
+    // 1st argument may be constructor itself to (redundantly) capture identity.
     if( args[0] === RenderFunction ) args.shift();
 
-    // Consume a non-node object or null/undefined as properties.
-    if( args[0] == null ) {
-      this.properties = Object(args.shift());
-    } else if( typeof args[0] === 'object' && !args[0].isProactNode ) {
-      this.properties = args.shift();
-    } else {
-      this.properties = {};
-    }
-
-    if( 'children' in this.properties ) {
-      throw InvalidArgValue('properties', this.properties, 'should not have a children property');
-    }
-
-    // The rest are the children.
-    this.children = args;
+    Node.apply(this, args);
   }
 
   // The isProactComponent, toStringTag, and provideContext properties are the
