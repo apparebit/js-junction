@@ -22,8 +22,7 @@ export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
 export const MissingArgs = E('ERR_MISSING_ARGS',
   (...names) => `the ${showArgNames.of(names)} missing`);
 export const MultipleCallback = E('ERR_MULTIPLE_CALLBACK',
-  (name, context) =>
-    `repeated invocation of callback "${String(name)}"${context ? ` ${context}` : ''}`);
+  (name, spec) => `repeated invocation of callback "${String(name)}"${spec ? ` ${spec}` : ''}`);
 export const ResourceBusy = E('ERR_RESOURCE_BUSY',
   resource => `${resource} is busy`);
 
