@@ -1,7 +1,5 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
-// -------------------------------------------------------------------------------------------------
-
 // Domain Description
 import Tags from '@grr/proact/semantics/tags';
 import typeAttribute from '@grr/proact/semantics/attributes';
@@ -22,15 +20,14 @@ import renderAttributes from '@grr/proact/html/render-attributes';
 import render from '@grr/proact/html/render';
 
 // Proact
-import Proact from '@grr/proact';
+import { componentize, h, renderToString, renderToStream } from '@grr/proact';
 
 // Test Harness
 import harness from './harness';
 
 const { Attribute } = Tags.HTML;
-const { getPrototypeOf } = Object;
+const { create, getPrototypeOf } = Object;
 const { toStringTag } = Symbol;
-const { renderToString } = Proact;
 
 const CODE_DUPLICATE_BINDING = { code: 'ERR_DUPLICATE_BINDING' };
 const CODE_FUNCTION_NOT_IMPLEMENTED = { code: 'ERR_FUNCTION_NOT_IMPLEMENTED' };
@@ -98,13 +95,47 @@ harness.test('@grr/proact', t => {
   // -----------------------------------------------------------------------------------------------
 
   const a = Element('a', { href: 'location' }, 'somewhere');
+
+  function checkElementInstance(t, e) {
+    t.is(e.constructor, Element);
+    t.is(getPrototypeOf(e), Element.prototype);
+    t.ok(e.isProactElement);
+    t.is(e[toStringTag], 'Proact.Element');
+    t.is(e.name, 'a');
+    t.same(e.properties, { href: 'location' });
+    t.same(e.children, ['somewhere']);
+  }
+
   const renderContainer = function(context, props, children) {
     return Element('div', { class: 'custom-container' }, children);
   };
   const Container = Component.from(renderContainer, 'Container');
   const container = Container({}, 'some text');
 
+  function checkContainerInstance(t, c) {
+    t.is(c.constructor, Container);
+    t.is(getPrototypeOf(getPrototypeOf(c)), Node.prototype);
+    t.ok(c.isProactNode);
+    t.ok(c.isProactComponent);
+    t.is(c.name, 'Container');
+    t.same(c.properties, {});
+    t.same(c.children, ['some text']);
+  }
+
   t.test('vdom', t => {
+    t.test('.isPropsObject()', t => {
+      t.notOk(Node.isPropsObject());
+      t.notOk(Node.isPropsObject(null));
+      t.notOk(Node.isPropsObject(Element));
+      t.notOk(Node.isPropsObject(a));
+      t.notOk(Node.isPropsObject(container));
+
+      t.ok(Node.isPropsObject({}));
+      t.ok(Node.isPropsObject(create(null)));
+      t.ok(Node.isPropsObject(Object()));
+      t.end();
+    });
+
     t.test('.Node()', t => {
       t.is(Node.isProactNodeFactory, void 0);
       t.is(Node.prototype.isProactNode, true);
@@ -115,6 +146,10 @@ harness.test('@grr/proact', t => {
         'Proact.Element(span)');
       t.is(Element('span', { title: 'Greetings', lang: 'en' }, 'hello!').toString(),
         'Proact.Element(span, title=Greetings, lang=en)');
+      t.is(Element('div',  null,                               'hello!').toString(),
+        'Proact.Element(div)');
+      t.is(Element('div',  { title: 'Greetings', lang: 'en' }, 'hello!').toString(),
+        'Proact.Element(div, title=Greetings, lang=en)');
       t.end();
     });
 
@@ -125,19 +160,13 @@ harness.test('@grr/proact', t => {
       t.is(Element.prototype.isProactElement, true);
       t.is(Element.prototype.isProactComponent, void 0);
       t.is(Element.prototype[toStringTag], 'Proact.Element');
-      t.is(Proact.Element, Element);
 
       t.throws(() => Element(), CODE_MISSING_ARGS);
       t.throws(() => Element(665), CODE_INVALID_ARG_TYPE);
+      t.throws(() => Element('a', { context: 665 }), CODE_INVALID_ARG_VALUE);
       t.throws(() => Element('a', { children: 665 }), CODE_INVALID_ARG_VALUE);
 
-      t.is(a.constructor, Element);
-      t.is(getPrototypeOf(a), Element.prototype);
-      t.ok(a.isProactElement);
-      t.is(a[toStringTag], 'Proact.Element');
-      t.is(a.name, 'a');
-      t.same(a.properties, { href: 'location' });
-      t.same(a.children, ['somewhere']);
+      checkElementInstance(t, a);
 
       // The children are only normalized lazily, on demand. In other words, not here.
       t.same(Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children,
@@ -158,7 +187,12 @@ harness.test('@grr/proact', t => {
       t.is(Component.from(function fn() {}).prototype.name, 'fn');
       t.is(Component.from(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
       t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
-      t.is(Proact.Component, Component);
+
+      t.throws(() => componentize(665), CODE_INVALID_ARG_TYPE);
+      t.throws(() => componentize(() => {}), CODE_INVALID_ARG_VALUE);
+      t.is(componentize(function fn() {}).prototype.name, 'fn');
+      t.is(componentize(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
+      t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
 
       t.is(Container.isProactNodeFactory, true);
       t.is(Container.name, 'Container');
@@ -168,14 +202,10 @@ harness.test('@grr/proact', t => {
       t.is(Container.prototype.isProactComponent, true);
       t.is(Container.prototype[toStringTag], 'Proact.Component');
 
-      t.is(container.constructor, Container);
-      t.is(getPrototypeOf(getPrototypeOf(container)), Node.prototype);
-      t.ok(container.isProactNode);
-      t.ok(container.isProactComponent);
-      t.is(container.name, 'Container');
-      t.same(container.properties, {});
-      t.same(container.children, ['some text']);
+      checkContainerInstance(t, container);
+      checkContainerInstance(t, Container('some text'));
 
+      t.throws(() => Container({ context: true }), CODE_INVALID_ARG_VALUE);
       t.throws(() => Container({ children: true }), CODE_INVALID_ARG_VALUE);
       t.end();
     });
@@ -196,6 +226,27 @@ harness.test('@grr/proact', t => {
     t.test('.lookup()', t => {
       t.is(lookup('non-existent-component-class-name'), void 0);
       t.is(lookup('renderer'), renderer);
+      t.end();
+    });
+
+    t.end();
+  });
+
+  t.test('hyperscript', t => {
+    t.test('h()', t => {
+      checkElementInstance(t, h('a', { href: 'location' }, 'somewhere'));
+      checkContainerInstance(t, h(Container, 'some text'));
+      checkContainerInstance(t, h(Container, {}, 'some text'));
+
+      t.throws(() => h(665), CODE_INVALID_ARG_VALUE);
+      t.end();
+    });
+
+    t.test('h[]', t => {
+      const { a } = h;
+      t.is(h.a, a);
+
+      checkElementInstance(t, a({ href: 'location'}, 'somewhere'));
       t.end();
     });
 
@@ -417,6 +468,15 @@ harness.test('@grr/proact', t => {
       t.is(renderToString(Link(Link, 'landing page')),
         '<a>landing page</a>');
 
+      const Unlink = componentize(function renderLink(context, props, children) {
+        return Element('a', props, children);
+      });
+
+      t.is(renderToString(Unlink('Hello, world!')),
+        '<a>Hello, world!</a>');
+      t.is(renderToString(Unlink({ role: 'homebody' }, 'Hello, world!')),
+        '<a role=homebody>Hello, world!</a>');
+
       // >>> Void elements.
       t.is(renderToString(Element('hr')), '<hr>');
       t.throws(() => renderToString(Element('hr', {}, 'but, but, but!')),
@@ -475,8 +535,7 @@ harness.test('@grr/proact', t => {
         resolve(true);
       };
 
-      Proact
-        .renderToStream(deep)
+      renderToStream(deep)
         .on('data', collect)
         .on('end', validate)
         .on('error', reject);
