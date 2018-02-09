@@ -3,20 +3,29 @@
 import { InvalidArgValue } from '@grr/oddjob/errors';
 import { constant, value } from '@grr/oddjob/descriptors';
 
-const { create, defineProperty, keys } = Object;
+const { create, defineProperties, keys } = Object;
 const { toStringTag } = Symbol;
 
+function isPropsObject(value) {
+  return value != null
+    && typeof value === 'object'
+    && !value.isProactNode
+    && !value.isProactNodeFactory;
+}
+
 export default function Node(...args) {
-  if( args[0] == null ) {
-    this.properties = Object(args.shift());
-  } else if( typeof args[0] === 'object' && !args[0].isProactNode ) {
+  let [props] = args;
+
+  if( isPropsObject(props) ) {
     this.properties = args.shift();
   } else {
-    this.properties = {};
+    this.properties = props = {};
   }
 
-  if( 'children' in this.properties ) {
-    throw InvalidArgValue('properties', this.properties, 'should not have a children property');
+  if( 'context' in props ) {
+    throw InvalidArgValue('properties', props, 'should not have a "context" property');
+  } else if( 'children' in props ) {
+    throw InvalidArgValue('properties', props, 'should not have a "children" property');
   }
 
   this.children = args;
@@ -45,4 +54,7 @@ const NodePrototype = create(null, {
 
 });
 
-defineProperty(Node, 'prototype', constant(NodePrototype));
+defineProperties(Node, {
+  prototype: constant(NodePrototype),
+  isPropsObject: constant(isPropsObject),
+});
