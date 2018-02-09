@@ -28,6 +28,7 @@ function from(renderFn, name = renderFn.name) {
     // 1st argument may be constructor itself to (redundantly) capture identity.
     if( args[0] === RenderFunction ) args.shift();
 
+    // Delegate processing of properties to Node.
     Node.apply(this, args);
   }
 

@@ -16,8 +16,9 @@ export default function Element(...args) {
   } else if( typeof args[0] !== 'string' ) {
     throw InvalidArgType('name', args[0], 'a string');
   }
-
   this.name = args.shift();
+
+  // Delegate processing of properties to Node.
   Node.apply(this, args);
 }
 
