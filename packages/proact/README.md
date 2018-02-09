@@ -24,43 +24,42 @@ following directories:
 
 ## API
 
-The combined functionality of Proact's modules is exposed through narrow, public
-API. Currently, it only supports server-side rendering. If a feature is not
-documented here, it is internal only and subject to change even between patch
-revisions.
+Proact's functionality is exposed through a narrow, public API. Currently, it
+only supports server-side rendering. If a feature is not documented here, it is
+internal only and subject to change even between patch revisions.
 
 ### `componentize(renderFn, name = renderFn.name)`
 
 Convert the render function into a functional component. The component's name
-defaults to the function's name. When rendering a component, the render function
-is invoked as
+defaults to the function's name. When rendering the component, its render
+function is invoked as:
 
 ```javascript
 component.render(context, props, children);
 ```
 
-where the `context` is automatically passed down a vDOM tree, the `children` are
-the component's main payload, and `props` are the rest of the component's
-properties. Semantically, `context` and `children` are simply properties. They
-are separately passed to `render()` as a convenience. However, to enforce proper
-semantics, Proact check that `props` does not have properties named `context` or
-`children` when running in `__DEV__`.
+The `context` is automatically passed down the vDOM tree, the `children` are the
+component's main payload, and `props` are the rest of the component's
+properties. Semantically, `context` and `children` are properties and thus
+considered a part of `props`. They are separately passed to `render()` as a
+convenience. However, to enforce proper semantics, Proact checks that `props`
+does not have keys named `context` or `children`.
 
 The render function returns a vDOM consisting of numbers, strings, arrays,
-elements, and components. During rendering `undefined`, `null`, booleans, and
-`NaN` are ignored, whereas nested arrays are flattened. All other values result
+elements, and components. During rendering, `undefined`, `null`, booleans, and
+`NaN` are ignored, whereas nested arrays are flattened. Any other value results
 in an error.
 
 ### `h(type, [props,] ...children)`
 
 Create a new vDOM element or component. The `type` either is a string naming the
-HTML element or is a component created with `componentize()`. The `children` are
+HTML element or a component created with `componentize()`. The `children` are
 the node's main payload, whereas the optional `props` object provides further
 properties.
 
-As a convenience, the property `h.tag`, where `tag` is the name of an HTML
-element, returns a function that, when invoked with some `...args`, creates an
-element equivalent to `h('tag', ...args)`. These factory functions are
+Additionally, for any `tag` that is the name of an HTML element, the property
+`h.tag` returns a function that, when invoked with some `args`, creates an
+element equivalent to `h('tag', ...args)`. Each such factory function is
 instantiated on-demand only and thereafter cached.
 
 ### `renderToString(node, { context = {} } = {})`
@@ -69,10 +68,11 @@ Render the vDOM rooted at `node` to a string. The `context` is available to all
 components in the vDOM — unless an ancestor provides its own value by calling
 
 ```javascript
-this.provideContext(newContext);
+this.provideContext({ ...context, ...newContext });
 ```
 
-from within its render function.
+from within its render function. As the example illustrates, components are
+encouraged to add to the existing context and not just replace it.
 
 ### `renderToStream(node, { context = {} } = {})`
 
