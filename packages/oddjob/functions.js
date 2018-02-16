@@ -2,6 +2,8 @@
 
 import { InvalidArgType } from './internal/errors';
 
+const doApply = Reflect.apply;
+
 export function maybe(fn, ...args) {
   if( typeof fn !== 'function' ) {
     throw InvalidArgType('fn', fn, 'a function');
@@ -16,7 +18,7 @@ export function maybe(fn, ...args) {
     for( const arg of args ) {
       if( arg == null ) return null;
     }
-    return Reflect.apply(target, that, args);
+    return doApply(target, that, args);
   }});
 }
 
@@ -48,7 +50,7 @@ export function memoize(fn, {
   return new Proxy(fn, { apply(target, that, args) {
     const key = serialize(args);
     if( !store.has(key) ) {
-      store.set(key, Reflect.apply(target, that, args));
+      store.set(key, doApply(target, that, args));
     }
     return store.get(key);
   }});

@@ -3,6 +3,7 @@
 import { InvalidArgValue } from './errors';
 import { default as isObject } from './is-object';
 
+const doApply = Reflect.apply;
 const { isArray } = Array;
 const keysOf = Object.keys;
 
@@ -57,6 +58,6 @@ export function withKeyValue(original, ...indices) {
       }
     }
 
-    return Reflect.apply(target, that, args);
+    return doApply(target, that, args);
   }});
 }

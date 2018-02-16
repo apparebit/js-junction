@@ -5,6 +5,7 @@ import { constant, enumerable, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 import driver from '../driver/hook';
 
+const { apply } = Reflect;
 const { create, defineProperties } = Object;
 const { toStringTag } = Symbol;
 const NodePrototype = Node.prototype;
@@ -29,7 +30,7 @@ function from(renderFn, name = renderFn.name) {
     if( args[0] === RenderFunction ) args.shift();
 
     // Delegate processing of properties to Node.
-    Node.apply(this, args);
+    apply(Node, this, args);
   }
 
   // The isProactComponent, toStringTag, and provideContext properties are the

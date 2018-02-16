@@ -4,6 +4,7 @@ import { InvalidArgType, MissingArgs } from '@grr/oddjob/errors';
 import { constant, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 
+const { apply } = Reflect;
 const { create, defineProperties } = Object;
 const { toStringTag } = Symbol;
 
@@ -19,7 +20,7 @@ export default function Element(...args) {
   this.name = args.shift();
 
   // Delegate processing of properties to Node.
-  Node.apply(this, args);
+  apply(Node, this, args);
 }
 
 const ElementPrototype = create(Node.prototype, {
