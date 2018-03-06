@@ -27,7 +27,7 @@ This repository contains only ECMAScript modules with the `.js` file extension.
 It may not run natively on Node.js without a suitable [loader
 hook](https://nodejs.org/dist/latest-v9.x/docs/api/esm.html#esm_loader_hooks).
 It does, however, run with [@std/esm](https://github.com/standard-things/esm), a
-light-weight just-in-time transpiler for Node.js 4.0.0 or later.
+light-weight just-in-time transpiler for Node.js 6 or later.
 
 ## Copyright and License
 
