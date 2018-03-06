@@ -2,19 +2,24 @@
 
 > Advancing the globalization of \_\_DEV\_\_
 
-This package sets `__DEV__` to `true` in the global scope for non-production
-runs, while leaving that scope unmodified for production runs. This package
-considers an execution as production, if the value of `process.env.NODE_ENV`' is
-either `prod` or `production`, case-insensitive. In that case, this package
-updates `process.env.NODE_ENV` with the canonical `production` value.
+This package sets the global scope's `__DEV__` to `true` for non-production runs
+and `false` for production runs. It considers an execution as production, if and
+only if the value of `process.env.NODE_ENV` is either `prod` or `production`,
+case-insensitive. In that case, it also updates updates `process.env.NODE_ENV`
+to the canonical `production` value. This package has no effect if `__DEV__` is
+already defined.
 
 Declaring the new global
 
-    "globals": { "__DEV__": false },
+```javascript
+"globals": { "__DEV__": false },
+```
 
 and tolerating its underscores
 
-    "no-underscore-dangle": ["error", { "allow": ["__DEV__"] }],
+```javascript
+"no-underscore-dangle": ["error", { "allow": ["__DEV__"] }],
+```
 
 ensures that your tools, notably [ESLint](https://eslint.org), continue to
 peacefully coexist with your code.

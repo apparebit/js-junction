@@ -1,20 +1,27 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-/**
- * This module has no dependencies and its only potential effect is global,
- * i.e., purposefully violating encapsulation. As a direct result, this module
- * uses neither CommonJS' `require`/`module.exports` nor ECMAScript's
- * `import`/`export`. In fact, it may just be valid code for either module
- * system. To be safe, however, it still declares strict mode for use as
- * CommonJS code.
+/*
+ * This module has no dependencies and its only visible effect is global. In
+ * other words, it purposefully violates encapsulation and is written to be both
+ * a CommonJS and an ECMAScript module.
  */
 
-// eslint-disable-next-line strict
+/* eslint-disable no-var, strict */
 'use strict';
 
-const label = (process.env.NODE_ENV || '').toLowerCase();
-if( label === 'prod' || label === 'production' ) {
-  process.env.NODE_ENV = 'production';
-} else if( !('__DEV__' in global) ) {
-  Object.defineProperty(global, '__DEV__', { value: true });
+if( !('__DEV__' in global) ) {
+  var dev = true;
+
+  var label = (process.env.NODE_ENV || '').toLowerCase();
+  if( label === 'prod' || label === 'production' ) {
+    process.env.NODE_ENV = 'production';
+    dev = false;
+  }
+
+  Object.defineProperty(global, '__DEV__', {
+    configurable: false,
+    enumerable: false,
+    value: dev,
+    writable: false
+  });
 }

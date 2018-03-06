@@ -33,10 +33,10 @@ async function helper(mode) {
 
     switch( mode ) {
       case '--test-dev-mode':
-        t.ok(__DEV__);
+        t.is(__DEV__, true);
         break;
       case '--test-prod-mode':
-        t.notOk('__DEV__' in global);
+        t.is(__DEV__, false);
         t.is(process.env.NODE_ENV, 'production');
         break;
       case '--test-special-mode':
