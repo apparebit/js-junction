@@ -3,7 +3,7 @@
 import stream from 'stream';
 import Component from './vdom/component';
 import Driver from './driver';
-import doRenderHtml from './html/render';
+import renderToHtml from './html/render';
 
 export function componentize(renderFn, name = renderFn.name) {
   return Component.from(renderFn, name);
@@ -12,7 +12,7 @@ export function componentize(renderFn, name = renderFn.name) {
 export { default as h } from './hyperscript';
 
 const defaultDriver = new Driver();
-const renderHtml = doRenderHtml.bind(defaultDriver);
+export const renderHtml = renderToHtml.bind(defaultDriver);
 
 export function renderToString(node, {
   context = {},
