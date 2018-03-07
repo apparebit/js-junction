@@ -532,9 +532,9 @@ eslint-visitor-keys@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#3f3180fb2e291017716acb4c9d6d5b5c34a6a81d"
 
-eslint@4.17.0:
-  version "4.17.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-4.17.0.tgz#dc24bb51ede48df629be7031c71d9dc0ee4f3ddf"
+eslint@4.18.2:
+  version "4.18.2"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-4.18.2.tgz#0f81267ad1012e7d2051e186a9004cc2267b8d45"
   dependencies:
     ajv "^5.3.0"
     babel-code-frame "^6.22.0"
@@ -571,7 +571,7 @@ eslint@4.17.0:
     semver "^5.3.0"
     strip-ansi "^4.0.0"
     strip-json-comments "~2.0.1"
-    table "^4.0.1"
+    table "4.0.2"
     text-table "~0.2.0"
 
 espree@^3.5.2:
@@ -906,16 +906,6 @@ http-signature@~1.1.0:
     assert-plus "^0.2.0"
     jsprim "^1.2.2"
     sshpk "^1.7.0"
-
-hyperscript-attribute-to-property@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/hyperscript-attribute-to-property/-/hyperscript-attribute-to-property-1.0.0.tgz#825308d49bb8e2957923f731981bcc811cad7aff"
-
-hyperx@2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/hyperx/-/hyperx-2.3.2.tgz#17518dad514209b3f7090f149c08a9a64386396e"
-  dependencies:
-    hyperscript-attribute-to-property "^1.0.0"
 
 iconv-lite@^0.4.17:
   version "0.4.19"
@@ -1990,7 +1980,7 @@ supports-color@^4.0.0:
   dependencies:
     has-flag "^2.0.0"
 
-table@^4.0.1:
+table@4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/table/-/table-4.0.2.tgz#a33447375391e766ad34d3486e6e2aedc84d2e36"
   dependencies:
@@ -2033,9 +2023,9 @@ tap-parser@^7.0.0:
     js-yaml "^3.2.7"
     minipass "^2.2.0"
 
-tap@11.1.0:
-  version "11.1.0"
-  resolved "https://registry.yarnpkg.com/tap/-/tap-11.1.0.tgz#ef7a02961fc18a09e9ae08580f6007cdbc7bc2dc"
+tap@11.1.1:
+  version "11.1.1"
+  resolved "https://registry.yarnpkg.com/tap/-/tap-11.1.1.tgz#6dbd23c487127f621a95c793f7a247fa7e2c053a"
   dependencies:
     bind-obj-methods "^1.0.0"
     bluebird "^3.5.1"
