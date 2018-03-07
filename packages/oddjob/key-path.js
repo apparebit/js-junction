@@ -3,8 +3,8 @@
 import { InvalidArgType } from './internal/errors';
 import { default as isObject } from './internal/is-object';
 
+const { apply } = Reflect;
 const { create } = Object;
-const doApply = Reflect.apply;
 const { hasOwnProperty } = Object.prototype;
 const { isArray } = Array;
 
@@ -54,7 +54,7 @@ function doWithKeyPath(existingOnly, root, path, task) {
 
   const state = [enclosing, key, enclosing[key]];
   if( !task ) return state;
-  return doApply(task, enclosing, state);
+  return apply(task, enclosing, state);
 }
 
 export const withKeyPath =

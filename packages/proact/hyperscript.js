@@ -3,6 +3,8 @@
 import { InvalidArgValue } from '@grr/oddjob/errors';
 import Element from './vdom/element';
 
+const { has, get, set } = Reflect;
+
 /*
  * Unlike hyperscript, Proact's node factory h() does not support ID and class
  * selectors as part of the first argument:
@@ -29,14 +31,14 @@ function h(type, ...args) {
 
 export default new Proxy(h, {
   get(target, key, receiver) {
-    if( Reflect.has(target, key) ) {
-      return Reflect.get(target, key, receiver);
+    if( has(target, key) ) {
+      return get(target, key, receiver);
     } else {
       const factory = function factory(...args) {
         return Element(key, ...args);
       };
 
-      Reflect.set(target, key, factory);
+      set(target, key, factory);
       return factory;
     }
   }
