@@ -495,8 +495,8 @@ harness.test('@grr/proact', t => {
         '<script>42 < 665 && 13 > 2</script>');
       t.is(renderToString(Element('script', null, `<!-- ooh -->'<script></script>'`)),
         `<script><\\!-- ooh -->'<\\script><\\/script>'</script>`);
-      t.is(renderToString(Element('style', null, '.achtung { color: red; }')),
-        '<style>.achtung { color: red; }</style>');
+      t.is(renderToString(Element('style', null, '.danger { color: red; }')),
+        '<style>.danger { color: red; }</style>');
 
       // >>> Values other than nodes.
       t.is(renderToString(665), '665');
