@@ -156,11 +156,11 @@ function toTag(value) {
 }
 
 function hasType(tag, ...types) {
-  const actuals = HTML.get(String(tag).toLowerCase());
+  const actual = HTML.get(String(tag).toLowerCase());
 
-  if( actuals ) {
+  if( actual ) {
     for( const type of types ) {
-      if( actuals.includes(type) ) return true;
+      if( actual.includes(type) ) return true;
     }
   }
 
