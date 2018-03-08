@@ -26,6 +26,9 @@ export function maybe(fn, ...args) {
 
 const { stringify } = JSON;
 
+// https://stackoverflow.com/questions/30889321/a-shorthand-for-function-prototype-call-call?rq=1
+export const call = Function.prototype.call.call.bind(Function.prototype.call);
+
 /** Convert the argument array to a primitive value, suitable as a map key. */
 export function deobjectify(args) {
   if( args.length === 1 ) {

@@ -1,6 +1,7 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
 import {
+  call,
   constant,
   dehyphenate,
   deobjectify,
@@ -271,6 +272,17 @@ harness.test( '@grr/oddjob', t => {
   // -----------------------------------------------------------------------------------------------
 
   t.test('functions', t => {
+    t.test('.call()', t => {
+      function add3(n1 = 0, n2 = 0) {
+        return this.n0 + n1 + n2;
+      }
+
+      t.is(call(add3, { n0: 42 }), 42);
+      t.is(call(add3, { n0: 41 }, 1), 42);
+      t.is(call(add3, { n0: 39 }, 2, 1), 42);
+      t.end();
+    });
+
     t.test('.maybe()', t => {
       t.throws(() => maybe(null), CODE_INVALID_ARG_TYPE);
 

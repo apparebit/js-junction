@@ -43,6 +43,7 @@ export {
 } from './iteration';
 
 export {
+  call,
   deobjectify,
   maybe,
   memoize,
