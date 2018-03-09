@@ -6,8 +6,8 @@ import Element from './vdom/element';
 const { has, get, set } = Reflect;
 
 /*
- * Unlike hyperscript, Proact's node factory h() does not support ID and class
- * selectors as part of the first argument:
+ * Unlike the original `hyperscript` package, Proact's node factory `h()` does
+ * not support ID and class selectors as part of the first argument:
  *
  *  1. ID and class attributes can already be specified as props. Having two
  *     ways of doing so just requires more code for combining the results.
@@ -18,7 +18,6 @@ const { has, get, set } = Reflect;
  * In short, hyperscript's ID and class selector notation is too limited in use
  * and too complex in implementation.
  */
-
 function h(type, ...args) {
   if( typeof type === 'string' ) {
     return Element(type, ...args);
