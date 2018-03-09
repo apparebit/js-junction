@@ -5,10 +5,7 @@ import Component from './vdom/component';
 import Driver from './driver';
 import renderToHtml from './html/render';
 
-export function componentize(renderFn, name = renderFn.name) {
-  return Component.from(renderFn, name);
-}
-
+export const H = Component.from;
 export { default as h } from './hyperscript';
 
 const defaultDriver = new Driver();

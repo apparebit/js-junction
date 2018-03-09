@@ -20,7 +20,7 @@ import renderAttributes from '@grr/proact/html/render-attributes';
 import render from '@grr/proact/html/render';
 
 // Proact
-import { componentize, h, renderToString, renderToStream } from '@grr/proact';
+import { H, h, renderToString, renderToStream } from '@grr/proact';
 
 // Test Harness
 import harness from './harness';
@@ -185,14 +185,16 @@ harness.test('@grr/proact', t => {
       t.throws(() => Component.from(665), CODE_INVALID_ARG_TYPE);
       t.throws(() => Component.from(() => {}), CODE_INVALID_ARG_VALUE);
       t.is(Component.from(function fn() {}).prototype.name, 'fn');
-      t.is(Component.from(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
-      t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
+      t.is(Component.from(function fn() {}, 'SomeComponent').prototype.name, 'SomeComponent');
+      t.is(Component.from(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
+      t.is(Component.from('YetAnotherComponent', () => {}).prototype.name, 'YetAnotherComponent');
 
-      t.throws(() => componentize(665), CODE_INVALID_ARG_TYPE);
-      t.throws(() => componentize(() => {}), CODE_INVALID_ARG_VALUE);
-      t.is(componentize(function fn() {}).prototype.name, 'fn');
-      t.is(componentize(function fn() {}, 'TheFunction').prototype.name, 'TheFunction');
-      t.is(Component.from(() => {}, 'StillTheFunction').prototype.name, 'StillTheFunction');
+      t.throws(() => H(665), CODE_INVALID_ARG_TYPE);
+      t.throws(() => H(() => {}), CODE_INVALID_ARG_VALUE);
+      t.is(H(function fn() {}).prototype.name, 'fn');
+      t.is(H(function fn() {}, 'SomeComponent').prototype.name, 'SomeComponent');
+      t.is(H(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
+      t.is(H('YetAnotherComponent', () => {}).prototype.name, 'YetAnotherComponent');
 
       t.is(Container.isProactNodeFactory, true);
       t.is(Container.name, 'Container');
@@ -468,7 +470,7 @@ harness.test('@grr/proact', t => {
       t.is(renderToString(Link(Link, 'landing page')),
         '<a>landing page</a>');
 
-      const Unlink = componentize(function renderLink(context, props, children) {
+      const Unlink = H(function renderLink(context, props, children) {
         return Element('a', props, children);
       });
 

@@ -16,10 +16,22 @@ function provideContext(context) {
   driver().provideContext(this, context);
 }
 
+/**
+ * Create a functional component with the given render function and name. For
+ * named functions, the name may be omitted to avoid repetition. The name may
+ * also be specified before the render function to accommodate arrow functions
+ * while also optimizing readability.
+ */
 function from(renderFn, name = renderFn.name) {
-  if( typeof renderFn !== 'function' ) {
+  const type = typeof renderFn;
+  if( type === 'string' && typeof name === 'function' ) {
+    [renderFn, name] = [name, renderFn];
+  } else if( type !== 'function' ) {
     throw InvalidArgType({ renderFn }, 'a function');
-  } else if( !name ) {
+  }
+
+  name = String(name);
+  if( !name ) {
     throw InvalidArgValue({ name }, 'should not be empty');
   }
 
@@ -37,7 +49,6 @@ function from(renderFn, name = renderFn.name) {
   // same for all render function components and could thus be moved into a
   // shared prototype. While that may reduce memory pressure, it also increases
   // the length of the prototype chain and thus property lookup latency.
-
   const RenderFunctionPrototype = create(NodePrototype, {
     constructor: value(RenderFunction),
     isProactComponent: value(true),
