@@ -50,10 +50,10 @@
   },
   "@std/esm": "js",
   "scripts": {
-    "clean": "rimraf .nyc_output coverage **/node_modules/.cache",
+    "clean": "rimraf yarn-error.log .nyc_output coverage **/node_modules/.cache",
     "lint": "eslint .",
     "cover": "nyc node tests/index.js",
-    "pretest": "rimraf .nyc_output coverage && eslint .",
+    "pretest": "rimraf yarn-error.log .nyc_output coverage && eslint .",
     "test": "tap --node-arg=-r --node-arg=@std/esm tests/index.js",
     "posttest": "nyc node tests/index.js --quiet"
   }
