@@ -186,15 +186,19 @@ harness.test('@grr/proact', t => {
       t.throws(() => Component.from(() => {}), CODE_INVALID_ARG_VALUE);
       t.is(Component.from(function fn() {}).prototype.name, 'fn');
       t.is(Component.from(function fn() {}, 'SomeComponent').prototype.name, 'SomeComponent');
+      t.is(Component.from(function fn() {}, 665).prototype.name, '665');
       t.is(Component.from(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
       t.is(Component.from('YetAnotherComponent', () => {}).prototype.name, 'YetAnotherComponent');
+      t.is(Component.from(665, () => {}).prototype.name, '665');
 
       t.throws(() => H(665), CODE_INVALID_ARG_TYPE);
       t.throws(() => H(() => {}), CODE_INVALID_ARG_VALUE);
       t.is(H(function fn() {}).prototype.name, 'fn');
       t.is(H(function fn() {}, 'SomeComponent').prototype.name, 'SomeComponent');
+      t.is(H(function fn() {}, 665).prototype.name, '665');
       t.is(H(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
       t.is(H('YetAnotherComponent', () => {}).prototype.name, 'YetAnotherComponent');
+      t.is(H(665, () => {}).prototype.name, '665');
 
       t.is(Container.isProactNodeFactory, true);
       t.is(Container.name, 'Container');

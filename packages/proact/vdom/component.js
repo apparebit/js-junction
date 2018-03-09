@@ -20,13 +20,12 @@ function provideContext(context) {
  * Create a functional component with the given render function and name. For
  * named functions, the name may be omitted to avoid repetition. The name may
  * also be specified before the render function to accommodate arrow functions
- * while also optimizing readability.
+ * while also optimizing for readability.
  */
 function from(renderFn, name = renderFn.name) {
-  const type = typeof renderFn;
-  if( type === 'string' && typeof name === 'function' ) {
+  if( typeof name === 'function' ) {
     [renderFn, name] = [name, renderFn];
-  } else if( type !== 'function' ) {
+  } else if( typeof renderFn !== 'function' ) {
     throw InvalidArgType({ renderFn }, 'a function');
   }
 
