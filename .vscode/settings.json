@@ -11,17 +11,21 @@
     "deobjectify",
     "dynaload",
     "formnovalidate",
+    "grr",
+    "grr's",
     "hyperscript",
     "hyperscript's",
     "hyphenatable",
     "ignorable",
     "ismap",
     "itemscope",
+    "monorepo",
     "multiselectable",
     "nomodule",
     "nspec",
     "oddjob",
     "playsinline",
+    "posttest",
     "proact",
     "proact's",
     "promisify",
@@ -29,6 +33,7 @@
     "superset",
     "transpiler",
     "typemustmatch",
-    "vdom"
+    "vdom",
+    "workspaces"
   ]
 }
