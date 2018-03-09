@@ -9,7 +9,7 @@ import renderAttributes from './render-attributes';
 export default function render(tag, object) {
   if( tag === 'enter' ) {
     if( object.isProactComponent ) {
-      const rendered = object.render(this.context, object.properties, object.children);
+      const rendered = object.render(object.properties, object.children, this.context);
 
       // Since replaceChildren() does not accept `undefined` for its `children`
       // argument, call skipChildren() to cause exact same (lack of) behavior.

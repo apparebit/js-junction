@@ -106,7 +106,7 @@ harness.test('@grr/proact', t => {
     t.same(e.children, ['somewhere']);
   }
 
-  const renderContainer = function(context, props, children) {
+  const renderContainer = function(props, children) {
     return Element('div', { class: 'custom-container' }, children);
   };
   const Container = Component.from(renderContainer, 'Container');
@@ -310,12 +310,12 @@ harness.test('@grr/proact', t => {
 
   t.test('Driver()', t => {
     t.test('.context', t => {
-      const ContextConsumer = Component.from(function ContextConsumer(context) {
+      const ContextConsumer = Component.from(function ContextConsumer(_, __, context) {
         t.same(context, { answer: 42 });
         return Element('span');
       });
 
-      const ContextProvider = Component.from(function ContextProvider(context) {
+      const ContextProvider = Component.from(function ContextProvider(_, __, context) {
         t.same(context, {});
         this.provideContext({ answer: 42 });
         return Element('div', null, ContextConsumer());
@@ -453,7 +453,7 @@ harness.test('@grr/proact', t => {
       t.is(renderToString(deep), '<a><b><i>nested</i></b></a>');
 
       // >>> Elements with and without attributes/properties.
-      const Link = Component.from(function renderLink(context, props, children) {
+      const Link = Component.from(function renderLink(props, children) {
         return Element('a', props, children);
       }, 'Link');
 
@@ -470,7 +470,7 @@ harness.test('@grr/proact', t => {
       t.is(renderToString(Link(Link, 'landing page')),
         '<a>landing page</a>');
 
-      const Unlink = H(function renderLink(context, props, children) {
+      const Unlink = H(function renderLink(props, children) {
         return Element('a', props, children);
       });
 
@@ -514,7 +514,7 @@ harness.test('@grr/proact', t => {
       })()), '');
 
       // >>> Components that render to lists.
-      t.is(renderToString(Component.from(function ToMany(context, props, children) {
+      t.is(renderToString(Component.from(function ToMany(props, children) {
         return [...children, ' ', ...children, ' ', ...children];
       })({}, 'w00t!')), 'w00t! w00t! w00t!');
 

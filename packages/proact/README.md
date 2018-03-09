@@ -35,15 +35,16 @@ defaults to the function's name. When rendering the component, its render
 function is invoked as:
 
 ```javascript
-component.render(context, props, children);
+component.render(props, children, context);
 ```
 
-The `context` is automatically passed down the vDOM tree, the `children` are the
-component's main payload, and `props` are the rest of the component's
-properties. Semantically, `context` and `children` are properties and thus
+The `children` are the component's main payload, the `context` is automatically
+passed down the vDOM tree, and `props` are the rest of the component's
+properties. Semantically, `children` and `context` are properties and thus
 considered a part of `props`. They are separately passed to `render()` as a
 convenience. However, to enforce proper semantics, Proact checks that `props`
-does not have keys named `context` or `children`.
+argument to a vDOM node does not have keys named `children` or `context`. The
+`context` is passed last, since most components ignore it.
 
 The render function returns a vDOM consisting of numbers, strings, arrays,
 elements, and components. During rendering, `undefined`, `null`, booleans, and
