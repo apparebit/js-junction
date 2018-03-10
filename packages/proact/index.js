@@ -3,26 +3,28 @@
 import stream from 'stream';
 import Component from './vdom/component';
 import Driver from './driver';
-import renderToHtml from './html/render';
+import doRenderToHtml from './html/render';
 
 export const H = Component.from;
 export { default as h } from './hyperscript';
 
 const defaultDriver = new Driver();
-export const renderHtml = renderToHtml.bind(defaultDriver);
+export const renderToHtml = doRenderToHtml;
 
 export function renderToString(node, {
   context = {},
   driver = defaultDriver,
+  handler = renderToHtml,
 } = {}) {
-  return [...driver.traverse(node, { context, handler: renderHtml })].join('');
+  return [...driver.traverse(node, { context, handler })].join('');
 }
 
 export function renderToStream(node, {
   context = {},
   driver = defaultDriver,
+  handler = renderToHtml,
 } = {}) {
-  const renderer = driver.traverse(node, { context, handler: renderHtml });
+  const renderer = driver.traverse(node, { context, handler });
 
   return new stream.Readable({
     read() {
