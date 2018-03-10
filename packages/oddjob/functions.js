@@ -3,6 +3,7 @@
 import { InvalidArgType } from './internal/errors';
 
 const doApply = Reflect.apply;
+const { stringify } = JSON;
 
 export function maybe(fn, ...args) {
   if( typeof fn !== 'function' ) {
@@ -21,13 +22,6 @@ export function maybe(fn, ...args) {
     return doApply(target, that, args);
   }});
 }
-
-// -------------------------------------------------------------------------------------------------
-
-const { stringify } = JSON;
-
-// https://stackoverflow.com/questions/30889321/a-shorthand-for-function-prototype-call-call?rq=1
-export const call = Function.prototype.call.bind(Function.prototype.call);
 
 /** Convert the argument array to a primitive value, suitable as a map key. */
 export function deobjectify(args) {
