@@ -21,7 +21,7 @@ const REPLACE = Symbol('replace');
 const SKIP = Symbol('skip');
 const TODO = Symbol('todo');
 
-function init(driver, node, parent, context) {
+function start(driver, node, parent, context) {
   driver[CURRENT] = true; // Mark driver as busy.
   driver[TODO] = isArray(node) ? node : [node];
   driver[PARENT] = parent;
@@ -143,7 +143,7 @@ export default class Driver {
       throw ResourceBusy('Proact driver');
     }
 
-    init(this, node, parent, context);
+    start(this, node, parent, context);
     return createGenerator(this, handler);
   }
 
