@@ -17,7 +17,7 @@ import Driver from '@grr/proact/driver';
 
 // Render to HTML
 import renderAttributes from '@grr/proact/html/render-attributes';
-import render from '@grr/proact/html/render';
+import renderToHtml from '@grr/proact/html/render';
 
 // Proact
 import { H, h, renderToString, renderToStream } from '@grr/proact';
@@ -332,6 +332,7 @@ harness.test('@grr/proact', t => {
     t.test('.handle()', t => {
       t.throws(() => new Driver(42), CODE_INVALID_ARG_TYPE);
 
+      // Test driver defaults.
       const nullDriver = new Driver();
       let iter = nullDriver.traverse(a);
 
@@ -340,6 +341,13 @@ harness.test('@grr/proact', t => {
       t.same(iter.next(), { done: false, value: { tag: 'exit',  object: a }});
       t.same(iter.next(), { done: true,  value: void 0 });
 
+      // Test late binding between driver and handler through handler option.
+      t.is([...nullDriver.traverse(a, { handler: renderToHtml })].join(''),
+        '<a href=location>somewhere</a>');
+      t.is([...nullDriver.traverse(container, { handler: renderToHtml })].join(''),
+        '<div class=custom-container>some text</div>');
+
+      // Test driver control pane.
       let tested = false;
       const driver = new Driver(function handle(tag, object) {
         if(!tested && tag === 'enter') {
@@ -428,11 +436,11 @@ harness.test('@grr/proact', t => {
 
     t.test('.render()', t => {
       // >>> Built-in HTML handler invoked with invalid tag.
-      t.throws(() => render('mad'), CODE_INVALID_ARG_VALUE);
+      t.throws(() => renderToHtml('mad'), CODE_INVALID_ARG_VALUE);
 
       // >>> Custom handler overriding built-in HTML handler.
       t.is([
-        ...new Driver(new Proxy(render, {
+        ...new Driver(new Proxy(renderToHtml, {
           apply(target, that, [tag, object]) {
             try {
               return Reflect.apply(target, that, [tag, object]);

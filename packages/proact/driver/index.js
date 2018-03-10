@@ -3,10 +3,11 @@
 import assert from 'assert';
 import { InvalidArgType, InvalidArgValue, ResourceBusy } from '@grr/oddjob/errors';
 import { isIterable } from '@grr/oddjob/iteration';
-import { value } from '@grr/oddjob/descriptors';
 import { next, pushAll } from './children';
 import { setDriver } from './hook';
+import { value } from '@grr/oddjob/descriptors';
 
+const { bind } = Function.prototype;
 const { defineProperty } = Object;
 const { isArray } = Array;
 const { toStringTag } = Symbol;
@@ -82,20 +83,23 @@ function exit(driver) {
 function* createGenerator(driver, handler) {
   const previous = setDriver(driver);
   try {
+    // Make loop-invariant binding from handler to driver.
+    const dispatch = bind.call(handler, driver);
+
     while( true ) {
       const item = driver[CURRENT] = next(driver[TODO]);
       if( item == null ) break;
 
       if( typeof item === 'string' ) {
-        yield handler('text', item);
+        yield dispatch('text', item);
       } else if( item.isProactNode ) {
-        yield handler('enter', item);
+        yield dispatch('enter', item);
         enter(driver);
       } else if( item[EXIT] ) {
         exit(driver);
-        yield handler('exit', item[EXIT]);
+        yield dispatch('exit', item[EXIT]);
       } else {
-        yield handler('unknown', item);
+        yield dispatch('unknown', item);
       }
     }
   } finally {
@@ -106,13 +110,13 @@ function* createGenerator(driver, handler) {
 
 export default class Driver {
   constructor(handler) {
-    if( handler !== void 0 && typeof handler !== 'function' ) {
-      throw InvalidArgType({ handler }, 'undefined or a function');
-    }
+    if( handler != null ) {
+      if( typeof handler !== 'function' ) {
+        throw InvalidArgType({ handler }, 'undefined or a function');
+      }
 
-    handler = handler || this.handle;
-    // Bind handle() to this, since it is invoked as a function!
-    defineProperty(this, 'handle', value(handler.bind(this)));
+      defineProperty(this, 'handle', value(handler, { writable: true }));
+    }
 
     // Fix shape of class.
     this[TODO] = [];             // The stack of pending items.
