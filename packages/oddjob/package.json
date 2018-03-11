@@ -13,6 +13,5 @@
     "node": ">=8.3.0"
   },
   "main": "index.js",
-  "@std/esm": "js",
   "repository": "https://github.com/grimmr/js-junction/tree/master/packages/oddjob"
 }
