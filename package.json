@@ -34,7 +34,7 @@
       "packages/**/*.js"
     ],
     "require": [
-      "@std/esm"
+      "esm"
     ],
     "cache": true,
     "check-coverage": true,
@@ -50,11 +50,11 @@
   },
   "@std/esm": "js",
   "scripts": {
-    "clean": "node -r @std/esm scripts/clean.js",
+    "clean": "node -r esm scripts/clean.js",
     "lint": "eslint .",
     "cover": "nyc node tests/index.js",
-    "pretest": "node -r @std/esm scripts/clean.js && eslint .",
-    "test": "tap --node-arg=-r --node-arg=@std/esm tests/index.js",
+    "pretest": "node -r esm scripts/clean.js && eslint .",
+    "test": "tap --node-arg=-r --node-arg=esm tests/index.js",
     "posttest": "nyc node tests/index.js --quiet"
   }
 }

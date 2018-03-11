@@ -11,7 +11,7 @@
       "program": "${workspaceFolder}/tests/index.js",
       "cwd": "${workspaceFolder}",
       "runtimeArgs": [
-        "-r", "@std/esm"
+        "-r", "esm"
       ]
     }
   ]
