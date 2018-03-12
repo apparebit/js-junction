@@ -26,12 +26,13 @@ export default function renderToHtml(tag, object) {
         throw InvalidArgValue({ object }, `<${name}> is a void element`);
       }
 
-      const renderedAttributes = [...renderAttributes(properties)];
-      if( renderedAttributes.length ) {
-        return `<${name} ${renderedAttributes.join(' ')}>`;
-      } else {
-        return `<${name}>`;
-      }
+      let rendered = '<';
+      if( name === 'html' ) rendered += '!doctype html><';
+      rendered += name;
+
+      const attributes = [...renderAttributes(properties)];
+      if( attributes.length ) rendered += ` ${attributes.join(' ')}`;
+      return `${rendered}>`;
     }
 
   } else if( tag === 'exit' ) {
