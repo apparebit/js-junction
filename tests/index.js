@@ -1,8 +1,12 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
-import fs from 'fs';
-import util from 'util';
-import { dynaload } from './harness';
+import { promisify } from 'util';
+import { readdir as doReaddir } from 'fs';
+import { resolve } from 'path';
+import { dynaload, testdir } from './harness';
+
+const readdir = promisify(doReaddir);
+const TEST_SUFFIX = '.test.js';
 
 function hasQuietFlag() {
   for( const arg of process.argv ) {
@@ -25,15 +29,9 @@ if( hasQuietFlag() ) {
   };
 }
 
-const readdir = util.promisify(fs.readdir);
-const SUFFIX = '.test.js';
-
-(async function main() {
-  const tests = (await readdir('tests'))
-    .filter(s => s.length > SUFFIX.length && s.endsWith(SUFFIX));
-
-  for( const test of tests ) {
-    // eslint-disable-next-line no-await-in-loop
-    await dynaload(`./${test.slice(0, -3)}`);
-  }
+(async function run() {
+  await Promise.all(
+    (await readdir(testdir))
+      .filter(name => name.endsWith(TEST_SUFFIX))
+      .map(name => dynaload(resolve(testdir, name))));
 })();

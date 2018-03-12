@@ -1,12 +1,15 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import { default as harness, dynaload } from './harness';
+import { resolve } from 'path';
+import { default as harness, dynaload, testdir } from './harness';
 
 function main() {
   const node = process.execPath;
-  const args = [...process.execArgv, 'tests/mark-of-dev.test.js'];
+  const args = [...process.execArgv, resolve(testdir, 'mark-of-dev.test.js')];
 
   harness.test( '@grr/mark-of-dev', t => {
+    t.jobs = 10;
+
     t.spawn(node, [...args, '--test-dev-mode'], { env: {} });
     t.spawn(node, [...args, '--test-dev-mode'], { env: { NODE_ENV: 'dev' } });
     t.spawn(node, [...args, '--test-dev-mode'], { env: { NODE_ENV: 'DEV' } });
