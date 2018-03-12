@@ -42,6 +42,7 @@
     "promisify",
     "readable's",
     "superset",
+    "testdir",
     "transpiler",
     "typemustmatch",
     "vdom",
