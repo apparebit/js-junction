@@ -1,10 +1,16 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { hyphenate, escapeAttribute, isAttributeQuoted } from '@grr/oddjob/strings';
-import { maybe } from '@grr/oddjob/functions';
+import {
+  escapeAttribute,
+  hyphenate as doHyphenate,
+  isAttributeQuoted
+} from '@grr/oddjob/strings';
+
+import { maybe, memoize } from '@grr/oddjob/functions';
 import Tags from '../semantics/tags';
 import typeAttribute from '../semantics/attributes';
 
+const hyphenate = memoize(doHyphenate);
 const { isArray } = Array;
 const { keys } = Object;
 
