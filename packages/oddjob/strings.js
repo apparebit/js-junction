@@ -4,18 +4,12 @@ const { isArray } = Array;
 const { keys } = Object;
 const { stringify } =  JSON;
 
-// -------------------------------------------------------------------------------------------------
-
 const WHITESPACE = /[\t\n\f\r ]+/g;
-
 export function normalizeWhitespace(text) {
   return String(text).replace(WHITESPACE, ' ');
 }
 
-// -------------------------------------------------------------------------------------------------
-
 const DEHYPHENATABLE = /(-[a-z])/g;
-
 export function dehyphenate(name) {
   return String(name)
     .replace(DEHYPHENATABLE, fragment =>
@@ -25,14 +19,11 @@ export function dehyphenate(name) {
 }
 
 const HYPHENATABLE = /([A-Z])/g;
-
 export function hyphenate(name) {
   return String(name)
     .replace(HYPHENATABLE, '-$1')
     .toLowerCase();
 }
-
-// -------------------------------------------------------------------------------------------------
 
 const HTML_ESCAPES = {
   '&': '&amp;',
@@ -40,13 +31,11 @@ const HTML_ESCAPES = {
   '>': '&gt;',
 };
 const HTML_ESCAPABLE = new RegExp(`[${keys(HTML_ESCAPES).join('')}]`, 'g');
-
 export function escapeHTML(text) {
   return String(text).replace(HTML_ESCAPABLE, c => HTML_ESCAPES[c]);
 }
 
 const ATTRIBUTE_IS_QUOTED = /[\t\n\f\r "&'=<>`]/;
-
 /**
  * Determine whether the HTML attribute value requires double quotes. In that
  * case, the value *must* be escaped with `escapeAttribute()`. This is correct
@@ -65,9 +54,7 @@ const ATTRIBUTE_ESCAPES = {
   '>': '&gt;',
   '`': '&#x60;',
 };
-
 const ATTRIBUTE_ESCAPABLE = new RegExp(`[${keys(ATTRIBUTE_ESCAPES).join('')}]`, 'g');
-
 export function escapeAttribute(text) {
   return String(text).replace(ATTRIBUTE_ESCAPABLE, c => ATTRIBUTE_ESCAPES[c]);
 }
@@ -77,14 +64,10 @@ const SCRIPT_ESCAPES = {
   '<script': '<\\script',
   '</script': '<\\/script',
 };
-
 const SCRIPT_ESCAPABLE = new RegExp(keys(SCRIPT_ESCAPES).join('|'), 'g');
-
 export function escapeScript(text) {
   return String(text).replace(SCRIPT_ESCAPABLE, s => SCRIPT_ESCAPES[s]);
 }
-
-// -------------------------------------------------------------------------------------------------
 
 export function toStableJSON(value) {
   if( value && typeof value.toJSON === 'function' ) {
@@ -113,8 +96,6 @@ export function toStableJSON(value) {
     }}`;
   }
 }
-
-// -------------------------------------------------------------------------------------------------
 
 export function toSymbolKey(symbol) {
   return String(symbol).slice(7, -1);

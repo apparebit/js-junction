@@ -1,6 +1,6 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-import stream from 'stream';
+import { Readable } from 'stream';
 import Component from './vdom/component';
 import Driver from './driver';
 import doRenderToHtml from './html/render';
@@ -26,7 +26,7 @@ export function renderToStream(node, {
 } = {}) {
   const renderer = driver.traverse(node, { context, handler });
 
-  return new stream.Readable({
+  return new Readable({
     read() {
       while( true ) {
         const { value, done } = renderer.next();

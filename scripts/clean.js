@@ -11,6 +11,6 @@ const remove = pattern => doRemove(pattern, {});
     '.nyc_output',
     'coverage',
     'yarn-error.log',
-    '**/node_modules/.cache',
+    'node_modules/.cache',
   ].map(remove));
 })();
