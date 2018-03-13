@@ -3,9 +3,11 @@
 import { promisify } from 'util';
 import { readdir as doReaddir } from 'fs';
 import { resolve } from 'path';
-import { dynaload, testdir } from './harness';
+import { default as harness, testdir } from './harness';
 
+const { execArgv } = process;
 const readdir = promisify(doReaddir);
+const NODE_BINARY = process.execPath;
 const TEST_SUFFIX = '.test.js';
 
 function hasQuietFlag() {
@@ -33,5 +35,6 @@ if( hasQuietFlag() ) {
   await Promise.all(
     (await readdir(testdir))
       .filter(name => name.endsWith(TEST_SUFFIX))
-      .map(name => dynaload(resolve(testdir, name))));
+      .map(testscript => harness.spawn(NODE_BINARY, [...execArgv, resolve(testdir, testscript)]))
+  );
 })();

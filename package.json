@@ -20,21 +20,13 @@
     "packages/*"
   ],
   "nyc": {
-    "exclude": [
-      ".nyc_output",
-      ".vscode",
-      "coverage",
-      "scripts",
-      "tests",
-      "**/node_modules"
-    ],
-    "include": [
-      "packages/**/*.js"
-    ],
+    "clean": false,
     "require": [
       "esm"
     ],
-    "cache": true,
+    "cwd": "packages",
+    "temp-directory": "../.nyc_output",
+    "report-dir": "../coverage",
     "check-coverage": true,
     "per-file": true,
     "lines": 100,
