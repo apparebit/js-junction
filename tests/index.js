@@ -35,6 +35,6 @@ if( hasQuietFlag() ) {
   await Promise.all(
     (await readdir(testdir))
       .filter(name => name.endsWith(TEST_SUFFIX))
-      .map(testscript => harness.spawn(NODE_BINARY, [...execArgv, resolve(testdir, testscript)]))
+      .map(testfile => harness.spawn(NODE_BINARY, [...execArgv, resolve(testdir, testfile)]))
   );
 })();
