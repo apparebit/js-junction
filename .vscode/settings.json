@@ -45,6 +45,7 @@
     "testdir",
     "transpiler",
     "typemustmatch",
+    "unmaintained",
     "vdom",
     "workspaces"
   ]
