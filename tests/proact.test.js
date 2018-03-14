@@ -249,10 +249,11 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('h[]', t => {
+      // Make sure `h.a` returns the same element factory every time.
       const { a } = h;
-      t.is(h.a, a);
 
       checkElementInstance(t, a({ href: 'location'}, 'somewhere'));
+      t.is(h.a, a);
       t.end();
     });
 
