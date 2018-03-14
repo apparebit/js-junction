@@ -19,9 +19,10 @@ const { has, get, set } = Reflect;
  * and too complex in implementation.
  */
 function h(type, ...args) {
-  if( typeof type === 'string' ) {
+  const kind = typeof type;
+  if( kind === 'string' ) {
     return Element(type, ...args);
-  } else if( typeof type === 'function' && type.isProactNodeFactory ) {
+  } else if( kind === 'function' ) {
     return type(...args);
   } else {
     throw InvalidArgValue({ type }, 'should be an element name or component constructor');
