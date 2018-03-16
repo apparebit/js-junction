@@ -115,7 +115,6 @@ harness.test('@grr/proact', t => {
   function checkContainerInstance(t, c) {
     t.is(c.constructor, Container);
     t.is(getPrototypeOf(getPrototypeOf(c)), Node.prototype);
-    t.ok(c.isProactNode);
     t.ok(c.isProactComponent);
     t.is(c.name, 'Container');
     t.same(c.properties, {});
@@ -138,7 +137,6 @@ harness.test('@grr/proact', t => {
 
     t.test('.Node()', t => {
       t.is(Node.isProactNodeFactory, void 0);
-      t.is(Node.prototype.isProactNode, true);
       t.is(Node.prototype.isProactElement, void 0);
       t.is(Node.prototype.isProactComponent, void 0);
 
@@ -156,7 +154,6 @@ harness.test('@grr/proact', t => {
     t.test('.Element()', t => {
       t.is(Element.isProactNodeFactory, true);
       t.is(Element.prototype.constructor, Element);
-      t.is(Element.prototype.isProactNode, true);
       t.is(Element.prototype.isProactElement, true);
       t.is(Element.prototype.isProactComponent, void 0);
       t.is(Element.prototype[toStringTag], 'Proact.Element');
@@ -203,7 +200,6 @@ harness.test('@grr/proact', t => {
       t.is(Container.isProactNodeFactory, true);
       t.is(Container.name, 'Container');
       t.is(Container.prototype.constructor, Container);
-      t.is(Container.prototype.isProactNode, true);
       t.is(Container.prototype.isProactElement, void 0);
       t.is(Container.prototype.isProactComponent, true);
       t.is(Container.prototype[toStringTag], 'Proact.Component');

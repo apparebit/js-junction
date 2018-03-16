@@ -37,7 +37,7 @@ function start(driver, node, parent, context) {
 function enter(driver) {
   // Fill in exit record with old context/parent, then update as necessary.
   const current = driver[CURRENT];
-  assert(current != null && current.isProactNode);
+  assert(current != null && (current.isProactElement || current.isProactComponent));
 
   const op = { [EXIT]: current, parent: driver[PARENT] };
   driver[PARENT] = current;
@@ -74,7 +74,11 @@ function exit(driver) {
   assert(op != null && EXIT in op);
 
   const node = op[EXIT];
-  assert(node != null && node.isProactNode && node === driver[PARENT]);
+  assert(
+    node != null
+    && (node.isProactElement || node.isProactComponent)
+    && node === driver[PARENT]
+  );
 
   driver[PARENT] = op.parent;
   if( op.context ) driver[CONTEXT] = op.context;
@@ -92,7 +96,7 @@ function* createGenerator(driver, handler) {
 
       if( typeof item === 'string' ) {
         yield dispatch('text', item);
-      } else if( item.isProactNode ) {
+      } else if( item.isProactElement || item.isProactComponent ) {
         yield dispatch('enter', item);
         enter(driver);
       } else if( item[EXIT] ) {

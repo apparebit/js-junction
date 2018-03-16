@@ -9,7 +9,8 @@ const { toStringTag } = Symbol;
 function isPropsObject(value) {
   return value != null
     && typeof value === 'object'
-    && !value.isProactNode
+    && !value.isProactElement
+    && !value.isProactComponent
     && !value.isProactNodeFactory;
 }
 
@@ -33,7 +34,6 @@ export default function Node(...args) {
 
 const NodePrototype = create(null, {
   constructor: value(Node),
-  isProactNode: value(true),
 
   toString: value(function toString() {
     let s = `${this[toStringTag]}(${this.name}`;
