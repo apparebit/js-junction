@@ -114,7 +114,6 @@ harness.test('@grr/proact', t => {
 
   function checkContainerInstance(t, c) {
     t.is(c.constructor, Container);
-    t.is(getPrototypeOf(getPrototypeOf(c)), Node.prototype);
     t.ok(c.isProactComponent);
     t.is(c.name, 'Container');
     t.same(c.properties, {});
@@ -140,14 +139,16 @@ harness.test('@grr/proact', t => {
       t.is(Node.prototype.isProactElement, void 0);
       t.is(Node.prototype.isProactComponent, void 0);
 
-      t.is(Element('span', null,                               'hello!').toString(),
-        'Proact.Element(span)');
-      t.is(Element('span', { title: 'Greetings', lang: 'en' }, 'hello!').toString(),
-        'Proact.Element(span, title=Greetings, lang=en)');
-      t.is(Element('div',  null,                               'hello!').toString(),
-        'Proact.Element(div)');
-      t.is(Element('div',  { title: 'Greetings', lang: 'en' }, 'hello!').toString(),
-        'Proact.Element(div, title=Greetings, lang=en)');
+      t.is(Element('span').toString(),
+        `Proact.Element('span')`);
+      // The null as 2nd argument is important, since it should *not* be treated as a child.
+      t.is(Element('span', null, 'hello!').toString(),
+        `Proact.Element('span', {}, 'hello!')`);
+      t.is(Element('span', { class: ['x', 42] }).toString(),
+        `Proact.Element('span', { class: ['x', 42] })`);
+      t.is(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 665).toString(),
+        `Proact.Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 665)`);
+
       t.end();
     });
 
@@ -156,6 +157,7 @@ harness.test('@grr/proact', t => {
       t.is(Element.prototype.constructor, Element);
       t.is(Element.prototype.isProactElement, true);
       t.is(Element.prototype.isProactComponent, void 0);
+      t.is(Element.prototype.toString, Node.format);
       t.is(Element.prototype[toStringTag], 'Proact.Element');
 
       t.throws(() => Element(), CODE_MISSING_ARGS);
@@ -202,6 +204,7 @@ harness.test('@grr/proact', t => {
       t.is(Container.prototype.constructor, Container);
       t.is(Container.prototype.isProactElement, void 0);
       t.is(Container.prototype.isProactComponent, true);
+      t.is(Container.prototype.toString, Node.format);
       t.is(Container.prototype[toStringTag], 'Proact.Component');
 
       checkContainerInstance(t, container);

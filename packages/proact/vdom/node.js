@@ -1,9 +1,10 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
 import { InvalidArgValue } from '@grr/oddjob/errors';
-import { constant, value } from '@grr/oddjob/descriptors';
+import { constant } from '@grr/oddjob/descriptors';
 
-const { create, defineProperties, keys } = Object;
+const { defineProperties, keys } = Object;
+const { isArray } = Array;
 const { toStringTag } = Symbol;
 
 function isPropsObject(value) {
@@ -17,8 +18,8 @@ function isPropsObject(value) {
 export default function Node(...args) {
   let [props] = args;
 
-  if( isPropsObject(props) ) {
-    this.properties = args.shift();
+  if( props == null || isPropsObject(props) ) {
+    this.properties = props = Object(args.shift());
   } else {
     this.properties = props = {};
   }
@@ -32,29 +33,41 @@ export default function Node(...args) {
   this.children = args;
 }
 
-const NodePrototype = create(null, {
-  constructor: value(Node),
+function format0(value) {
+  if( isArray(value) ) {
+    return `[${value.map(format0).join(', ')}]`;
+  } else if( typeof value === 'string' ) {
+    return `'${value}'`;
+  } else {
+    return String(value);
+  }
+}
 
-  toString: value(function toString() {
-    let s = `${this[toStringTag]}(${this.name}`;
+function format(node = this) {
+  let s = `${node[toStringTag]}('${node.name}'`;
+  const props = node.properties;
 
-    const source = this.properties;
-    const sink = [];
+  const names = keys(props);
+  if( names.length === 0 ) {
+    if( node.children.length === 0 ) return `${s})`;
+    s += ', {}';
+  } else {
+    s += `, { ${names.map(n => `${n}: ${format0(props[n])}`).join(', ')} }`;
+  }
 
-    for( const key of keys(source) ) {
-      const value = source[key];
-      sink.push( `${key}=${value}`);
+  for( const child of node.children ) {
+    if( typeof child === 'string' ) {
+      s += `, '${child}'`;
+    } else {
+      s += `, ${child}`;
     }
+  }
 
-    if( sink.length ) s += `, ${sink.join(', ')}`;
-
-    s += ')';
-    return s;
-  }),
-
-});
+  s += ')';
+  return s;
+}
 
 defineProperties(Node, {
-  prototype: constant(NodePrototype),
   isPropsObject: constant(isPropsObject),
+  format: constant(format),
 });

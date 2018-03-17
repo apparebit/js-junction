@@ -7,6 +7,7 @@ import driver from '../driver/hook';
 
 const { apply } = Reflect;
 const { create, defineProperties } = Object;
+const { format } = Node;
 const { toStringTag } = Symbol;
 const NodePrototype = Node.prototype;
 
@@ -52,6 +53,7 @@ function from(renderFn, name = renderFn.name) {
     constructor: value(RenderFunction),
     isProactComponent: value(true),
     [toStringTag]: value('Proact.Component'),
+    toString: value(format),
     name: value(name, { enumerable }),
     render: value(renderFn),
     provideContext: value(provideContext),

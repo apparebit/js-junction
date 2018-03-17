@@ -27,6 +27,7 @@ const ElementPrototype = create(Node.prototype, {
   constructor: value(Element),
   isProactElement: value(true),
   [toStringTag]: value('Proact.Element'),
+  toString: value(Node.format),
 });
 
 defineProperties(Element, {
