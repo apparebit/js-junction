@@ -8,7 +8,7 @@ import renderAttributes from './render-attributes';
 // An effects handler for vDOM traversal that renders to HTML source.
 export default function renderToHtml(tag, object) {
   if( tag === 'enter' ) {
-    if( object.isProactComponent ) {
+    if( object.isViewComponent ) {
       const rendered = object.render(object.properties, object.children, this.context);
 
       // Since replaceChildren() does not accept `undefined` for its `children`
@@ -36,7 +36,7 @@ export default function renderToHtml(tag, object) {
     }
 
   } else if( tag === 'exit' ) {
-    if( object.isProactComponent ) return '';
+    if( object.isViewComponent ) return '';
 
     const { name } = object;
     return isVoidElement(name) ? '' : `</${name}>`;

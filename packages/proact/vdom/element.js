@@ -5,7 +5,7 @@ import { constant, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 
 const { apply } = Reflect;
-const { create, defineProperties } = Object;
+const { create, defineProperty } = Object;
 const { toStringTag } = Symbol;
 
 export default function Element(...args) {
@@ -25,12 +25,9 @@ export default function Element(...args) {
 
 const ElementPrototype = create(Node.prototype, {
   constructor: value(Element),
-  isProactElement: value(true),
-  [toStringTag]: value('Proact.Element'),
+  isViewElement: value(true), // Flag to detect view element type.
   toString: value(Node.format),
+  [toStringTag]: value('Proact.Element'),
 });
 
-defineProperties(Element, {
-  prototype: constant(ElementPrototype),
-  isProactNodeFactory: value(true),
-});
+defineProperty(Element, 'prototype', constant(ElementPrototype));

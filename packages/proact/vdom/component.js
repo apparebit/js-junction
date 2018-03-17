@@ -45,15 +45,15 @@ function from(renderFn, name = renderFn.name) {
     apply(Node, this, args);
   }
 
-  // The isProactComponent, toStringTag, and provideContext properties are the
+  // The isViewComponent, toStringTag, and provideContext properties are the
   // same for all render function components and could thus be moved into a
   // shared prototype. While that may reduce memory pressure, it also increases
   // the length of the prototype chain and thus property lookup latency.
   const RenderFunctionPrototype = create(NodePrototype, {
     constructor: value(RenderFunction),
-    isProactComponent: value(true),
-    [toStringTag]: value('Proact.Component'),
+    isViewComponent: value(true), // Flag to detect view component type.
     toString: value(format),
+    [toStringTag]: value('Proact.Component'),
     name: value(name, { enumerable }),
     render: value(renderFn),
     provideContext: value(provideContext),
@@ -61,7 +61,6 @@ function from(renderFn, name = renderFn.name) {
 
   defineProperties(RenderFunction, {
     prototype: constant(RenderFunctionPrototype),
-    isProactNodeFactory: value(true),
     name: value(name),
   });
 

@@ -10,9 +10,8 @@ const { toStringTag } = Symbol;
 function isPropsObject(value) {
   return value != null
     && typeof value === 'object'
-    && !value.isProactElement
-    && !value.isProactComponent
-    && !value.isProactNodeFactory;
+    && !value.isViewElement
+    && !value.isViewComponent;
 }
 
 export default function Node(...args) {

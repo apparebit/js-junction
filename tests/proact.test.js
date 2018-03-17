@@ -99,7 +99,7 @@ harness.test('@grr/proact', t => {
   function checkElementInstance(t, e) {
     t.is(e.constructor, Element);
     t.is(getPrototypeOf(e), Element.prototype);
-    t.ok(e.isProactElement);
+    t.ok(e.isViewElement);
     t.is(e[toStringTag], 'Proact.Element');
     t.is(e.name, 'a');
     t.same(e.properties, { href: 'location' });
@@ -114,7 +114,7 @@ harness.test('@grr/proact', t => {
 
   function checkContainerInstance(t, c) {
     t.is(c.constructor, Container);
-    t.ok(c.isProactComponent);
+    t.ok(c.isViewComponent);
     t.is(c.name, 'Container');
     t.same(c.properties, {});
     t.same(c.children, ['some text']);
@@ -135,9 +135,8 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('.Node()', t => {
-      t.is(Node.isProactNodeFactory, void 0);
-      t.is(Node.prototype.isProactElement, void 0);
-      t.is(Node.prototype.isProactComponent, void 0);
+      t.is(Node.prototype.isViewElement, void 0);
+      t.is(Node.prototype.isViewComponent, void 0);
 
       t.is(Element('span').toString(),
         `Proact.Element('span')`);
@@ -153,10 +152,9 @@ harness.test('@grr/proact', t => {
     });
 
     t.test('.Element()', t => {
-      t.is(Element.isProactNodeFactory, true);
       t.is(Element.prototype.constructor, Element);
-      t.is(Element.prototype.isProactElement, true);
-      t.is(Element.prototype.isProactComponent, void 0);
+      t.is(Element.prototype.isViewElement, true);
+      t.is(Element.prototype.isViewComponent, void 0);
       t.is(Element.prototype.toString, Node.format);
       t.is(Element.prototype[toStringTag], 'Proact.Element');
 
@@ -199,11 +197,10 @@ harness.test('@grr/proact', t => {
       t.is(H('YetAnotherComponent', () => {}).prototype.name, 'YetAnotherComponent');
       t.is(H(665, () => {}).prototype.name, '665');
 
-      t.is(Container.isProactNodeFactory, true);
       t.is(Container.name, 'Container');
       t.is(Container.prototype.constructor, Container);
-      t.is(Container.prototype.isProactElement, void 0);
-      t.is(Container.prototype.isProactComponent, true);
+      t.is(Container.prototype.isViewElement, void 0);
+      t.is(Container.prototype.isViewComponent, true);
       t.is(Container.prototype.toString, Node.format);
       t.is(Container.prototype[toStringTag], 'Proact.Component');
 
