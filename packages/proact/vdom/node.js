@@ -64,7 +64,7 @@ function format(node = this) {
     if( typeof child === 'string' ) {
       s += `, '${child}'`;
     } else {
-      s += `, ${child}`;
+      s += `, ${String(child)}`;  // String() is necessary for symbols.
     }
   }
 

@@ -143,6 +143,8 @@ harness.test('@grr/proact', t => {
       // The null as 2nd argument is important, since it should *not* be treated as a child.
       t.is(Element('span', null, 'hello!').toString(),
         `Proact.Element('span', {}, 'hello!')`);
+      t.is(Element('span', null, Symbol('ooh special')).toString(),
+        `Proact.Element('span', {}, Symbol(ooh special))`);
       t.is(Element('span', { class: ['x', 42] }).toString(),
         `Proact.Element('span', { class: ['x', 42] })`);
       t.is(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 42).toString(),
