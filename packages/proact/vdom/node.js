@@ -2,6 +2,7 @@
 
 import { InvalidArgValue } from '@grr/oddjob/errors';
 import { constant } from '@grr/oddjob/descriptors';
+import { normalize } from '../driver/children';
 
 const { defineProperties, keys } = Object;
 const { isArray } = Array;
@@ -29,7 +30,12 @@ export default function Node(...args) {
     throw InvalidArgValue('properties', props, 'should not have a "children" property');
   }
 
-  this.children = args;
+  // Normalize the children (again), since it flattens nested arrays, removes
+  // certain values (which mostly are falsy), and joins adjacent strings and
+  // integers. Performing this normalization in the node constructor makes
+  // ad-hoc inspection of a node's children and diffing of two nodes easier to
+  // code since there are fewer cases to consider.
+  this.children = normalize(args);
 }
 
 function format0(value) {

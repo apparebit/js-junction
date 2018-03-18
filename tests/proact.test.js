@@ -145,8 +145,8 @@ harness.test('@grr/proact', t => {
         `Proact.Element('span', {}, 'hello!')`);
       t.is(Element('span', { class: ['x', 42] }).toString(),
         `Proact.Element('span', { class: ['x', 42] })`);
-      t.is(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 665).toString(),
-        `Proact.Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 665)`);
+      t.is(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 42).toString(),
+        `Proact.Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo42')`);
 
       t.end();
     });
@@ -165,10 +165,11 @@ harness.test('@grr/proact', t => {
 
       checkElementInstance(t, a);
 
-      // The children are only normalized lazily, on demand. In other words, not here.
-      t.same(Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children,
-        [void 0, null, '', [], [[true, false]]]);
-
+      // A node's children are normalized in the constructor (again), since that
+      // simplifies code that inspects only one or two vDOM nodes. All other
+      // traversals should utilize a driver, which does normalization during
+      // traversal.
+      t.same(Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children, []);
       t.end();
     });
 
