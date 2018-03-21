@@ -2,7 +2,7 @@
 
 import { InvalidArgType, InvalidArgValue } from '@grr/oddjob/errors';
 import { normalizeWhitespace, escapeHTML, escapeScript } from '@grr/oddjob/strings';
-import { hasRawText, isVoidElement } from '../semantics/elements';
+import { hasRawText, isVoidElement } from '../spec/elements';
 import renderAttributes from './render-attributes';
 
 // An effects handler for vDOM traversal that renders to HTML source.

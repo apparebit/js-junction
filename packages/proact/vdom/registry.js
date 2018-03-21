@@ -2,7 +2,7 @@
 
 import { DuplicateBinding, InvalidArgType, InvalidArgValue } from '@grr/oddjob/errors';
 import { withKeyValue } from '@grr/oddjob/objects';
-import { isHtmlElement } from '../semantics/elements';
+import { isHtmlElement } from '../spec/elements';
 
 const { toString } = Function.prototype;
 const IS_CLASS = /^class /;

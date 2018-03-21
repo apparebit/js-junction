@@ -1,9 +1,9 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
 // Domain Description
-import Tags from '@grr/proact/semantics/tags';
-import typeAttribute from '@grr/proact/semantics/attributes';
-import { isHtmlElement, isVoidElement, hasRawText } from '@grr/proact/semantics/elements';
+import Tags from '@grr/proact/spec/tags';
+import typeAttribute from '@grr/proact/spec/attributes';
+import { isHtmlElement, isVoidElement, hasRawText } from '@grr/proact/spec/elements';
 
 // vDOM
 import Node from '@grr/proact/vdom/node';
@@ -39,7 +39,7 @@ const CODE_RESOURCE_BUSY = { code: 'ERR_RESOURCE_BUSY' };
 // -------------------------------------------------------------------------------------------------
 
 harness.test('@grr/proact', t => {
-  t.test('semantics', t => {
+  t.test('spec', t => {
     t.test('.isHtmlElement()', t => {
       t.notOk(isHtmlElement(void 0));
       t.notOk(isHtmlElement(null));

@@ -7,8 +7,8 @@ import {
 } from '@grr/oddjob/strings';
 
 import { maybe, memoize } from '@grr/oddjob/functions';
-import Tags from '../semantics/tags';
-import typeAttribute from '../semantics/attributes';
+import Tags from '../spec/tags';
+import typeAttribute from '../spec/attributes';
 
 const hyphenate = memoize(doHyphenate);
 const { isArray } = Array;

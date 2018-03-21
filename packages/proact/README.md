@@ -10,8 +10,8 @@ instead of the client. In other words, this package focuses on _proactive_
 content generation, hence the name. Proact‘s modules are grouped into the
 following directories:
 
-  * [semantics](semantics) captures necessary domain knowledge about HTML
-    elements and their attributes.
+  * [spec](spec) captures the domain knowledge about HTML and CSS necessary for
+    generating correct markup.
 
   * [vdom](vdom) defines the standard elements and custom components forming
     Proact‘s lightweight document model, i.e., _virtual DOM_.
