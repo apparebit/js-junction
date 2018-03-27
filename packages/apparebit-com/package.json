@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "apparebit-com",
+  "description": "Source code and other assets for generating apparebit.com with Proact",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "dependencies": {
+    "@grr/oddjob": "0.1.0",
+    "@grr/proact": "0.1.0",
+    "@grr/semantic-proact": "0.1.0"
+  },
+  "repository": "https://github.com/apparebit/js-junction/tree/master/packages/apparebit-com"
+}
