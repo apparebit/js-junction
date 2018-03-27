@@ -1,0 +1,32 @@
+{
+  "name": "@grr/semantic-proact",
+  "description": "Automating content generation through structured site description",
+  "keywords": [
+    "Proact",
+    "linked data",
+    "structured data",
+    "JSON-LD",
+    "Schema.org",
+    "semantic web",
+    "UI components",
+    "view components",
+    "web components",
+    "server-side rendering",
+    "SSR",
+    "proactive rendering",
+    "virtual DOM",
+    "vDOM",
+    "hyperscript"
+  ],
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "peerDependencies": {
+    "@grr/proact": "0.1.0"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/apparebit/js-junction/tree/master/packages/semantic-proact"
+}
