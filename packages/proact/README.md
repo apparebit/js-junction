@@ -61,7 +61,7 @@ properties.
 Additionally, for any `tag` that is the name of an HTML element, the property
 `h.tag` returns a function that, when invoked with some `args`, creates an
 element equivalent to `h('tag', ...args)`. Each such factory function is
-instantiated on-demand only and thereafter cached.
+instantiated on demand and thereafter cached.
 
 ### `renderToString(node, { context = {} } = {})`
 
