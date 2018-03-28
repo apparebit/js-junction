@@ -1,0 +1,163 @@
+{
+  "@context": {
+    "@vocab": "http://schema.org/"
+  },
+  "@graph": [
+    {
+      "@id": "https://apparebit.com/robert-grimm#self",
+      "@type": "Person",
+      "givenName": "Robert",
+      "familyName": "Grimm",
+      "name": "Robert Grimm",
+      "email": "apparebit@gmail.com",
+      "url": "https://apparebit.com/robert-grimm",
+      "sameAs": [
+        "https://www.facebook.com/apparebit",
+        "https://twitter.com/apparebit",
+        "https://www.linkedin.com/in/apparebit",
+        "https://github.com/apparebit",
+        "https://www.npmjs.com/%7Egrr"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Brooklyn",
+        "addressRegion": "NY",
+        "addressCountry": "USA"
+      }
+    },
+    {
+      "@id": "https://github.com/apparebit/js-junction",
+      "@type": "SoftwareSourceCode",
+      "name": "js-junction",
+      "description": "Robert Grimm’s monorepo for all things JavaScript, including his static website generator “Proact”",
+      "codeRepository": "https://github.com/apparebit/js-junction",
+      "programmingLanguage": ["JavaScript", "HTML", "CSS"],
+      "runtimePlatform": ["Node.js", "browser"],
+      "copyrightHolder": { "@id": "https://apparebit.com/robert-grimm#self" },
+      "copyrightYear": [2017, 2018],
+      "license": "https://choosealicense.com/licenses/mit/"
+    },
+    {
+      "@id": "https://apparebit.com/#website",
+      "@type": "WebSite",
+      "name": "Apparebit",
+      "url": "https://apparebit.com",
+      "thumbnailUrl": "https://apparebit.com/icon.png",
+      "sameAs": "https://developers.facebook.com/apps/301854043178629",
+      "publisher": { "@id": "https://apparebit.com/robert-grimm#self" },
+      "hasPart": [
+        {
+          "@type": "DigitalDocument",
+          "fileFormat": "text/css",
+          "url": "https://apparebit.com/library/form.css"
+        },
+        {
+          "@type": "DigitalDocument",
+          "fileFormat": "application/javascript",
+          "url": "https://apparebit.com/library/function.js"
+        },
+        {
+          "@type": "DigitalDocument",
+          "fileFormat": "font/woff2",
+          "url": "https://apparebit.com/library/font/bely-regular.woff2"
+        },
+        {
+          "@type": "DigitalDocument",
+          "fileFormat": "font/woff2",
+          "url": "https://apparebit.com/library/font/bluu-suuperstar-medium.woff2"
+        }
+      ],
+      "isBasedOn": { "@id": "https://github.com/apparebit/js-junction" }
+    },
+    {
+      "@id": "https://apparebit.com",
+      "@type": "WebPage",
+      "isPartOf": { "@id": "https://apparebit.com/#website" },
+      "headline": "Apparebit: It Will Appear",
+      "description": "Robert Grimm’s home in cyberspace, where he has been making things appear since February 2011"
+    },
+    {
+      "@id": "https://apparebit.com/robert-grimm",
+      "@type": "ProfilePage",
+      "isPartOf": { "@id": "https://apparebit.com/#website" },
+      "headline": "Robert Grimm",
+      "description": "Robert Grimm’s Curriculum Vitae"
+    },
+    {
+      "@id": "https://apparebit.com/about/site",
+      "@type": "AboutPage",
+      "isPartOf": { "@id": "https://apparebit.com/#website" },
+      "headline": "The colophon for Robert Grimm’s website <apparebit.com>"
+    },
+    {
+      "@id": "https://apparebit.com/about/privacy",
+      "@type": "AboutPage",
+      "isPartOf": { "@id": "https://apparebit.com/#website" },
+      "headline": "Privacy Policy",
+      "description": "The privacy policy for Robert Grimm’s website <apparebit.com>, in plain English nonetheless"
+    },
+    {
+      "@id": "https://apparebit.com/blog",
+      "@type": "WebPage",
+      "isPartOf": { "@id": "https://apparebit.com/#website" },
+      "mainEntity": {
+        "@type": "Blog",
+        "headline": "Robert Grimm Blogs",
+        "author": { "@id": "https://apparebit.com/robert-grimm#self" }
+      },
+      "description": "Robert Grimm’s blog covering arts, politics, and technology"
+    },
+    {
+      "@id": "https://apparebit.com/project/candy-or-bust",
+      "@type": "WebPage",
+      "isPartOf": { "@id": "https://apparebit.com/#website" },
+      "mainEntity": {
+        "@type": "CreativeWorkSeries",
+        "headline": "Candy or Bust",
+        "image": [
+          {
+            "@type": "ImageObject",
+            "url": "https://apparebit.com/project/candy-or-bust/candy-11-2x1.jpg",
+            "description": "Detail from photograph “Candy #11” showing a young male stripper on the internet",
+            "representativeOfPage": true
+          },
+          {
+            "@type": "ImageObject",
+            "url": "https://apparebit.com/project/candy-or-bust/candy-11-4x3.jpg",
+            "description": "Photograph “Candy #11” showing a young male stripper on the internet",
+            "representativeOfPage": true
+          }
+        ],
+        "datePublished": "2011-03-08",
+        "author": { "@id": "https://apparebit.com/robert-grimm#self" },
+        "description": "The ennui of internet strippers explored through the series of photographs “Candy“ for men and “Bust” for women"
+      }
+    },
+    {
+      "@id": "https://apparebit.com/project/ubu-trump",
+      "@type": "WebPage",
+      "isPartOf": { "@id": "https://apparebit.com/#website" },
+      "mainEntity": {
+        "@type": "Article",
+        "headline": "Ubu Trump? Trump Roi!",
+        "image": [
+          {
+            "@type": "ImageObject",
+            "url": "https://apparebit.com/project/ubu-trump/dark-tower-2x1.jpg",
+            "description": "Detail of Trump Tower looming over Fifth Avenue on a grey rainy day",
+            "representativeOfPage": true
+          },
+          {
+            "@type": "ImageObject",
+            "url": "https://apparebit.com/project/ubu-trump/dark-tower-1x1.jpg",
+            "description": "Trump Tower looming over Fifth Avenue on a grey rainy day",
+            "representativeOfPage": true
+          }
+        ],
+        "datePublished": "2017-01-13",
+        "author": { "@id": "https://apparebit.com/robert-grimm#self" },
+        "description": "A meditation on the ascendancy of Donald Trump, the first nihilist president of the United States"
+      }
+    }
+  ]
+}
