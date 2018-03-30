@@ -25,6 +25,10 @@
       "esm"
     ],
     "cwd": "packages",
+    "exclude": [
+      "apparebit-com",
+      "**/node_modules/**"
+    ],
     "temp-directory": "../.nyc_output",
     "report-dir": "../coverage",
     "check-coverage": true,

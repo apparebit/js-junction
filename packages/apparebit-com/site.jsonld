@@ -87,13 +87,14 @@
       "@id": "https://apparebit.com/about/site",
       "@type": "AboutPage",
       "isPartOf": { "@id": "https://apparebit.com/#website" },
-      "headline": "The colophon for Robert Grimm’s website <apparebit.com>"
+      "headline": "Apparebit: Colophon",
+      "description": "The colophon for Robert Grimm’s website <apparebit.com>"
     },
     {
       "@id": "https://apparebit.com/about/privacy",
       "@type": "AboutPage",
       "isPartOf": { "@id": "https://apparebit.com/#website" },
-      "headline": "Privacy Policy",
+      "headline": "Apparebit: Privacy Policy",
       "description": "The privacy policy for Robert Grimm’s website <apparebit.com>, in plain English nonetheless"
     },
     {
@@ -103,9 +104,9 @@
       "mainEntity": {
         "@type": "Blog",
         "headline": "Robert Grimm Blogs",
-        "author": { "@id": "https://apparebit.com/robert-grimm#self" }
-      },
-      "description": "Robert Grimm’s blog covering arts, politics, and technology"
+        "author": { "@id": "https://apparebit.com/robert-grimm#self" },
+        "description": "Robert Grimm’s blog covering arts, politics, and technology"
+      }
     },
     {
       "@id": "https://apparebit.com/project/candy-or-bust",
