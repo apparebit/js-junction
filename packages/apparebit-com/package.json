@@ -1,7 +1,8 @@
 {
   "private": true,
-  "name": "apparebit-com",
+  "name": "@grr/apparebit-com",
   "description": "Source code and other assets for generating apparebit.com with Proact",
+  "version": "0.1.0",
   "author": "Robert Grimm",
   "license": "MIT",
   "engines": {
