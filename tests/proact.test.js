@@ -24,6 +24,7 @@ import { H, h, renderToString, renderToStream } from '@grr/proact';
 
 // Test Harness
 import harness from './harness';
+import util from 'util';
 
 const { Attribute } = Tags.HTML;
 const { create, getPrototypeOf } = Object;
@@ -138,18 +139,21 @@ harness.test('@grr/proact', t => {
       t.is(Node.prototype.isViewElement, void 0);
       t.is(Node.prototype.isViewComponent, void 0);
 
-      t.is(Element('span').toString(),
-        `Proact.Element('span')`);
-      // The null as 2nd argument is important, since it should *not* be treated as a child.
-      t.is(Element('span', null, 'hello!').toString(),
-        `Proact.Element('span', {}, 'hello!')`);
-      t.is(Element('span', null, Symbol('ooh special')).toString(),
-        `Proact.Element('span', {}, Symbol(ooh special))`);
-      t.is(Element('span', { class: ['x', 42] }).toString(),
-        `Proact.Element('span', { class: ['x', 42] })`);
-      t.is(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 42).toString(),
-        `Proact.Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo42')`);
+      t.is(Element('span', 'hello!').toString(), '[object Proact.Element]');
 
+      const format = el => util.inspect(el, { breakLength: Infinity });
+      t.is(format(Element('span')),
+        `Element { name: 'span', properties: {}, children: [] }`);
+      // The null as 2nd argument is important, since it should *not* be treated as a child.
+      t.is(format(Element('span', null, 'hello!')),
+        `Element { name: 'span', properties: {}, children: [ 'hello!' ] }`);
+      t.is(format(Element('span', null, Symbol('ooh special'))),
+        `Element { name: 'span', properties: {}, children: [ Symbol(ooh special) ] }`);
+      t.is(format(Element('span', { class: ['x', 42] })),
+        `Element { name: 'span', properties: { class: [ 'x', 42 ] }, children: [] }`);
+      t.is(format(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 42)),
+        `Element { name: 'span', properties: { class: 'greeting', lang: 'en', tabindex: -1 },`
+        + ` children: [ 'yo42' ] }`);
       t.end();
     });
 
@@ -157,7 +161,7 @@ harness.test('@grr/proact', t => {
       t.is(Element.prototype.constructor, Element);
       t.is(Element.prototype.isViewElement, true);
       t.is(Element.prototype.isViewComponent, void 0);
-      t.is(Element.prototype.toString, Node.format);
+      t.is(Element.prototype.toString, Object.prototype.toString);
       t.is(Element.prototype[toStringTag], 'Proact.Element');
 
       t.throws(() => Element(), CODE_MISSING_ARGS);
@@ -204,7 +208,7 @@ harness.test('@grr/proact', t => {
       t.is(Container.prototype.constructor, Container);
       t.is(Container.prototype.isViewElement, void 0);
       t.is(Container.prototype.isViewComponent, true);
-      t.is(Container.prototype.toString, Node.format);
+      t.is(Container.prototype.toString, Object.prototype.toString);
       t.is(Container.prototype[toStringTag], 'Proact.Component');
 
       checkContainerInstance(t, container);

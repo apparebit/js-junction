@@ -4,9 +4,7 @@ import { InvalidArgValue } from '@grr/oddjob/errors';
 import { constant } from '@grr/oddjob/descriptors';
 import { normalize } from '../driver/children';
 
-const { defineProperties, keys } = Object;
-const { isArray } = Array;
-const { toStringTag } = Symbol;
+const { defineProperty } = Object;
 
 function isPropsObject(value) {
   return value != null
@@ -38,41 +36,4 @@ export default function Node(...args) {
   this.children = normalize(args);
 }
 
-function format0(value) {
-  if( isArray(value) ) {
-    return `[${value.map(format0).join(', ')}]`;
-  } else if( typeof value === 'string' ) {
-    return `'${value}'`;
-  } else {
-    return String(value);
-  }
-}
-
-function format(node = this) {
-  let s = `${node[toStringTag]}('${node.name}'`;
-  const props = node.properties;
-
-  const names = keys(props);
-  if( names.length === 0 ) {
-    if( node.children.length === 0 ) return `${s})`;
-    s += ', {}';
-  } else {
-    s += `, { ${names.map(n => `${n}: ${format0(props[n])}`).join(', ')} }`;
-  }
-
-  for( const child of node.children ) {
-    if( typeof child === 'string' ) {
-      s += `, '${child}'`;
-    } else {
-      s += `, ${String(child)}`;  // String() is necessary for symbols.
-    }
-  }
-
-  s += ')';
-  return s;
-}
-
-defineProperties(Node, {
-  isPropsObject: constant(isPropsObject),
-  format: constant(format),
-});
+defineProperty(Node, 'isPropsObject', constant(isPropsObject));

@@ -7,7 +7,6 @@ import driver from '../driver/hook';
 
 const { apply } = Reflect;
 const { create, defineProperties } = Object;
-const { format } = Node;
 const { toStringTag } = Symbol;
 const NodePrototype = Node.prototype;
 
@@ -52,7 +51,6 @@ function from(renderFn, name = renderFn.name) {
   const RenderFunctionPrototype = create(NodePrototype, {
     constructor: value(RenderFunction),
     isViewComponent: value(true), // Flag to detect view component type.
-    toString: value(format),
     [toStringTag]: value('Proact.Component'),
     name: value(name, { enumerable }),
     render: value(renderFn),

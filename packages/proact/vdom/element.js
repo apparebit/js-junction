@@ -26,7 +26,6 @@ export default function Element(...args) {
 const ElementPrototype = create(Node.prototype, {
   constructor: value(Element),
   isViewElement: value(true), // Flag to detect view element type.
-  toString: value(Node.format),
   [toStringTag]: value('Proact.Element'),
 });
 
