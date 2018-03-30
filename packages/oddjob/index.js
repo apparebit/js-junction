@@ -7,9 +7,11 @@ export {
   InvalidArgType,
   InvalidArgValue,
   InvalidArrayLength,
+  MalstructuredData,
   MissingArgs,
   MultipleCallback,
   ResourceBusy,
+  UnsupportedOperation,
 } from './errors';
 
 export {

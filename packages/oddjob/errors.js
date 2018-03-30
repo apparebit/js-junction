@@ -19,11 +19,15 @@ export const InvalidArgValue = E('ERR_INVALID_ARG_VALUE',
 export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
   withKeyValue((key, value, expected) =>
     `array "${key}" has ${showCount.of(value)}, but should have ${expected}`));
+export const MalstructuredData = E('ERR_MALSTRUCTURED_DATA',
+  (data, spec) => `data ${spec}: "${data}"`);
 export const MissingArgs = E('ERR_MISSING_ARGS',
   (...names) => `the ${showArgNames.of(names)} missing`);
 export const MultipleCallback = E('ERR_MULTIPLE_CALLBACK',
   (name, spec) => `repeated invocation of callback "${String(name)}"${spec ? ` ${spec}` : ''}`);
 export const ResourceBusy = E('ERR_RESOURCE_BUSY',
   resource => `${resource} is busy`);
+export const UnsupportedOperation = E('ERR_UNSUPPORTED_OPERATION',
+  spec => `operation "${spec}" is not supported`);
 
 export const createErrorFactory = E;

@@ -20,6 +20,7 @@ import {
   isObject,
   isPropertyKey,
   IteratorPrototype,
+  MalstructuredData,
   maybe,
   memoize,
   MissingArgs,
@@ -31,6 +32,7 @@ import {
   toKeyPath,
   toKeyValue,
   toSymbolKey,
+  UnsupportedOperation,
   value,
   withExistingKeyPath,
   withKeyPath,
@@ -482,8 +484,10 @@ harness.test( '@grr/oddjob', t => {
         [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
         [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
         [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
+        [MalstructuredData('spec', 'data'),   'ERR_MALSTRUCTURED_DATA'],
         [MultipleCallback('cb'),              'ERR_MULTIPLE_CALLBACK'],
         [ResourceBusy('r'),                   'ERR_RESOURCE_BUSY'],
+        [UnsupportedOperation('op'),          'ERR_UNSUPPORTED_OPERATION'],
       ].forEach(([err, code]) => {
         t.is(err.code, code);
       });
@@ -505,12 +509,16 @@ harness.test( '@grr/oddjob', t => {
         'argument "arg" is "null"');
       t.is(InvalidArgValue({ arg }, 'should be an even number').message,
         'argument "arg" is "null", but should be an even number');
+      t.is(MalstructuredData(665, 'is not an object').message,
+        'data is not an object: "665"');
       t.is(MultipleCallback('cb').message,
         'repeated invocation of callback "cb"');
       t.is(MultipleCallback('cb', 'from same handler context').message,
         'repeated invocation of callback "cb" from same handler context');
       t.is(ResourceBusy('the Proact driver').message,
         'the Proact driver is busy');
+      t.is(UnsupportedOperation('op').message,
+        'operation "op" is not supported');
 
       t.end();
     });
