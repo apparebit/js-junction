@@ -29,6 +29,8 @@
     "initializations",
     "ismap",
     "itemscope",
+    "json-ld",
+    "json-ld's",
     "jsonld",
     "linebreak",
     "monorepo",
@@ -36,6 +38,7 @@
     "nomodule",
     "nonwords",
     "nspec",
+    "nyc's",
     "oddjob",
     "playsinline",
     "plusplus",
@@ -50,6 +53,7 @@
     "transpiler",
     "typemustmatch",
     "unmaintained",
+    "unpublishing",
     "vdom",
     "workspaces"
   ]
