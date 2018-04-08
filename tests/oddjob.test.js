@@ -435,7 +435,12 @@ harness.test( '@grr/oddjob', t => {
     });
 
     t.is(show().length().of([0]), '1');
-    t.is(show().verbatim('the').length().of([0]), 'the 1');
+    t.is(
+      show()
+        .verbatim('the')
+        .length()
+        .of([0]),
+      'the 1');
 
     t.is(
       show()

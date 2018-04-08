@@ -115,7 +115,7 @@ module.exports = {
     "newline-after-var": "off",
     "newline-before-return": "off",
     "newline-per-chained-call": ["error", {
-      "ignoreChainWithDepth": 5,
+      "ignoreChainWithDepth": 3,
     }],
     "no-alert": "error",
     "no-array-constructor": "error",
