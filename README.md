@@ -1,9 +1,9 @@
 # js-junction
 
 Welcome to [Robert Grimm](http://apparebit.com)'s monorepo for all things
-JavaScript. While Robert may be known as
-[apparebit](https://github.com/apparebit) on GitHub, he uses the onomatopoetic
-alias [grr](https://www.npmjs.com/~grr) on npm.
+JavaScript. While Robert is known as [apparebit](https://github.com/apparebit)
+on GitHub, he uses the onomatopoetic alias [grr](https://www.npmjs.com/~grr) on
+npm.
 
 ## Packages Start With @grr
 
@@ -31,11 +31,11 @@ reckless for a dynamically typed programming language!
 
 The one exemption from the code coverage requirement is
 [@grr/apparebit-com](https://github.com/apparebit/js-junction/tree/master/packages/apparebit-com).
-It contains content, styles, and behaviors for the eponymous website, some of
-which require different forms of testing including spell and grammar checking.
-More fundamentally, its utility as an installable package is by definition
-limited and, consequently, @grr/apparebit-com is not published to the npm
-registry.
+It contains content, styles, and behaviors for the eponymous website. As such,
+it would be better served by altogether different tests including spell and
+grammar checking. More fundamentally, its utility as an installable package is
+by definition limited and, consequently, __@grr/apparebit-com__ is not published
+to the npm registry.
 
 ## Modules End With .js
 
