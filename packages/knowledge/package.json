@@ -1,0 +1,23 @@
+{
+  "name": "@grr/knowledge",
+  "description": "Making the JSON-LD flavor of Schema.org palatable",
+  "keywords": [
+    "Schema.org",
+    "JSON-LD",
+    "semantic web",
+    "linked data",
+    "structured data",
+    "resource description framework",
+    "RDF",
+    "ontology",
+    "vocabulary"
+  ],
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/apparebit/js-junction/tree/master/packages/knowledge"
+}
