@@ -1,5 +1,32 @@
 # Notes on Node.js Development
 
+## Too Many Packages, Not Enough Utility
+
+A priori, isolating distinct functional concerns into separate modules and
+packages to improve code reuse is a Good Thing™. But many participants in the
+Node.js community have taken one amongst many criteria for high-quality software
+and pushed it ad absurdum — seemingly favoring one function per module, no
+matter how trivial the implementation and its API contract. The costs of this
+overindulgence in modularity became all too visible in 2016, when a bone-headed
+coporate name grab escalated to the point of one package author [unpublishing
+273 npm packages](http://azer.bike/journal/i-ve-just-liberated-my-modules). The
+incident [exposed several
+weaknesses](http://blog.npmjs.org/post/141577284765/kik-left-pad-and-npm) in the
+Node.js ecosystem, the most important being that left padding a string is
+sufficiently trivial not to be delegated to some arbitrary package.
+
+Pulling back, there usually is no clear-cut answer to the question of what
+constitutes a distinct concern worthy of a distinct module or package. Many
+factors play a role, including algorithm and implementation complexity, the API
+surface of offered functionality, the overhead of modules and packages
+especially in terms of storage and main memory, and the cognitive impact of too
+little or too much abstraction. Each package sourced from arbitrary authors also
+represents the potential of surprising or hard-to-fix bugs and, worse, malignant
+code. Each such package also requires some administrative overhead to ensure
+license compliance. Unfortunately, the latter is all too often treated as an
+afterthought. At the same time, all of open source depends on our ability to
+channel copyright law into licenses that enable sharing for the common good.
+
 ## Code Coverage
 
 Reliably collecting code coverage with popular Node.js tools has been an
