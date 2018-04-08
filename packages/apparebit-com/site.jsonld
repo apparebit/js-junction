@@ -1,7 +1,5 @@
 {
-  "@context": {
-    "@vocab": "http://schema.org/"
-  },
+  "@context": "http://schema.org/",
   "@graph": [
     {
       "@id": "https://apparebit.com/robert-grimm#self",
@@ -35,7 +33,7 @@
       "runtimePlatform": ["Node.js", "browser"],
       "copyrightHolder": { "@id": "https://apparebit.com/robert-grimm#self" },
       "copyrightYear": [2017, 2018],
-      "license": "https://choosealicense.com/licenses/mit/"
+      "license": "https://spdx.org/licenses/MIT.html"
     },
     {
       "@id": "https://apparebit.com/#website",
