@@ -500,8 +500,9 @@ harness.test('@grr/proact', t => {
       t.throws(() => renderToString(Element('hr', {}, 'but, but, but!')),
         CODE_INVALID_ARG_VALUE);
 
-      // >>> <html> element with preceeding doctype.
-      t.is(renderToString(Element('html')), '<!doctype html><html></html>');
+      // >>> <html> element without and with doctype.
+      t.is(renderToString(Element('html')), '<html></html>');
+      t.is(renderToString(Element('html', { doctype: 'html' })), '<!DOCTYPE html><html></html>');
 
       // >>> Ignored values.
       t.is(renderToString(Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])),

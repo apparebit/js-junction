@@ -26,11 +26,18 @@ export default function renderToHtml(tag, object) {
         throw InvalidArgValue({ object }, `<${name}> is a void element`);
       }
 
-      let rendered = '<';
-      if( name === 'html' ) rendered += '!doctype html><';
-      rendered += name;
+      // XML rears its monstrous head yet again...
+      let attributes;
 
-      const attributes = [...renderAttributes(properties)];
+      let rendered = '';
+      if( name === 'html' ) {
+        const { doctype, ...atts } = properties;
+        if( doctype ) rendered += `<!DOCTYPE ${doctype}>`;
+        attributes = atts;
+      }
+
+      rendered += `<${name}`;
+      attributes = [...renderAttributes(attributes == null ? properties : attributes)];
       if( attributes.length ) rendered += ` ${attributes.join(' ')}`;
       return `${rendered}>`;
     }
