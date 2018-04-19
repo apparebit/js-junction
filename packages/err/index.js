@@ -1,33 +1,29 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
-import { CodedTypeError, E, InvalidArgTypeMsg, InvalidArgValueMsg } from './internal/errors';
-import { withKeyValue } from './internal/key-value';
-import show from './show';
-
-const showCount = show().length().noun('element');
-const showArgNames = show().quoted.elements().noun('argument').verb();
+import { CodedTypeError, E, InvalidArgTypeMsg, InvalidArgValueMsg } from './types';
+import punning from './punning';
+import { asElements, asValue, quote } from './format';
 
 export const DuplicateBinding = E('ERR_DUPLICATE_BINDING',
-  withKeyValue((key, value, replacement) =>
-    `"${key}" is bound to "${String(value)}", cannot be rebound to "${String(replacement)}"`));
+  punning((key, value, replacement) =>
+    `"${key}" is bound to ${asValue(value)}, cannot be rebound to ${asValue(replacement)}`));
 export const FunctionNotImplemented = E('ERR_FUNCTION_NOT_IMPLEMENTED',
   (name, kind = 'function') => `${kind} "${name}" is not implemented`);
 export const InvalidArgType = E('ERR_INVALID_ARG_TYPE',
-  withKeyValue(InvalidArgTypeMsg), CodedTypeError);
+  punning(InvalidArgTypeMsg), CodedTypeError);
 export const InvalidArgValue = E('ERR_INVALID_ARG_VALUE',
-  withKeyValue(InvalidArgValueMsg));
+  punning(InvalidArgValueMsg));
 export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
-  withKeyValue((key, value, expected) =>
-    `array "${key}" has ${showCount.of(value)}, but should have ${expected}`));
+  punning((key, value, expected) =>
+    `array "${key}" has ${value} element${value !== 1 ? 's' : ''}, but should have ${expected}`));
 export const MalstructuredData = E('ERR_MALSTRUCTURED_DATA',
-  (data, spec) => `data ${spec}: "${data}"`);
+  (data, spec) => `data ${spec}: ${asValue(data)}`);
 export const MissingArgs = E('ERR_MISSING_ARGS',
-  (...names) => `the ${showArgNames.of(names)} missing`);
+  (...names) =>
+    `the ${asElements(quote(names))} argument${names.length === 1 ? ' is ' : 's are '}missing`);
 export const MultipleCallback = E('ERR_MULTIPLE_CALLBACK',
   (name, spec) => `repeated invocation of callback "${String(name)}"${spec ? ` ${spec}` : ''}`);
 export const ResourceBusy = E('ERR_RESOURCE_BUSY',
   resource => `${resource} is busy`);
 export const UnsupportedOperation = E('ERR_UNSUPPORTED_OPERATION',
   spec => `operation "${spec}" is not supported`);
-
-export const createErrorFactory = E;

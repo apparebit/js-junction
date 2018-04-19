@@ -1,7 +1,6 @@
-/* (C) Copyright 2017–2018 Robert Grimm */
+/* (C) Copyright 2018 Robert Grimm */
 
-import { InvalidArgValue } from './errors';
-import { default as isObject } from './is-object';
+import { InvalidArgValue } from './types';
 
 const doApply = Reflect.apply;
 const { isArray } = Array;
@@ -20,12 +19,10 @@ export function isPropertyKey(value) {
 export function toKeyValue(object) {
   if( typeof object === 'function' ) {
     return [object.name, object];
-
   } else if( isArray(object) ) {
     if( object.length === 2 && isPropertyKey(object[0]) ) {
       return object;
     }
-
   } else {
     const keys = keysOf(object);
 
@@ -41,17 +38,17 @@ export function toKeyValue(object) {
     }
   }
 
-  throw InvalidArgValue('object', object, 'should be an object specifying a single key-value pair');
+  throw InvalidArgValue('object', object, 'should be an object with a single key-value pair');
 }
 
-export function withKeyValue(original, ...indices) {
+export default function punning(original, ...indices) {
   if( !indices.length ) indices = [0];
 
   return new Proxy(original, { apply(target, that, args) {
     for( const index of indices ) {
       const arg = args[index];
 
-      if( isObject(arg) ) {
+      if( arg != null && typeof arg === 'object' ) {
         const [key, value] = toKeyValue(arg);
         args[index] = key;
         args.splice(index + 1, 0, value);

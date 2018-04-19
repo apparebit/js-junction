@@ -3,6 +3,8 @@
 // Loosely inspired by
 // https://github.com/nodejs/node/blob/master/lib/internal/errors.js
 
+import { asArgId, asValue} from './format';
+
 const CAUSE = Symbol('cause');
 const CODE = Symbol('code');
 const { defineProperty } = Object;
@@ -38,6 +40,7 @@ export function makeCodedError(Base) {
 }
 
 export const CodedError = makeCodedError(Error);
+export const CodedSyntaxError = makeCodedError(SyntaxError);
 export const CodedTypeError = makeCodedError(TypeError);
 
 export function E(code, formatter, Error = CodedError) {
@@ -46,18 +49,13 @@ export function E(code, formatter, Error = CodedError) {
   };
 }
 
-// The ID should be the argument's zero-based index or its name.
-export function toArgumentId(id) {
-  return typeof id === 'number' ? `#${id + 1}` : `"${String(id)}"`;
-}
-
 export function InvalidArgTypeMsg(key, value, spec, nspec = null) {
-  const prefix = `argument ${toArgumentId(key)} is "${String(value)}", but should`;
+  const prefix = `argument ${asArgId(key)} is ${asValue(value)}, but should`;
   return nspec ? `${prefix} not be ${nspec}` : `${prefix} be ${spec}`;
 }
 
 export function InvalidArgValueMsg(key, value, spec = null) {
-  const base = `argument ${toArgumentId(key)} is "${String(value)}"`;
+  const base = `argument ${asArgId(key)} is ${asValue(value)}`;
   return spec ? `${base}, but ${spec}` : base;
 }
 
