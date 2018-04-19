@@ -1,6 +1,6 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { FunctionNotImplemented, InvalidArgType, InvalidArgValue } from '@grr/oddjob/errors';
+import { FunctionNotImplemented, InvalidArgType, InvalidArgValue } from '@grr/err';
 import { constant, enumerable, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 import driver from '../driver/hook';

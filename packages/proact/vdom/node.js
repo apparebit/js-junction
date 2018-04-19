@@ -1,6 +1,6 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { InvalidArgValue } from '@grr/oddjob/errors';
+import { InvalidArgValue } from '@grr/err';
 import { constant } from '@grr/oddjob/descriptors';
 import { normalize } from '../driver/children';
 

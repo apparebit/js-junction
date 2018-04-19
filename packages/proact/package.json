@@ -21,6 +21,7 @@
     "node": ">=8.3.0"
   },
   "dependencies": {
+    "@grr/err": "0.1.0",
     "@grr/oddjob": "0.1.0"
   },
   "main": "index.js",

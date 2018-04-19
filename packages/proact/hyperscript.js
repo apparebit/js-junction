@@ -1,6 +1,6 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-import { InvalidArgValue } from '@grr/oddjob/errors';
+import { InvalidArgValue } from '@grr/err';
 import Element from './vdom/element';
 
 const { has, get, set } = Reflect;

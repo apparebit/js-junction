@@ -1,7 +1,7 @@
 /* (C) Copyright 2018 Robert Grimm */
 
 import assert from 'assert';
-import { InvalidArgType, InvalidArgValue, ResourceBusy } from '@grr/oddjob/errors';
+import { InvalidArgType, InvalidArgValue, ResourceBusy } from '@grr/err';
 import { isIterable } from '@grr/oddjob/iteration';
 import { next, pushAll } from './children';
 import { setDriver } from './hook';

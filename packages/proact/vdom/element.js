@@ -1,6 +1,6 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { InvalidArgType, MissingArgs } from '@grr/oddjob/errors';
+import { InvalidArgType, MissingArgs } from '@grr/err';
 import { constant, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 
