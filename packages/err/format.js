@@ -1,6 +1,8 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import { inspect, isArray } from 'util';
+import { inspect } from 'util';
+
+const { isArray } = Array;
 
 export function quote(value) {
   return isArray(value) ? value.map(quote) : `"${value}"`;
