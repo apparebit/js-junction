@@ -4,39 +4,24 @@ import {
   constant,
   dehyphenate,
   deobjectify,
-  DuplicateBinding,
   enumerable,
   escapeAttribute,
   escapeHTML,
   escapeScript,
-  FunctionNotImplemented,
   hyphenate,
-  InvalidArgType,
-  InvalidArgValue,
-  InvalidArrayLength,
   isAttributeQuoted,
   isIterable,
   isIterator,
-  isObject,
-  isPropertyKey,
   IteratorPrototype,
-  MalstructuredData,
   maybe,
   memoize,
-  MissingArgs,
-  MultipleCallback,
   normalizeWhitespace,
-  ResourceBusy,
-  show,
   toStableJSON,
   toKeyPath,
-  toKeyValue,
   toSymbolKey,
-  UnsupportedOperation,
   value,
   withExistingKeyPath,
   withKeyPath,
-  withKeyValue,
 } from '@grr/oddjob';
 
 import harness from './harness';
@@ -45,80 +30,10 @@ const { create } = Object;
 const { iterator } = Symbol;
 
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
-const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
 
 // -------------------------------------------------------------------------------------------------
 
 harness.test( '@grr/oddjob', t => {
-  t.test('objects', t => {
-    t.test('.isObject()', t => {
-      t.notOk(isObject(void 0));
-      t.notOk(isObject(null));
-      t.ok(isObject({}));
-      t.ok(isObject(create(null)));
-      t.ok(isObject(() => {}));
-      t.ok(isObject(function fn() {}));
-      t.end();
-    });
-
-    t.test('.isPropertyKey()', t => {
-      t.notOk(isPropertyKey());
-      t.notOk(isPropertyKey(null));
-
-      t.ok(isPropertyKey(42));
-      t.ok(isPropertyKey(''));
-      t.ok(isPropertyKey('key'));
-      t.ok(isPropertyKey(Symbol('ooh special')));
-      t.end();
-    });
-
-    t.test('.toKeyValue()', t => {
-      t.same(toKeyValue(['k', 9]), ['k', 9]);
-      t.same(toKeyValue([9, 'k']), [9, 'k']);
-      t.same(toKeyValue({ k: 9 }), ['k', 9]);
-      t.same(toKeyValue({ key: 'k', value: 9 }), ['k', 9]);
-
-      function hello() {}
-      t.same(toKeyValue(hello), ['hello', hello]);
-
-      [
-        [],
-        [null, 2],
-        {},
-        { a: 1, b: 2, c: 3 },
-        { __proto__: { k: 'v' }},
-      ].forEach(input => {
-        t.throws(() => toKeyValue(input), CODE_INVALID_ARG_VALUE);
-      });
-
-      t.end();
-    });
-
-    t.test('.withKeyValue()', t => {
-      /* eslint-disable key-spacing */
-      const fn = (...args) => args;
-      const fn0 = withKeyValue(fn);
-      const fn1 = withKeyValue(fn, 1);
-      const fn13 = withKeyValue(fn, 1, 3);
-
-      t.same(fn0( 'k', 9  ), ['k', 9]);
-      t.same(fn0({ k:  9 }), ['k', 9]);
-
-      t.same(fn1( 10,  'k', 9  ), [10, 'k', 9]);
-      t.same(fn1( 10, { k:  9 }), [10, 'k', 9]);
-
-      t.same(fn13( 10,  'k', 9,    'l', 8  ), [10, 'k', 9, 'l', 8]);
-      t.same(fn13( 10, { k:  9 }, { l:  8 }), [10, 'k', 9, 'l', 8]);
-
-      t.end();
-      /* eslint-enable key-spacing */
-    });
-
-    t.end();
-  });
-
-  // -----------------------------------------------------------------------------------------------
-
   t.test('descriptors', t => {
     t.test('.constant()', t => {
       t.same(constant(665), {
@@ -414,127 +329,6 @@ harness.test( '@grr/oddjob', t => {
         toJSON() { return { rating: 'completely nuts' }; },
         rating: 'very stable genius'
       }), '{"rating":"completely nuts"}');
-
-      t.end();
-    });
-
-    t.end();
-  });
-
-  // -----------------------------------------------------------------------------------------------
-
-  t.test('.show()', t => {
-    const showElements = show().elements();
-    [
-      [[], 'none'],
-      [[1], '1'],
-      [[1, 2], '1 and 2'],
-      [[1, 2, 3], '1, 2, and 3']
-    ].forEach(([input, output]) => {
-      t.is(showElements.of(input), output);
-    });
-
-    t.is(show().length().of([0]), '1');
-    t.is(
-      show()
-        .verbatim('the')
-        .length()
-        .of([0]),
-      'the 1');
-
-    t.is(
-      show()
-        .verbatim('a')
-        .quoted.elements(false)
-        .of([1, 2]),
-      'a "1" or "2"');
-
-    t.is(
-      show()
-        .verbatim('nothing')
-        .verbatim('and')
-        .elements()
-        .noun('element')
-        .of([]),
-      'nothing and no elements');
-
-    t.is(show().noun('element').of([665]), 'element');
-    t.is(show().verb().of([665]), 'is');
-    t.is(show().verb('contain').of([665]), 'contains');
-    t.is(show().verb('contain').of([42, 665]), 'contain');
-
-    t.end();
-  });
-
-  // -----------------------------------------------------------------------------------------------
-
-  t.test('errors', t => {
-    t.test('.cause', t => {
-      const err = InvalidArgValue('k', 'v');
-      t.is(err.cause, void 0);
-
-      const cause = Error('boo');
-      err.causedBy(cause);
-      t.is(err.cause, cause);
-
-      t.end();
-    });
-
-    t.test('.code', t => {
-      [
-        [DuplicateBinding('k', 'v', 'w'),     'ERR_DUPLICATE_BINDING'],
-        [FunctionNotImplemented('m'),         'ERR_FUNCTION_NOT_IMPLEMENTED'],
-        [InvalidArgType('k', 'v', 't'),       'ERR_INVALID_ARG_TYPE'],
-        [InvalidArgValue('k', 'v'),           'ERR_INVALID_ARG_VALUE'],
-        [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
-        [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
-        [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
-        [MalstructuredData('spec', 'data'),   'ERR_MALSTRUCTURED_DATA'],
-        [MultipleCallback('cb'),              'ERR_MULTIPLE_CALLBACK'],
-        [ResourceBusy('r'),                   'ERR_RESOURCE_BUSY'],
-        [UnsupportedOperation('op'),          'ERR_UNSUPPORTED_OPERATION'],
-      ].forEach(([err, code]) => {
-        t.is(err.code, code);
-      });
-
-      t.end();
-    });
-
-    t.test('.message', t => {
-      const arg = null;
-      t.is(FunctionNotImplemented('f').message,
-        'function "f" is not implemented');
-      t.is(FunctionNotImplemented('f', 'factory function').message,
-        'factory function "f" is not implemented');
-      t.is(InvalidArgType({ arg }, 'a number').message,
-        'argument "arg" is "null", but should be a number');
-      t.is(InvalidArgType({ arg }, 'not', 'a number').message,
-        'argument "arg" is "null", but should not be a number');
-      t.is(InvalidArgValue({ arg }).message,
-        'argument "arg" is "null"');
-      t.is(InvalidArgValue({ arg }, 'should be an even number').message,
-        'argument "arg" is "null", but should be an even number');
-      t.is(MalstructuredData(665, 'is not an object').message,
-        'data is not an object: "665"');
-      t.is(MultipleCallback('cb').message,
-        'repeated invocation of callback "cb"');
-      t.is(MultipleCallback('cb', 'from same handler context').message,
-        'repeated invocation of callback "cb" from same handler context');
-      t.is(ResourceBusy('the Proact driver').message,
-        'the Proact driver is busy');
-      t.is(UnsupportedOperation('op').message,
-        'operation "op" is not supported');
-
-      t.end();
-    });
-
-    t.test('.name', t => {
-      [
-        [InvalidArgType('k', 'v', 't'), 'TypeError [ERR_INVALID_ARG_TYPE]'],
-        [InvalidArgValue('k', 'v'),     'Error [ERR_INVALID_ARG_VALUE]'],
-      ].forEach(([err, name]) => {
-        t.is(err.name, name);
-      });
 
       t.end();
     });
