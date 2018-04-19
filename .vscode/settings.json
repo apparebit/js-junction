@@ -12,6 +12,8 @@
     "dehyphenatable",
     "dehyphenate",
     "deobjectify",
+    "desugar",
+    "desugared",
     "dynaload",
     "dystopian",
     "d’être",
@@ -33,8 +35,10 @@
     "json-ld's",
     "jsonld",
     "linebreak",
+    "memoized",
     "monorepo",
     "multiselectable",
+    "nocere",
     "nomodule",
     "nonwords",
     "nspec",
@@ -43,9 +47,11 @@
     "playsinline",
     "plusplus",
     "posttest",
+    "primum",
     "proact",
     "proact's",
     "promisify",
+    "proxied",
     "readable's",
     "recurse",
     "superset",
@@ -55,6 +61,8 @@
     "unmaintained",
     "unpublishing",
     "vdom",
-    "workspaces"
+    "woff",
+    "workspaces",
+    "Yandex"
   ]
 }
