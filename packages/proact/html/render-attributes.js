@@ -1,16 +1,11 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import {
-  escapeAttribute,
-  hyphenate as doHyphenate,
-  isAttributeQuoted
-} from '@grr/oddjob/strings';
-
+import { escapeAttribute, hyphenate, isAttributeQuoted } from '@grr/oddjob/strings';
 import { maybe, memoize } from '@grr/oddjob/functions';
 import Tags from '../spec/tags';
 import typeAttribute from '../spec/attributes';
 
-const hyphenate = memoize(doHyphenate);
+const memoizedHyphenate = memoize(hyphenate);
 const { isArray } = Array;
 const { keys } = Object;
 
@@ -53,7 +48,7 @@ function formatKeyValue(key, value, separator = ' ') {
 // -------------------------------------------------------------------------------------------------
 
 const renderAttribute = maybe((key, value) => {
-  key = hyphenate(key);
+  key = memoizedHyphenate(key);
 
   switch( typeAttribute(key) ) {
     case PresentAbsent:
