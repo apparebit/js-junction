@@ -4,7 +4,7 @@
 
 A priori, isolating distinct functional concerns into separate modules and
 packages to improve code reuse is a Good Thing™. But many participants in the
-Node.js community have taken one amongst many criteria for high-quality software
+Node.js community have taken one of many criteria for high-quality source code
 and pushed it ad absurdum — seemingly favoring one function per module, no
 matter how trivial the implementation and its API contract. The costs of this
 overindulgence in modularity became all too visible in 2016, when a bone-headed
@@ -17,15 +17,16 @@ sufficiently trivial not to be delegated to some arbitrary package.
 
 Pulling back, there usually is no clear-cut answer to the question of what
 constitutes a distinct concern worthy of a distinct module or package. Many
-factors play a role, including algorithm and implementation complexity, the API
-surface of offered functionality, the overhead of modules and packages
-especially in terms of storage and main memory, and the cognitive impact of too
+factors play a role, including algorithmic and implementation complexity, the
+API surface of offered functionality, the overhead of modules and packages
+notably in terms of storage and main memory, and the cognitive impact of too
 little or too much abstraction. Each package sourced from arbitrary authors also
-represents the potential of surprising or hard-to-fix bugs and, worse, malignant
+represents the potential of surprising and hard-to-fix bugs or, worse, malignant
 code. Each such package also requires some administrative overhead to ensure
 license compliance. Unfortunately, the latter is all too often treated as an
-afterthought. At the same time, all of open source depends on our ability to
-channel copyright law into licenses that enable sharing for the common good.
+afterthought. Yet, all of open source depends on our ability to channel
+copyright law into open source licensing and thus requires us to faithfully
+comply with both spirit and letter of the license.
 
 ## Code Coverage
 
@@ -36,31 +37,33 @@ complexity spectrum for a test runner. Yet, it internally relies on
 [nyc](https://github.com/istanbuljs/nyc) for code coverage, which in turn relies
 on [istanbul.js](https://github.com/istanbuljs/istanbuljs) to do the heavy
 lifting. All three are mature Node.js projects and critical to the entire
-ecosystem. Yet, they also are rather buggy and seemingly suffer from
-insufficient sponsorship.
+ecosystem. Yet, they also are rather buggy, build on unfortunate abstractions,
+and seemingly suffer from insufficient corporate sponsorship.
 
-A more recent effort, [esm](https://github.com/standard-things/esm) or @std/esm
-during its hard-charging childhood, further complicates matters. That package
-(finally) provides a production-worthy implementation of ECMAScript modules for
-Node.js. But it only reached version 1.0 in March 2018 — actually 3.0 thanks to
-a hostile package name takeover. In my experience, esm mostly just works while
-also avoiding the sprawling complexity of [Babel](https://babeljs.io), which
-makes it a very welcome addition to the ecosystem. But esm also has a knack for
-triggering test and coverage bugs. In case of
-[js-junction](https://github.com/apparebit/js-junction), coverage stopped
-working with @std/esm 0.19.0 and was still broken when esm 3.0.0 was released.
-That seemed pretty good indication that the problem was with js-junction's
-particular setup.
+A more recent effort, [esm](https://github.com/standard-things/esm) or
+__@std/esm__ during its hard-charging childhood, further complicates matters.
+The package (finally) provides a production-worthy implementation of ECMAScript
+modules for Node.js. But it only reached version 1.0 in March 2018 — make that
+3.0 thanks to a hostile package name takeover. In my experience, __esm__ just
+works for the most part. It also avoids the sprawling complexity of
+[Babel](https://babeljs.io), making __esm__ a very welcome addition to the
+ecosystem. But __esm__ also has a knack for triggering test and coverage bugs.
+In case of [js-junction](https://github.com/apparebit/js-junction), coverage
+stopped working with __@std/esm__ 0.19.0 and was still broken when __esm__ 3.0.0
+was released. I took that as strong suggestion that the problem was with
+__js-junction__'s particular setup and not [John-David
+Dalton's](https://github.com/jdalton) package.
 
 It took me a couple of days of reading code and documentation, articulating
-hypotheses for what might be the issue, and coding up just enough to test each
-hypothesis. Eventually, I restored coverage by making two modifications. First,
-to ensure that nyc instruments only js-junction's production packages and
-modules but not auxiliary scripts and tests, I changed nyc's working directory
-to `packages`. That, in turn, required remapping `.nyc_output` and `coverage` to
-the `packages`' parent directory, i.e., js-junction's root. The lesson here is
-to assume file inclusion as a default and not rely on nyc's broken `include`
-configuration option. Second, to ensure that nyc writes out actual coverage for
-each package and module, I switched from running js-junction's per-package tests
-in-process to a child process per package. Thankfully, node-tap's `spawn()`
-makes that an easy change.
+several hypotheses for what might be the issue, and coding up just enough to
+test each hypothesis. Eventually, I restored coverage by making two
+modifications. First, to ensure that __nyc__ instruments only __js-junction__'s
+production packages and modules but not auxiliary scripts and tests, I changed
+__nyc__'s working directory to `packages`. That, in turn, required remapping
+`.nyc_output` and `coverage` to the `packages`' parent directory, i.e.,
+__js-junction__'s root. The lesson here is to assume file inclusion as a default
+and not rely on __nyc__'s broken `include` configuration option. Second, to
+ensure that __nyc__ writes out actual coverage for each package and module, I
+switched from running __js-junction__'s per-package tests in-process to a child
+process per package. Thankfully, __node-tap__'s `spawn()` makes that an easy
+change.
