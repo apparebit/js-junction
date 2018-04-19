@@ -13,6 +13,9 @@ open source packages:
  *  [@grr/mark-of-dev](https://github.com/apparebit/js-junction/tree/master/packages/mark-of-dev):
     Advancing the globalization of `__DEV__`.
 
+ *  [@grr/err](https://github.com/apparebit/js-junction/tree/master/packages/err):
+    The joy of refined errors — with code, pun, and Oxford comma.
+
  *  [@grr/oddjob](https://github.com/apparebit/js-junction/tree/master/packages/oddjob):
     Letting you focus on the flying circus.
 
@@ -44,7 +47,8 @@ It may not run natively on Node.js without a suitable [loader
 hook](https://nodejs.org/dist/latest-v9.x/docs/api/esm.html#esm_loader_hooks).
 It does, however, run with [esm](https://github.com/standard-things/esm), a
 light-weight just-in-time transpiler for Node.js 6 or later. For the most part,
-esm just works. However, reliably determining code coverage can be [surprisingly
+__esm__ just works. However, reliably determining code coverage can be
+[surprisingly
 tricky](https://github.com/apparebit/js-junction/tree/master/notes.md).
 
 ## Copyright and License
