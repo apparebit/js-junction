@@ -1,34 +1,10 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
 export {
-  createErrorFactory,
-  DuplicateBinding,
-  FunctionNotImplemented,
-  InvalidArgType,
-  InvalidArgValue,
-  InvalidArrayLength,
-  MalstructuredData,
-  MissingArgs,
-  MultipleCallback,
-  ResourceBusy,
-  UnsupportedOperation,
-} from './errors';
-
-export {
   toKeyPath,
   withExistingKeyPath,
   withKeyPath,
 } from './key-path';
-
-export {
-  default as isObject,
-} from './internal/is-object';
-
-export {
-  isPropertyKey,
-  toKeyValue,
-  withKeyValue,
-} from './internal/key-value';
 
 export {
   configurable,
@@ -49,10 +25,6 @@ export {
   maybe,
   memoize,
 } from './functions';
-
-export {
-  default as show
-} from './show';
 
 export {
   dehyphenate,

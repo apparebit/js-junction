@@ -1,7 +1,6 @@
 /* (C) Copyright 2017 Robert Grimm */
 
-import { InvalidArgType } from './internal/errors';
-import { default as isObject } from './internal/is-object';
+import { InvalidArgType } from '@grr/err';
 
 const { apply } = Reflect;
 const { create } = Object;
@@ -25,7 +24,7 @@ export function toKeyPath(path) {
 }
 
 function doWithKeyPath(existingOnly, root, path, task) {
-  if( !isObject(root) ) throw InvalidArgType('root', root, 'an object');
+  if( root == null || typeof root !== 'object' ) throw InvalidArgType('root', root, 'an object');
 
   const keys = toKeyPath(path);
   const { length } = keys;
@@ -40,7 +39,7 @@ function doWithKeyPath(existingOnly, root, path, task) {
     } else {
       enclosing = enclosing[key];
 
-      if( !isObject(enclosing) ) {
+      if( enclosing == null || typeof enclosing !== 'object' ) {
         throw InvalidArgType(`root.${keys.slice(0, index + 1).join('.')}`,
           enclosing, 'an object');
       }

@@ -1,6 +1,6 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
-import { InvalidArgType } from './internal/errors';
+import { InvalidArgType } from '@grr/err';
 
 const doApply = Reflect.apply;
 const { stringify } = JSON;
