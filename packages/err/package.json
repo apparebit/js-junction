@@ -1,0 +1,12 @@
+{
+  "name": "@grr/err",
+  "description": "The joy of refined errors — with code, pun, and Oxford comma",
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/apparebit/js-junction/tree/master/packages/err"
+}
