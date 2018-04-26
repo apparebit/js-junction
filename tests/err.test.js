@@ -123,7 +123,7 @@ harness.test( '@grr/err', t => {
 
   t.test('.cause', t => {
     const err = InvalidArgValue('k', 'v');
-    t.is(err.cause, void 0);
+    t.is(err.cause, null);
 
     const cause = Error('boo');
     err.causedBy(cause);
@@ -141,7 +141,7 @@ harness.test( '@grr/err', t => {
       [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
       [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
       [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
-      [MalstructuredData('spec', 'data'),   'ERR_MALSTRUCTURED_DATA'],
+      [MalstructuredData('so bad!'),        'ERR_MALSTRUCTURED_DATA'],
       [MultipleCallback('cb'),              'ERR_MULTIPLE_CALLBACK'],
       [ResourceBusy('r'),                   'ERR_RESOURCE_BUSY'],
       [UnsupportedOperation('op'),          'ERR_UNSUPPORTED_OPERATION'],
@@ -170,8 +170,8 @@ harness.test( '@grr/err', t => {
       'array "a" has 1 element, but should have 3');
     t.is(InvalidArrayLength('a', 2, 3).message,
       'array "a" has 2 elements, but should have 3');
-    t.is(MalstructuredData(665, 'is not an object').message,
-      'data is not an object: "665"');
+    t.is(MalstructuredData('JSON-LD at path "[42][665]" is not an object').message,
+      'JSON-LD at path "[42][665]" is not an object');
     t.is(MultipleCallback('cb').message,
       'repeated invocation of callback "cb"');
     t.is(MultipleCallback('cb', 'from same handler context').message,

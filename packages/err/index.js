@@ -17,7 +17,7 @@ export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
   punning((key, value, expected) =>
     `array "${key}" has ${value} element${value !== 1 ? 's' : ''}, but should have ${expected}`));
 export const MalstructuredData = E('ERR_MALSTRUCTURED_DATA',
-  (data, spec) => `data ${spec}: ${asValue(data)}`);
+  message => message);
 export const MissingArgs = E('ERR_MISSING_ARGS',
   (...names) =>
     `the ${asElements(quote(names))} argument${names.length === 1 ? ' is ' : 's are '}missing`);
