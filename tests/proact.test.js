@@ -24,7 +24,7 @@ import { H, h, renderToString, renderToStream } from '@grr/proact';
 
 // Test Harness
 import harness from './harness';
-import util from 'util';
+import { inspect } from 'util';
 
 const { Attribute } = Tags.HTML;
 const { create, getPrototypeOf } = Object;
@@ -141,7 +141,7 @@ harness.test('@grr/proact', t => {
 
       t.is(Element('span', 'hello!').toString(), '[object Proact.Element]');
 
-      const format = el => util.inspect(el, { breakLength: Infinity });
+      const format = el => inspect(el, { breakLength: Infinity });
       t.is(format(Element('span')),
         `Element { name: 'span', properties: {}, children: [] }`);
       // The null as 2nd argument is important, since it should *not* be treated as a child.

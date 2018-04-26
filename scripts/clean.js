@@ -1,9 +1,9 @@
 /* (c) Copyright 2018 Robert Grimm */
 
 import rimraf from 'rimraf';
-import util from 'util';
+import { promisify } from 'util';
 
-const doRemove = util.promisify(rimraf);
+const doRemove = promisify(rimraf);
 const remove = pattern => doRemove(pattern, {});
 
 (async function run() {
