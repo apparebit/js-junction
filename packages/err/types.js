@@ -1,23 +1,50 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
-// Loosely inspired by
-// https://github.com/nodejs/node/blob/master/lib/internal/errors.js
+// This module is loosely inspired by Node.js' [internal
+// errors](https://github.com/nodejs/node/blob/master/lib/internal/errors.js).
+// The key idea is that `code` now provides a stable identifier for the error
+// condition and applications need not test error messages anymore.
 
 import { asArgId, asValue} from './format';
 
-const CAUSE = Symbol('cause');
-const CODE = Symbol('code');
 const { defineProperty } = Object;
+const { isArray } = Array;
+
+// Reuse Node.js' symbol both in honor of the Node.js module
+// and in defiance of the Node.js module being internal! 😈
+let sym;
+try {
+  Buffer.from();
+} catch(x) {
+  sym = Object.getOwnPropertySymbols(x);
+}
+
+/* istanbul ignore else since it provides fallback when extraction fails. */
+if( isArray(sym) && sym.length === 1 ) {
+  [sym] = sym;
+} else {
+  sym = Symbol('code');
+}
+
+const CAUSE = Symbol('cause');
+const CODE = sym;
+
+function constant(value) {
+  return {
+    configurable: true,
+    enumerable: false,
+    value,
+    writable: false,
+  };
+}
 
 export function makeCodedError(Base) {
   return class CodedError extends Base {
     constructor(code, message, factory) {
       super(message);
       Error.captureStackTrace(this, factory);
-      defineProperty(this, CODE, {
-        configurable: true,
-        value: code,
-      });
+      defineProperty(this, CAUSE, constant(null));
+      defineProperty(this, CODE, constant(code));
     }
 
     get name() {
@@ -29,7 +56,7 @@ export function makeCodedError(Base) {
     }
 
     causedBy(cause) {
-      this[CAUSE] = cause;
+      defineProperty(this, CAUSE, constant(cause));
       return this;
     }
 
