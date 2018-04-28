@@ -1,10 +1,12 @@
 /* (C) Copyright 2018 Robert Grimm */
 
+import { forEachPropertyValue } from './values';
 import { isPrimitive, kindOf } from './kind';
 import { isSchemaOrgContext } from '../semantics/schema-org';
 import { MalstructuredData } from '@grr/err';
 import { name as PACKAGE } from '../package.json';
 import State from './state';
+import { URL } from 'url';
 import walk from './walk';
 
 const { asElements, asValue, quote } = State;
@@ -79,6 +81,27 @@ function checkValueIgnoringArray(value, state, label) {
   } else {
     check(value);
   }
+}
+
+function createReversePropertyChecker(state) {
+  return (value, key, container) => {
+    // Normalize a valid URL to the equivalent reference.
+    if( typeof value === 'string' ) {
+      try {
+        value = container[key] = { '@id': new URL(value).href };
+      } catch(_) {
+        // Nothing to do.
+      }
+    }
+
+    const kind = kindOf(value);
+    if( kind !== 'reference' && kind !== 'node' ) {
+      state.ancestors.push({ key });
+      state.emitBadValue(
+        `is @reverse property value ${asValue(value)} but should be a node, reference, or URL`);
+      state.ancestors.pop();
+    }
+  };
 }
 
 const handlers = {
@@ -167,6 +190,37 @@ const handlers = {
       }
     } else if( state.isRoot() ) {
       state.emitBadValue(`is a root node without @id`);
+    }
+  },
+
+  reverse(value, state) {
+    /*
+     * Upon invocation of the reverse() handler, the parent is guaranteed to be
+     * a node, i.e.:
+     *
+     *     kindOf(state.parent.value) === 'node';
+     *
+     * The proof is one by elimination of kinds: Primitive values and references
+     * cannot have a @reverse property. Arrays might in theory but are only used
+     * with numeric indices in this package. Finally, for @graph objects (and
+     * similarly for @list, @set, and @value objects), walk() traverses the
+     * @graph property but no others. Yet, to invoke this handler, walk() must
+     * first traverse the @reverse property, which we just excluded for all
+     * kinds besides nodes.
+     */
+    const { parent } = state;
+    if( !('@id' in parent.value ) ) {
+      state.emitBadValue(`is the @reverse property of a node without @id`);
+    }
+
+    if( value == null || typeof value !== 'object' ) {
+      state.emitBadValue(`is a value other than an object`);
+    } else {
+      const checkReversePropertyValue = createReversePropertyChecker(state);
+
+      for( const key of keysOf(value) ) {
+        forEachPropertyValue(value, key, checkReversePropertyValue);
+      }
     }
   },
 

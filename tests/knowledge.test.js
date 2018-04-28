@@ -7,7 +7,7 @@ import State from '@grr/knowledge/json-ld/state';
 import walk from '@grr/knowledge/json-ld/walk';
 import parse from '@grr/knowledge/json-ld/parse';
 import { toSiteAndAccount, toUserUrl } from '@grr/knowledge/semantics/social';
-import { isSchemaOrgContext } from '@grr/knowledge/semantics/schema-org';
+import { inverseOf, isSchemaOrgContext } from '@grr/knowledge/semantics/schema-org';
 import { default as harness } from './harness';
 
 const { defineProperty, getOwnPropertySymbols, keys: keysOf } = Object;
@@ -169,6 +169,9 @@ harness.test('@grr/knowledge', t => {
     });
 
     t.test('walk', t => {
+      // Check walk()'s corner cases: The state doesn't have `ancestors`.
+      t.same(walk(null, { state: {} }).ancestors, []);
+
       // The state has no parent.
       walk({ prop: 1, props: 'n' }, { handlers: {
         node(value, state) {
@@ -194,6 +197,7 @@ harness.test('@grr/knowledge', t => {
         node() { trace.push('node'); },
         primitive() { trace.push('primitive'); },
         reference() { trace.push('reference'); },
+        reverse() { trace.push('reverse'); },
         set() { trace.push('set'); },
         value() { trace.push('value'); },
       };
@@ -208,6 +212,7 @@ harness.test('@grr/knowledge', t => {
         { '@value': null },
         { '@id': 'http://apparebit.com/' },
         { '@id': 'http://apparebit.com/', '@type': 'WebSite', 'sad': Symbol('boo') },
+        { '@reverse': { forward: { '@id': 'http://whiplash.com/' } } },
       ];
 
       // Check that a walk() handled all the right values in the right order.
@@ -218,6 +223,7 @@ harness.test('@grr/knowledge', t => {
         'primitive', 'value',
         'reference',
         'primitive', 'primitive', 'invalid', 'node',
+        'reference', 'reverse', 'node',
         'array',
       ]);
 
@@ -310,6 +316,18 @@ harness.test('@grr/knowledge', t => {
             },
             'graphic': {
               '@graph': 'data'                          // 🚫 Nested @graph.
+            },
+            '@reverse': {
+              url: 'http://example.com/node42',         // ⚠️ Convert to reference.
+              ref: {
+                '@id': 'http://example.com/node42'
+              },
+              node: {                                   // 🚫 Node has @reverse but no @id.
+                'p1': 'v1',
+                'p2': 'v2',
+                '@reverse': 665,                        // 🚫 Invalid value for @reverse.
+              },
+              badURL: 'node665',                        // 🚫 Bad URL for @reverse property value.
             }
           },
           {
@@ -355,7 +373,7 @@ harness.test('@grr/knowledge', t => {
       state.parse({ '@set': NaN });                     // 🚫 @set object as document root.
       state.parse({ '@value': NaN });                   // 🚫 @value object as document root.
 
-      t.is(state.diagnostics.length, 21);  // The number of errors above.
+      t.is(state.diagnostics.length, 24);  // The number of errors above.
       t.is(keysOf(state.nodes).length, 6); // The number of nodes in primary index.
 
       // >>> Positive reinforcement: Check node properties.
@@ -383,6 +401,9 @@ harness.test('@grr/knowledge', t => {
         ['I', 'am', 'bad']  // See 3rd error message below.
       ]);
 
+      // Plain text URL has been replaced with equivalent reference.
+      t.same(node1['@reverse'].url, { '@id': 'http://example.com/node42' });
+
       // >>> Negative reinforcement: Check error messages.
       [
         `JSON-LD data at path "['@graph'][0]['invalid']" has value "Symbol(boo)", `
@@ -395,6 +416,12 @@ harness.test('@grr/knowledge', t => {
           + `unsupported by @grr/knowledge`,
         `JSON-LD data at path "['@graph'][1]['graphic']" includes nested @graph `
           + `unsupported by @grr/knowledge`,
+        `JSON-LD data at path "['@graph'][1]['@reverse']['node']['@reverse']" `
+          + `is the @reverse property of a node without @id`,
+        `JSON-LD data at path "['@graph'][1]['@reverse']['node']['@reverse']" `
+          + `is a value other than an object`,
+        `JSON-LD data at path "['@graph'][1]['@reverse']['badURL']" `
+          + `is @reverse property value "'node665'" but should be a node, reference, or URL`,
         `JSON-LD data at path "['@graph'][2]" is duplicate of node with `
           + `@id "http://example.com/conflict1" in knowledge base`,
         `JSON-LD data at path "['@graph'][3]" is duplicate of node with `
