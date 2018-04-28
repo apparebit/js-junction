@@ -1,13 +1,12 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-import { InvalidArgValue } from './types';
-
 const doApply = Reflect.apply;
 const { isArray } = Array;
 const keysOf = Object.keys;
 
 const KEY_TYPES = new Set(['number', 'string', 'symbol']);
 
+/** Determine whether the entity is a valid property key, i.e., number, string, or symbol. */
 export function isPropertyKey(value) {
   return KEY_TYPES.has(typeof value);
 }
@@ -38,7 +37,8 @@ export function toKeyValue(object) {
     }
   }
 
-  throw InvalidArgValue('object', object, 'should be an object with a single key-value pair');
+  // Look ma, no key!
+  return [void 0, object];
 }
 
 export default function punning(original, ...indices) {
