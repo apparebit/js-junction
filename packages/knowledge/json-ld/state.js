@@ -34,6 +34,12 @@ export default class State {
     return this.ancestors[this.ancestors.length - 1];
   }
 
+  get parent() {
+    // Make the parent safe for property lookups, even for roots.
+    const p = this.ancestors[this.ancestors.length - 2];
+    return p == null ? {} : p;
+  }
+
   isRoot() {
     const visiting = this.ancestors;
 

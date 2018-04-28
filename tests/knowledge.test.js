@@ -169,6 +169,14 @@ harness.test('@grr/knowledge', t => {
     });
 
     t.test('walk', t => {
+      // The state has no parent.
+      walk({ prop: 1, props: 'n' }, { handlers: {
+        node(value, state) {
+          t.is(state.ancestors.length, 1);
+          t.same(state.parent, {});
+        }
+      } });
+
       // The machinery for tracing handlers as they are invoked.
       const trace = [];
       const handlers = {
