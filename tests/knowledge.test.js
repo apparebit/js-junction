@@ -437,6 +437,11 @@ harness.test('@grr/knowledge', t => {
       t.notOk(isSchemaOrgContext('http://xmlns.com/foaf/0.1/'));
       t.notOk(isSchemaOrgContext({ '@vocab': 'http://schema.org' }));
       t.notOk(isSchemaOrgContext({ '@vocab': 'http://xmlns.com/foaf/0.1/' }));
+
+      t.is(inverseOf('hasPart'), 'isPartOf');
+      t.is(inverseOf(inverseOf('hasPart')), 'hasPart');
+      t.is(inverseOf('exceedinglyUnlikelySchemaDotOrgPropertyName'), void 0);
+
       t.end();
     });
 
