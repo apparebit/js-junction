@@ -18,8 +18,6 @@ import {
 
 import harness from './harness';
 
-const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
-
 // -------------------------------------------------------------------------------------------------
 
 harness.test( '@grr/err', t => {
@@ -89,7 +87,10 @@ harness.test( '@grr/err', t => {
           { a: 1, b: 2, c: 3 },
           { __proto__: { k: 'v' }},
         ].forEach(input => {
-          t.throws(() => toKeyValue(input), CODE_INVALID_ARG_VALUE);
+          const output = toKeyValue(input);
+          t.is(output.length, 2);
+          t.is(output[0], void 0);
+          t.same(output[1], input);
         });
 
         t.end();

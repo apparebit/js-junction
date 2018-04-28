@@ -1,8 +1,8 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
-import { CodedTypeError, E, InvalidArgTypeMsg, InvalidArgValueMsg } from './types';
+import { CodedTypeError, E } from './types';
 import punning from './punning';
-import { asElements, asValue, quote } from './format';
+import { asArgId, asElements, asValue, quote } from './format';
 
 export const DuplicateBinding = E('ERR_DUPLICATE_BINDING',
   punning((key, value, replacement) =>
@@ -10,9 +10,15 @@ export const DuplicateBinding = E('ERR_DUPLICATE_BINDING',
 export const FunctionNotImplemented = E('ERR_FUNCTION_NOT_IMPLEMENTED',
   (name, kind = 'function') => `${kind} "${name}" is not implemented`);
 export const InvalidArgType = E('ERR_INVALID_ARG_TYPE',
-  punning(InvalidArgTypeMsg), CodedTypeError);
+  punning((key, value, spec, nspec = null) => {
+    const prefix = `argument ${asArgId(key)} is ${asValue(value)}, but should`;
+    return nspec ? `${prefix} not be ${nspec}` : `${prefix} be ${spec}`;
+  }), CodedTypeError);
 export const InvalidArgValue = E('ERR_INVALID_ARG_VALUE',
-  punning(InvalidArgValueMsg));
+  punning((key, value, spec = null) => {
+    const base = `argument ${asArgId(key)} is ${asValue(value)}`;
+    return spec ? `${base}, but ${spec}` : base;
+  }));
 export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
   punning((key, value, expected) =>
     `array "${key}" has ${value} element${value !== 1 ? 's' : ''}, but should have ${expected}`));
