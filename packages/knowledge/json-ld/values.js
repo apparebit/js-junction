@@ -7,6 +7,33 @@ const { is, keys: keysOf } = Object;
 const { isArray } = Array;
 
 /**
+ * Execute the `callback` for each value of `object`'s `key` property. This
+ * function iteratively invokes the callback over the elements of an
+ * array-valued property, while simply invoking the callback on any other value.
+ * For an array-valued property, the callback is invoked as:
+ *
+ *     callback(element, index, array, key, object);
+ *
+ * In contrast, for any other value, the callback is invoked as:
+ *
+ *     callback(value, key, object);
+ *
+ * As suggested by the `forEach` prefix of the function name, callbacks must
+ * be synchronous.
+ */
+export function forEachPropertyValue(object, key, callback) {
+  const values = object[key];
+
+  if( isArray(values) ) {
+    for( let index = 0; index < values.length; index++ ) {
+      callback(values[index], index, values, key, object);
+    }
+  } else {
+    callback(values, key, object);
+  }
+}
+
+/**
  * Determine whether the two values are equal, which is the case if both values
  * are (1) null, the same boolean, number, or string, (2) @value objects with
  * the same @language, @type, and @value, or (3) references or nodes with the

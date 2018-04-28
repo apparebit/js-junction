@@ -2,7 +2,7 @@
 
 import { constant } from '@grr/knowledge/json-ld/util';
 import { kindOf, isInvalid, isPrimitive, isValue, kindOfObject } from '@grr/knowledge/json-ld/kind';
-import { addPropertyValue, areEqual } from '@grr/knowledge/json-ld/values';
+import { addPropertyValue, areEqual, forEachPropertyValue } from '@grr/knowledge/json-ld/values';
 import State from '@grr/knowledge/json-ld/state';
 import walk from '@grr/knowledge/json-ld/walk';
 import parse from '@grr/knowledge/json-ld/parse';
@@ -63,6 +63,16 @@ harness.test('@grr/knowledge', t => {
     });
 
     t.test('values', t => {
+      let counter = 0;
+      const add1 = () => counter++;
+
+      forEachPropertyValue({ key: 665 }, 'key', add1);
+      t.is(counter, 1);
+      forEachPropertyValue({ key: [42] }, 'key', add1);
+      t.is(counter, 2);
+      forEachPropertyValue({ key: [42, 665] }, 'key', add1);
+      t.is(counter, 4);
+
       t.notOk(areEqual(NaN, {}));
       t.notOk(areEqual({}, NaN));
       t.ok(areEqual(NaN, NaN));
