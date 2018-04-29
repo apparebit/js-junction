@@ -67,3 +67,30 @@ ensure that __nyc__ writes out actual coverage for each package and module, I
 switched from running __js-junction__'s per-package tests in-process to a child
 process per package. Thankfully, __node-tap__'s `spawn()` makes that an easy
 change.
+
+### Surprise!
+
+Partitioning tests into several processes not only ensures that coverage data is
+correctly written out, but it can also speed up testing thanks to parallel
+execution. Unfortunately, it also complicates debugging, both for code running
+on the command line and within an IDE such as Visual Studio Code. The challenges
+are twofold.
+
+First, each Node.js process must have its own, distinct debug port, on which it
+accepts inspector protocol messages. Node.js rewrites debug ports automatically
+when spawning child processes in the `cluster` module, but it does not for more
+general and flexible APIs such as `child_process.spawn()`. Conveniently, the
+solution for js-junction's tests is quite similar to Node.js': Check `execArgv`
+for command line flags, such as `—inspect-brk=5000`, that activate debug mode
+and then rewrite that argument to [use a different, monotonically increasing
+port number for each
+process](https://github.com/apparebit/js-junction/tree/master/tests/index.js).
+
+Second, the debugger must support multiple, concurrent debugees and, of course,
+it needs to connect to each and every one of them through its own debug port.
+More than conveniently, Visual Studio Code not only supports multiple,
+concurrent debugees, it also has a launch configuration,
+`"autoAttachChildProcesses"`, which makes it inspect the arguments for child
+processes and to automatically connect to a child process that also is in debug
+mode. Once both changes are in place, seamless debugging across all processes of
+the test suite is reality.
