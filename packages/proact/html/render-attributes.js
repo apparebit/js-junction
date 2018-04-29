@@ -7,7 +7,7 @@ import typeAttribute from '../spec/attributes';
 
 const memoizedHyphenate = memoize(hyphenate);
 const { isArray } = Array;
-const { keys } = Object;
+const { keys: keysOf } = Object;
 
 const {
   CommaSeparated,
@@ -71,7 +71,7 @@ const renderAttribute = maybe((key, value) => {
 });
 
 export default function* renderAttributes(attributes) {
-  for( const key of keys(Object(attributes)) ) {
+  for( const key of keysOf(Object(attributes)) ) {
     const attribute = renderAttribute(key, attributes[key]);
     if( attribute ) yield attribute;
   }

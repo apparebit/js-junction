@@ -3,7 +3,7 @@
 import { kindOf } from './kind';
 import State from './state';
 
-const { freeze, keys } = Object;
+const { freeze, keys: keysOf } = Object;
 const { isArray } = Array;
 
 export const noop = () => {};
@@ -27,14 +27,14 @@ export const VISITORS = freeze({
   },
 
   node(value, state, dispatch) {
-    for( const key of keys(value) ) {
+    for( const key of keysOf(value) ) {
       dispatch(state, value, key);
     }
   },
 
   reverse(value, state, dispatch) {
     if( value != null && typeof value === 'object' ) {
-      for( const key of keys(value) ) {
+      for( const key of keysOf(value) ) {
         dispatch(state, value, key);
       }
     }

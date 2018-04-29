@@ -1,6 +1,6 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-const { keys } = Object;
+const { keys: keysOf } = Object;
 
 const PREFIXES = {
   facebook: 'https://www.facebook.com/',
@@ -14,7 +14,7 @@ const PREFIXES = {
 export function toSiteAndAccount(url) {
   if( url.endsWith('/') ) url = url.slice(0, -1);
 
-  for( const site of keys(PREFIXES) ) {
+  for( const site of keysOf(PREFIXES) ) {
     const prefix = PREFIXES[site];
 
     if( url.startsWith(prefix) ) {

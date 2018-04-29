@@ -3,7 +3,7 @@
 import { constant } from './util';
 
 const { defineProperty } = Reflect;
-const { keys } = Object;
+const { keys: keysOf } = Object;
 const { isArray } = Array;
 
 /**
@@ -62,7 +62,7 @@ export function kindOfObject(entity) {
     return 'set';
   } else if( isValue(entity) ) {
     return 'value';
-  } else if( '@id' in entity && keys(entity).length === 1 ) {
+  } else if( '@id' in entity && keysOf(entity).length === 1 ) {
     return 'reference';
   } else {
     return 'node';

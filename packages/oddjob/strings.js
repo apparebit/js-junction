@@ -1,7 +1,7 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
 const { isArray } = Array;
-const { keys } = Object;
+const { keys: keysOf } = Object;
 const { stringify } =  JSON;
 
 const WHITESPACE = /[\t\n\f\r ]+/g;
@@ -30,7 +30,7 @@ const HTML_ESCAPES = {
   '<': '&lt;',
   '>': '&gt;',
 };
-const HTML_ESCAPABLE = new RegExp(`[${keys(HTML_ESCAPES).join('')}]`, 'g');
+const HTML_ESCAPABLE = new RegExp(`[${keysOf(HTML_ESCAPES).join('')}]`, 'g');
 export function escapeHTML(text) {
   return String(text).replace(HTML_ESCAPABLE, c => HTML_ESCAPES[c]);
 }
@@ -54,7 +54,7 @@ const ATTRIBUTE_ESCAPES = {
   '>': '&gt;',
   '`': '&#x60;',
 };
-const ATTRIBUTE_ESCAPABLE = new RegExp(`[${keys(ATTRIBUTE_ESCAPES).join('')}]`, 'g');
+const ATTRIBUTE_ESCAPABLE = new RegExp(`[${keysOf(ATTRIBUTE_ESCAPES).join('')}]`, 'g');
 export function escapeAttribute(text) {
   return String(text).replace(ATTRIBUTE_ESCAPABLE, c => ATTRIBUTE_ESCAPES[c]);
 }
@@ -64,7 +64,7 @@ const SCRIPT_ESCAPES = {
   '<script': '<\\script',
   '</script': '<\\/script',
 };
-const SCRIPT_ESCAPABLE = new RegExp(keys(SCRIPT_ESCAPES).join('|'), 'g');
+const SCRIPT_ESCAPABLE = new RegExp(keysOf(SCRIPT_ESCAPES).join('|'), 'g');
 export function escapeScript(text) {
   return String(text).replace(SCRIPT_ESCAPABLE, s => SCRIPT_ESCAPES[s]);
 }
@@ -86,7 +86,7 @@ export function toStableJSON(value) {
   } else {
     const properties = [];
 
-    for( const key of keys(value).sort() ) {
+    for( const key of keysOf(value).sort() ) {
       const v = toStableJSON(value[key]);
       if( v ) properties.push(`${toStableJSON(key)}:${v}`);
     }
