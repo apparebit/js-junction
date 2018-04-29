@@ -1,17 +1,25 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import { constant } from '@grr/knowledge/json-ld/util';
-import { kindOf, isInvalid, isPrimitive, isValue, kindOfObject } from '@grr/knowledge/json-ld/kind';
 import { addPropertyValue, areEqual, forEachPropertyValue } from '@grr/knowledge/json-ld/values';
-import State from '@grr/knowledge/json-ld/state';
-import walk from '@grr/knowledge/json-ld/walk';
-import parse from '@grr/knowledge/json-ld/parse';
-import { toSiteAndAccount, toUserUrl } from '@grr/knowledge/semantics/social';
+import { constant } from '@grr/knowledge/json-ld/util';
 import { inverseOf, isSchemaOrgContext } from '@grr/knowledge/semantics/schema-org';
-import { default as harness } from './harness';
+import { join } from 'path';
+import { kindOf, isInvalid, isPrimitive, isValue, kindOfObject } from '@grr/knowledge/json-ld/kind';
+import Knowledge from '@grr/knowledge';
+import parse from '@grr/knowledge/json-ld/parse';
+import { promisify } from 'util';
+import { readFile as doReadFile } from 'fs';
+import State from '@grr/knowledge/json-ld/state';
+import { toSiteAndAccount, toUserUrl } from '@grr/knowledge/semantics/social';
+import walk from '@grr/knowledge/json-ld/walk';
+
+import { default as harness, testdir } from './harness';
 
 const { defineProperty, getOwnPropertySymbols, keys: keysOf } = Object;
 const { isArray } = Array;
+const { iterator } = Symbol;
+const { parse: parseJSON } = JSON;
+const readFile = promisify(doReadFile);
 
 harness.test('@grr/knowledge', t => {
   t.test('json-ld', t => {
@@ -506,6 +514,112 @@ harness.test('@grr/knowledge', t => {
 
       t.end();
     });
+
+    t.end();
+  });
+
+  t.test('Knowledge', async function test(t) {
+    // >>> Check ingestion of a non-trivial JSON-LD document.
+    const file = join(testdir, '..', 'packages', 'apparebit-com', 'site.jsonld');
+    const json = await readFile(file, 'utf8').then(parseJSON);
+
+    const corpus = new Knowledge();
+    t.doesNotThrow(() => corpus.ingest(json));
+
+    // >>> Check the rough outline of the expected graph.
+    t.ok(corpus.has('https://apparebit.com'));
+    t.ok(corpus.has('https://apparebit.com/#website'));
+    t.ok(corpus.has('https://apparebit.com/blog'));
+    t.ok(corpus.has('https://apparebit.com/robert-grimm'));
+    t.ok(corpus.has('https://apparebit.com/robert-grimm#self'));
+    t.ok(corpus.has('https://apparebit.com/about/site'));
+    t.ok(corpus.has('https://apparebit.com/about/privacy'));
+    t.ok(corpus.has('https://apparebit.com/project/ubu-trump'));
+    t.ok(corpus.has('https://apparebit.com/project/candy-or-bust'));
+    t.ok(corpus.has('https://github.com/apparebit/js-junction'));
+
+    // >>> Check adding nodes and properties.
+    t.throws(() => corpus.add({ '@set': 665 }));
+    t.throws(() => corpus.add({ prop1: 'val1', prop2: 'val2' }));
+    t.throws(() => corpus.add({ '@id': 'https://apparebit.com', 'prop1': 'val1' }));
+
+    t.notOk(corpus.has('https://apparebit.com/library/form.css'));
+    corpus.add({
+      '@id': 'https://apparebit.com/library/form.css',
+      '@type': 'DigitalDocument',
+    });
+    t.ok(corpus.has('https://apparebit.com/library/form.css'));
+
+    const form = corpus.get('https://apparebit.com/library/form.css');
+    t.notOk('fileFormat' in form);
+    corpus.addPropertyValue(form, 'fileFormat', 'text/css');
+    t.is(form.fileFormat, 'text/css');
+
+    // >>> Check the iterators.
+    const iter1 = corpus.values();
+    const iter2 = corpus[iterator]();
+
+    while( true ) {
+      const { value: v1, done: done1 } = iter1.next();
+      const { value: v2, done: done2 } = iter2.next();
+
+      t.is(v1, v2);
+      t.is(done1, done2);
+      if( done1 || done2 ) break;
+    }
+
+    for( const [id, node] of corpus.entries() ) {
+      t.is(node['@id'], id);
+    }
+
+    // >>> Check value resolution, which surfaces values over metadata.
+    const tokyo = { '@id': 'http://www.metro.tokyo.jp' };
+    t.is(corpus.resolve(tokyo), tokyo);
+    t.is(corpus.resolve({ '@list': 42 }), 42);
+    t.is(corpus.resolve({ '@set': 665 }), 665);
+    t.is(corpus.resolve({ '@value': 13 }), 13);
+
+    const ubu = corpus.get('https://apparebit.com/project/ubu-trump');
+    t.is(ubu['@id'], 'https://apparebit.com/project/ubu-trump');
+    t.is(ubu['@type'], 'WebPage');
+    t.is(ubu.mainEntity['@type'], 'Article');
+    t.is(ubu.mainEntity.headline, 'Ubu Trump? Trump Roi!');
+
+    // >>> Check linking of reverse and inverse properties.
+    t.is(ubu.mainEntity.mainEntityOfPage, void 0);
+    corpus.link();
+    t.same(ubu.mainEntity.mainEntityOfPage, { '@id': 'https://apparebit.com/project/ubu-trump' });
+
+    const center = {
+      '@id': 'http://example.com/center',
+      'payload': 42,
+      'nested': {
+        '@reverse': {
+          porp: { '@id': 'http://example.com/offchart' },
+        }
+      },
+      '@reverse': {
+        one: {
+          payload: 11,
+        },
+        two: [
+          {
+            payload: 242,
+          },
+          {
+            payload: 484,
+          }
+        ],
+        three: { '@id': 'http://example.com/offchart' },
+      }
+    };
+
+    new Knowledge().add(center).link();
+    t.is(center['@reverse'].one.one['@id'], 'http://example.com/center');
+    t.is(center['@reverse'].two[0].two['@id'], 'http://example.com/center');
+    t.is(center['@reverse'].two[1].two['@id'], 'http://example.com/center');
+
+    t.same(center['@reverse'].three, { '@id': 'http://example.com/offchart' });
 
     t.end();
   });
