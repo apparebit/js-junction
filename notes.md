@@ -84,7 +84,7 @@ solution for js-junction's tests is quite similar to Node.js': Check `execArgv`
 for command line flags, such as `—inspect-brk=5000`, that activate debug mode
 and then rewrite that argument to [use a different, monotonically increasing
 port number for each
-process](https://github.com/apparebit/js-junction/tree/master/tests/index.js).
+process](https://github.com/apparebit/js-junction/blob/a46b81917d2c5bfae6e1d723bf0bbf586fe13e0d/tests/index.js#L34-L57).
 
 Second, the debugger must support multiple, concurrent debugees and, of course,
 it needs to connect to each and every one of them through its own debug port.
