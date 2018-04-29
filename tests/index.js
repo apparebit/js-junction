@@ -5,7 +5,7 @@ import { readdir as doReaddir } from 'fs';
 import { resolve } from 'path';
 import { default as harness, testdir } from './harness';
 
-const { execArgv } = process;
+const { debugPort, execArgv } = process;
 const readdir = promisify(doReaddir);
 const NODE_BINARY = process.execPath;
 const TEST_SUFFIX = '.test.js';
@@ -31,10 +31,37 @@ if( hasQuietFlag() ) {
   };
 }
 
+const DEBUG_OPTION = /^(--inspect|--inspect-brk)(?:=(\d+))?$/u;
+
+function createExecArgvFactory(argv) {
+  let flag, port;
+  const rest = [];
+
+  for( const arg of argv ) {
+    const match = arg.match(DEBUG_OPTION);
+
+    if( match == null ) {
+      rest.push(arg);
+    } else {
+      flag = match[1]; // eslint-disable-line prefer-destructuring
+      port = match[2] ? Number(match[2]) : debugPort;
+    }
+  }
+
+  if( !flag || !port ) {
+    return () => [...rest];
+  } else {
+    let delta = 1;
+    return () => [...rest, `${flag}=${port + (delta++)}`];
+  }
+}
+
+const rightArgv = createExecArgvFactory(execArgv);
+
 (async function run() {
   await Promise.all(
     (await readdir(testdir))
       .filter(name => name.endsWith(TEST_SUFFIX))
-      .map(testfile => harness.spawn(NODE_BINARY, [...execArgv, resolve(testdir, testfile)]))
-  );
+      .map(testfile => harness.spawn(NODE_BINARY,
+        [...rightArgv(), resolve(testdir, testfile)])));
 })();
