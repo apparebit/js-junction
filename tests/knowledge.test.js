@@ -1,7 +1,9 @@
 /* (c) Copyright 2018 Robert Grimm */
 
+import '@grr/mark-of-dev';
 import { addPropertyValue, areEqual, forEachPropertyValue } from '@grr/knowledge/json-ld/values';
 import { constant } from '@grr/knowledge/json-ld/util';
+import { default as harness, testdir } from './harness';
 import { inverseOf, isSchemaOrgContext } from '@grr/knowledge/semantics/schema-org';
 import { join } from 'path';
 import { kindOf, isInvalid, isPrimitive, isValue, kindOfObject } from '@grr/knowledge/json-ld/kind';
@@ -13,9 +15,15 @@ import State from '@grr/knowledge/json-ld/state';
 import { toSiteAndAccount, toUserUrl } from '@grr/knowledge/semantics/social';
 import walk from '@grr/knowledge/json-ld/walk';
 
-import { default as harness, testdir } from './harness';
+const {
+  create,
+  defineProperty,
+  getOwnPropertyDescriptor,
+  getOwnPropertySymbols,
+  getPrototypeOf,
+  keys: keysOf
+} = Object;
 
-const { defineProperty, getOwnPropertySymbols, keys: keysOf } = Object;
 const { isArray } = Array;
 const { iterator } = Symbol;
 const { parse: parseJSON } = JSON;
@@ -572,9 +580,10 @@ harness.test('@grr/knowledge', t => {
       t.is(node['@id'], id);
     }
 
-    // >>> Check value resolution, which surfaces values over metadata.
+    // >>> Check value resolution, which surfaces values hidden between metadata.
     const tokyo = { '@id': 'http://www.metro.tokyo.jp' };
     t.is(corpus.resolve(tokyo), tokyo);
+    t.is(corpus.resolve({ '@graph': 13 }), 13);
     t.is(corpus.resolve({ '@list': 42 }), 42);
     t.is(corpus.resolve({ '@set': 665 }), 665);
     t.is(corpus.resolve({ '@value': 13 }), 13);
@@ -590,10 +599,20 @@ harness.test('@grr/knowledge', t => {
     corpus.link();
     t.same(ubu.mainEntity.mainEntityOfPage, { '@id': 'https://apparebit.com/project/ubu-trump' });
 
+    // Clearly, `center` is a regular reference, not a wrapped version.
     const center = {
       '@id': 'http://example.com/center',
       'payload': 42,
       'nested': {
+        'journey': {
+          to: {
+            the: {
+              center: {
+                '@id': 'http://example.com/center',
+              }
+            }
+          }
+        },
         '@reverse': {
           porp: { '@id': 'http://example.com/offchart' },
         }
@@ -614,12 +633,121 @@ harness.test('@grr/knowledge', t => {
       }
     };
 
-    new Knowledge().add(center).link();
+    // Still, we are only dealing in conventional data records.
+    const kb = new Knowledge().add(center).link();
     t.is(center['@reverse'].one.one['@id'], 'http://example.com/center');
     t.is(center['@reverse'].two[0].two['@id'], 'http://example.com/center');
     t.is(center['@reverse'].two[1].two['@id'], 'http://example.com/center');
 
     t.same(center['@reverse'].three, { '@id': 'http://example.com/offchart' });
+
+    // >>> Check the proxy membrane.
+    const value = { number: 42 };
+    const original = {
+      key: { value },
+      toString() { return { '@id': 'http://raven.com/nevermore' }; }
+    };
+    t.notOk(Knowledge.isGraphView(original));
+
+    const wrapped = kb.wrap(original);
+    t.ok(Knowledge.isGraphView(wrapped));
+    t.is(kb.wrap(wrapped), wrapped); // No double wraping, please!
+    t.throws(() => { wrapped.key = 665; });  // No updates, please!
+
+    const result = wrapped.toString();
+    t.ok(Knowledge.isGraphView(result));
+    t.is(result['@id'], 'http://raven.com/nevermore');
+
+    // Membrane descriptors are not wrapped, but `value` and `get` must be.
+    const descriptor = getOwnPropertyDescriptor(wrapped, 'key');
+    t.notOk(Knowledge.isGraphView(descriptor));
+    t.ok(Knowledge.isGraphView(descriptor.value));
+    t.ok(Knowledge.isGraphView(wrapped.key));
+    t.ok(Knowledge.isGraphView(wrapped.key.value));
+    t.notOk(Knowledge.isGraphView(wrapped.key.value.number));
+
+    const subject = kb.wrap(create(null, {
+      special: {
+        configurable: true,
+        enumerable: true,
+        get() { return this.number; },
+        set(v) { this.number = v; }
+      },
+      readonly: {
+        configurable: true,
+        enumerable: true,
+        get() { return this.number; }
+      },
+      nevermore: {
+        configurable: true,
+        enumerable: true,
+        set(number) { this.number = number; }
+      }
+    }));
+
+    // The descriptor for a non-existent property must be `undefined`.
+    t.is(getOwnPropertyDescriptor(subject, 'whatever'), void 0);
+
+    const special = getOwnPropertyDescriptor(subject, 'special');
+    t.ok(special != null);
+    t.notOk(Knowledge.isGraphView(special)); // It's a descriptor.
+    t.notOk('value' in special);
+    t.ok('get' in special);
+    t.is(typeof special.get, 'function');
+    t.ok(Knowledge.isGraphView(special.get)); // It's a descriptor property.
+    t.ok('set' in special);
+    t.is(special.set, void 0);
+
+    const readonly = getOwnPropertyDescriptor(subject, 'readonly');
+    t.ok(readonly != null);
+    t.notOk(Knowledge.isGraphView(readonly)); // It's a descriptor.
+    t.notOk('value' in readonly);
+    t.ok('get' in readonly);
+    t.is(typeof readonly.get, 'function');
+    t.ok('set' in readonly);
+    t.is(readonly.set, void 0);
+
+    const nevermore = getOwnPropertyDescriptor(subject, 'nevermore');
+    t.ok(nevermore != null);
+    t.notOk(Knowledge.isGraphView(nevermore)); // It's a descriptor.
+    t.notOk('value' in nevermore);
+    t.ok('get' in nevermore);
+    t.is(nevermore.get, void 0);
+    t.ok('set' in nevermore);
+    t.is(nevermore.set, void 0);
+
+    // The prototype and its properties must be wrapped.
+    const proto = getPrototypeOf(wrapped);
+    const { toString } = proto;
+    t.ok(Knowledge.isGraphView(proto));
+    t.ok(Knowledge.isGraphView(toString));
+
+    // >>> Check the graph view, which makes arbitrary traversal nice and easy.
+    t.is(kb.graph('ftp://example.com/1987/document'), null);
+    const view = kb.graph('http://example.com/center');
+
+    t.is(view['@reverse'].two[1].payload, 484);
+
+    const v1 = view.nested;
+    const v2 = v1.journey;
+    const v3 = v2.to;
+    const v4 = v3.the;
+    const v5 = v4.center;
+
+    t.notOk(Knowledge.isGraphView(center));
+    t.notOk(Knowledge.isGraphView(kb));
+
+    t.ok(Knowledge.isGraphView(view));
+    t.ok(Knowledge.isGraphView(v1));
+    t.ok(Knowledge.isGraphView(v2));
+    t.ok(Knowledge.isGraphView(v3));
+    t.ok(Knowledge.isGraphView(v4));
+    t.ok(Knowledge.isGraphView(v5));
+
+    // Plain view vs graph view: The former never completes the cyclic traversal
+    // and ends `undefined`. The latter transparently completes the cycle. Et voila!
+    t.is(center.nested.journey.to.the.center.payload, void 0);
+    t.is(v5.payload, 42);
 
     t.end();
   });

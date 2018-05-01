@@ -1,5 +1,6 @@
 /* (C) Copyright 2018 Robert Grimm */
 
+import addGraphView from './graph-view';
 import { addPropertyValue } from './json-ld/values';
 import { DuplicateBinding, InvalidArgType, InvalidArgValue } from '@grr/err';
 import { kindOf } from './json-ld/kind';
@@ -10,9 +11,11 @@ const { create, keys: keysOf } = Object;
 const { iterator } = Symbol;
 const NODES = Symbol('nodes');
 
+/** In-memory representation of a corpus or knowledge base. */
 export default class Knowledge {
   constructor() {
     this[NODES] = create(null);
+    addGraphView(this); // This function adds functionality.
   }
 
   // ===== Populating This Knowledge Base =====
@@ -65,12 +68,20 @@ export default class Knowledge {
 
   [iterator]() { return this.values(); }
 
+  /**
+   * Resolve the entity by trying to resolve references to nodes in this
+   * knowledge base and by skipping the embedded metadata of @graph, @list,
+   * @set, and @value objects. This function must be conservative in that, if it
+   * does not recognize an entity, it must return said entity.
+   */
   resolve(entity) {
     switch( kindOf(entity) ) {
       case 'reference': {
         const { '@id': id } = entity;
         return this.has(id) ? this.get(id) : entity;
       }
+      case 'graph':
+        return this.resolve(entity['@graph']);
       case 'list':
         return this.resolve(entity['@list']);
       case 'set':
