@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "Yandex",
     "allowfullscreen",
     "allowpaymentrequest",
     "allowusermedia",
@@ -12,6 +13,7 @@
     "dehyphenatable",
     "dehyphenate",
     "deobjectify",
+    "descriptor's",
     "desugar",
     "desugared",
     "dynaload",
@@ -62,7 +64,6 @@
     "unpublishing",
     "vdom",
     "woff",
-    "workspaces",
-    "Yandex"
+    "workspaces"
   ]
 }
