@@ -1,10 +1,14 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-export function constant(value) {
+export function nonenumerable(value, writable = true) {
   return {
     configurable: true,
     enumerable: false,
     value,
-    writable: false,
+    writable,
   };
+}
+
+export function constant(value) {
+  return nonenumerable(value, false);
 }
