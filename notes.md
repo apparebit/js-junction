@@ -120,12 +120,13 @@ resources. Consequently, the runtime should expose, as much as possible, just
 that functionality.
 
 The second lesson concerns __runtime support for testing__. Node.js' ecosystem
-is strangely skewed offering both too many and too few options for critical
+is strangely skewed, offering both too many and too few options for critical
 infrastructure — as nicely illustrated by the contrast between the many test
 runners — including [AVA](https://ava.li/),
 [intern](https://github.com/theintern/intern),
-[Jest](https://github.com/facebook/jest), [Mocha](http://mochajs.org/),
-[tap](https://github.com/isaacs/node-tap), and
+[Jest](https://github.com/facebook/jest),
+[Karma](https://karma-runner.github.io/2.0/index.html),
+[Mocha](http://mochajs.org/), [tap](https://github.com/isaacs/node-tap), and
 [tape](https://github.com/substack/tape) — versus the one coverage collector
 [nyc](https://github.com/bcoe/nyc). Yet, they all tend towards the overly
 general and thus towards the complex. That makes for tempting convenience when
@@ -136,6 +137,6 @@ lets developers write the glue code for their own, perfectly suited tools. This
 avoids the complexity and cruft caused by too many requirements, while also
 encouraging developers to share responsibility for their tooling. To put it
 differently, robust support for spawning child processes, capturing their
-output, preferably in a JSON-based format, handling signals and messages, and
-formatting reports for terminal and browser is far more valuable than yet
-another futuristic command line tool.
+diagnostic output (preferably in a JSON-based format), handling signals and
+messages, and formatting reports for terminal and browser is far more valuable
+than yet another futuristic command line tool.
