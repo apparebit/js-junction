@@ -77,7 +77,9 @@ function checkValueIgnoringArray(value, state, label) {
   };
 
   if( isArray(value) ) {
-    value.forEach(check);
+    for( const element of value ) {
+      check(element);
+    }
   } else {
     check(value);
   }
