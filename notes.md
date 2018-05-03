@@ -124,7 +124,7 @@ is strangely skewed, offering both too many and too few options for critical
 infrastructure — as nicely illustrated by the contrast between the many test
 runners — including [AVA](https://ava.li/),
 [intern](https://github.com/theintern/intern),
-[Jest](https://github.com/facebook/jest),
+[Jasmine](https://jasmine.github.io), [Jest](https://github.com/facebook/jest),
 [Karma](https://karma-runner.github.io/2.0/index.html),
 [Mocha](http://mochajs.org/), [tap](https://github.com/isaacs/node-tap), and
 [tape](https://github.com/substack/tape) — versus the one coverage collector
