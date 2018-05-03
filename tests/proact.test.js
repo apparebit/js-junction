@@ -142,18 +142,20 @@ harness.test('@grr/proact', t => {
       t.is(Element('span', 'hello!').toString(), '[object Proact.Element]');
 
       const format = el => inspect(el, { breakLength: Infinity });
-      t.is(format(Element('span')),
-        `Element { name: 'span', properties: {}, children: [] }`);
+      const pattern = s => new RegExp(`Element( \\[Proact.Element\\])? ${s}`);
+
+      t.match(format(Element('span')),
+        pattern(`{ name: 'span', properties: {}, children: \\[\\] }`));
       // The null as 2nd argument is important, since it should *not* be treated as a child.
-      t.is(format(Element('span', null, 'hello!')),
-        `Element { name: 'span', properties: {}, children: [ 'hello!' ] }`);
-      t.is(format(Element('span', null, Symbol('ooh special'))),
-        `Element { name: 'span', properties: {}, children: [ Symbol(ooh special) ] }`);
-      t.is(format(Element('span', { class: ['x', 42] })),
-        `Element { name: 'span', properties: { class: [ 'x', 42 ] }, children: [] }`);
-      t.is(format(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 42)),
-        `Element { name: 'span', properties: { class: 'greeting', lang: 'en', tabindex: -1 },`
-        + ` children: [ 'yo42' ] }`);
+      t.match(format(Element('span', null, 'hello!')),
+        pattern(`{ name: 'span', properties: {}, children: \\[ 'hello!' \\] }`));
+      t.match(format(Element('span', null, Symbol('ooh special'))),
+        pattern(`{ name: 'span', properties: {}, children: \\[ Symbol\\(ooh special\\) \\] }`));
+      t.match(format(Element('span', { class: ['x', 42] })),
+        pattern(`{ name: 'span', properties: { class: \\[ 'x', 42 \\] }, children: \\[\\] }`));
+      t.match(format(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 42)),
+        pattern(`{ name: 'span', properties: { class: 'greeting', lang: 'en', tabindex: -1 }, `
+          + `children: \\[ 'yo42' \\] }`));
       t.end();
     });
 
