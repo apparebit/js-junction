@@ -1,15 +1,21 @@
-/* (c) Copyright 2017–2018 Robert Grimm */
+/* (c) Copyright 2018 Robert Grimm */
 
-import { dirname } from 'path';
-import { URL } from 'url';
+import { basename, isAbsolute } from 'path';
+import tap from 'tap';
 
-export { default } from 'tap';
+const main = process.mainModule && process.mainModule.filename;
 
-// ESLint does not parse the dynamic import form yet. Hence we wrap it for now.
-export function dynaload(name) {
-  return import(name);
+export default function test(path, callback) {
+  const name = isAbsolute(path) ? `@grr/${basename(path, '.js')}` : path;
+
+  // If caller is main module, run tests. Otherwise, return thunk.
+  if( main === path ) {
+    return tap.test(name, callback);
+  } else {
+    return () => tap.test(name, callback);
+  }
 }
 
-// VSCode, in turn, does not parse `import.meta` yet. Also there is only one
-// test directory, hence we determine the test directory once.
-export const testdir = dirname(new URL(import.meta.url).pathname);
+export function load(id) {
+  return import(id);
+}
