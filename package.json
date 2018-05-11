@@ -10,11 +10,12 @@
     "node": ">=8.3.0"
   },
   "devDependencies": {
+    "chalk": "2.4.1",
     "eslint": "4.19.1",
-    "esm": "3.0.28",
-    "nyc": "11.7.1",
+    "esm": "3.0.31",
+    "nyc": "11.7.3",
     "rimraf": "2.6.2",
-    "tap": "11.1.4"
+    "tap": "11.1.5"
   },
   "workspaces": [
     "packages/*"
@@ -43,9 +44,9 @@
     ]
   },
   "scripts": {
-    "clean": "node -r esm scripts/clean.js",
-    "pretest": "node -r esm scripts/clean.js && eslint .",
-    "test": "tap --node-arg=-r --node-arg=esm tests/*.test.js",
-    "posttest": "nyc node tests/index.js --quiet"
+    "clean": "node scripts/clean-without-esm.js",
+    "pretest": "node scripts/clean-without-esm.js && eslint .",
+    "test": "tap --node-arg=-r --node-arg=esm scripts/test.js --test-arg=--verbose",
+    "posttest": "nyc node scripts/test.js --verbose"
   }
 }
