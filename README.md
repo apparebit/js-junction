@@ -34,14 +34,6 @@ All these packages have 100% test coverage across statements, branches,
 functions, and lines alike. Anything less would be uncivilized — and a tad
 reckless for a dynamically typed programming language!
 
-The one exemption from the code coverage requirement is
-[@grr/apparebit-com](https://github.com/apparebit/js-junction/tree/master/packages/apparebit-com).
-It contains content, styles, and behaviors for the eponymous website. As such,
-it would be better served by altogether different tests including spell and
-grammar checking. More fundamentally, its utility as an installable package is
-by definition limited and, consequently, __@grr/apparebit-com__ is not published
-to the npm registry.
-
 ## Modules End With .js
 
 This repository contains only ECMAScript modules with the `.js` file extension.
