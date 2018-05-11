@@ -27,6 +27,14 @@ export {
 } from './functions';
 
 export {
+  withoutInspector,
+} from './processes';
+
+export {
+  muteWritable,
+} from './streams';
+
+export {
   dehyphenate,
   escapeAttribute,
   escapeHTML,
