@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Run All Tests",
-      "program": "${workspaceFolder}/tests/index.js",
+      "program": "${workspaceFolder}/scripts/test.js",
       "cwd": "${workspaceFolder}",
       "runtimeArgs": [
         "-r", "esm"
