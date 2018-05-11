@@ -22,6 +22,8 @@ export const InvalidArgValue = E('ERR_INVALID_ARG_VALUE',
 export const InvalidArrayLength = E('ERR_INVALID_ARRAY_LENGTH',
   punning((key, value, expected) =>
     `array "${key}" has ${value} element${value !== 1 ? 's' : ''}, but should have ${expected}`));
+export const InvalidCallback = E('ERR_INVALID_CALLBACK',
+  punning(name => `callback "${name}" is not a function`));
 export const MalstructuredData = E('ERR_MALSTRUCTURED_DATA',
   message => message);
 export const MissingArgs = E('ERR_MISSING_ARGS',
@@ -31,5 +33,7 @@ export const MultipleCallback = E('ERR_MULTIPLE_CALLBACK',
   (name, spec) => `repeated invocation of callback "${String(name)}"${spec ? ` ${spec}` : ''}`);
 export const ResourceBusy = E('ERR_RESOURCE_BUSY',
   resource => `${resource} is busy`);
+export const ResourceNotFound = E('ERR_RESOURCE_NOT_FOUND',
+  message => message);
 export const UnsupportedOperation = E('ERR_UNSUPPORTED_OPERATION',
   spec => `operation "${spec}" is not supported`);
