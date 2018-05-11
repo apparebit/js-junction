@@ -1,7 +1,7 @@
 /* (C) Copyright 2018 Robert Grimm */
 
 import { nonenumerable } from './json-ld/util';
-import { name as PACKAGE } from '../../package.json';
+import { name as PACKAGE } from './package.json';
 import { UnsupportedOperation } from '@grr/err';
 
 const { apply, get, getOwnPropertyDescriptor, getPrototypeOf } = Reflect;
@@ -15,7 +15,7 @@ function isGraphView(entity) {
 
 function unsupported() {
   throw UnsupportedOperation(
-    `${PACKAGE}'s graph view does not support construction or modification`);
+    `${PACKAGE}'s graph view is read-only and prevents modification`);
 }
 
 /**
