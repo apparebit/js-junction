@@ -8,7 +8,8 @@ module.exports = {
     },
   },
   "globals": {
-    "__DEV__": false
+    "__coverage__": false,
+    "__DEV__": false,
   },
   "env": {
     "es6": true,
@@ -119,7 +120,6 @@ module.exports = {
     }],
     "no-alert": "error",
     "no-array-constructor": "error",
-    "no-await-in-loop": "error",
     "no-bitwise": "off",
     "no-buffer-constructor": "error",
     "no-caller": "error",
@@ -202,7 +202,10 @@ module.exports = {
     "no-undef-init": "error",
     "no-undefined": "off",
     "no-underscore-dangle": ["error", {
-      "allow": ["__DEV__"]
+      "allow": [
+        "__coverage__",
+        "__DEV__"
+      ]
     }],
     "no-unmodified-loop-condition": "error",
     "no-unneeded-ternary": "error",
