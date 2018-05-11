@@ -3,7 +3,7 @@
 import '@grr/mark-of-dev';
 import { addPropertyValue, areEqual, forEachPropertyValue } from '@grr/knowledge/json-ld/values';
 import { constant } from '@grr/knowledge/json-ld/util';
-import { default as harness, testdir } from './harness';
+import harness from './harness';
 import { inverseOf, isSchemaOrgContext } from '@grr/knowledge/semantics/schema-org';
 import { join } from 'path';
 import { kindOf, isInvalid, isPrimitive, isValue, kindOfObject } from '@grr/knowledge/json-ld/kind';
@@ -29,7 +29,7 @@ const { iterator } = Symbol;
 const { parse: parseJSON } = JSON;
 const readFile = promisify(doReadFile);
 
-harness.test('@grr/knowledge', t => {
+export default harness(__filename, t => {
   t.test('json-ld', t => {
     t.test('kind', t => {
       t.ok(isPrimitive(null));
@@ -325,69 +325,69 @@ harness.test('@grr/knowledge', t => {
               'ooh': [
                 'text',
                 { zoo: 'monkey', loo: 'crocodile' },
-                { '@set': [1, 2, 3] },                  // ⚠️ Desugar superfluous @set.
-                { '@set': 665 },                        // ⚠️ Desugar superfluous @set.
-                ['I', 'am', 'bad']                      // 🚫 Array within array.
+                { '@set': [1, 2, 3] },                   // ⚠️ Desugar superfluous @set.
+                { '@set': 665 },                         // ⚠️ Desugar superfluous @set.
+                ['I', 'am', 'bad']                       // 🚫 Array within array.
               ]
             },
             'graphic': {
-              '@graph': 'data'                          // 🚫 Nested @graph.
+              '@graph': 'data'                           // 🚫 Nested @graph.
             },
             '@reverse': {
-              url: 'http://example.com/node42',         // ⚠️ Convert to reference.
+              url: 'http://example.com/node42',          // ⚠️ Convert to reference.
               ref: {
                 '@id': 'http://example.com/node42'
               },
-              node: {                                   // 🚫 Node has @reverse but no @id.
+              node: {                                    // 🚫 Node has @reverse but no @id.
                 'p1': 'v1',
                 'p2': 'v2',
-                '@reverse': 665,                        // 🚫 Invalid value for @reverse.
+                '@reverse': 665,                         // 🚫 Invalid value for @reverse.
               },
-              badURL: 'node665',                        // 🚫 Bad URL for @reverse property value.
+              badURL: 'node665',                         // 🚫 Bad URL for @reverse property value.
             }
           },
           {
-            '@id': 'http://example.com/conflict1',      // 🚫 @id already exists in knowledge base.
+            '@id': 'http://example.com/conflict1',       // 🚫 @id already is in knowledge base.
             'prop': 'val'
           },
           {
-            '@id': 'http://example.com/conflict2',      // 🚫 @id already exists in parsed state.
+            '@id': 'http://example.com/conflict2',       // 🚫 @id already is in document.
             'prop': 'val'
           },
           {
-            '@id': 665,                                 // 🚫 Invalid @id value.
+            '@id': 665,                                  // 🚫 Invalid @id value.
             'prop': 'val'
           },
           {
-            '@id': '_:blank',                           // 🚫 Unsupported blank node identifier.
+            '@id': '_:blank',                            // 🚫 Unsupported blank node identifier.
             'prop': 'val'
           },
           {
             '@value': 42,
-            '@reverse': 'drawrof'                       // 🚫 Invalid property for @value object.
+            '@reverse': 'drawrof'                        // 🚫 Invalid property for @value object.
           },
           {
             '@value': 42,
-            '@reverse': 'drawrof',                      // 🚫 Invalid property for @value object.
-            '@vocab': 'blah blah blah'                  // 🚫 Invalid property or @value object.
+            '@reverse': 'drawrof',                       // 🚫 Invalid property for @value object.
+            '@vocab': 'blah blah blah'                   // 🚫 Invalid property or @value object.
           },
           {
-            '@value': {},                               // 🚫 Invalid value for @value object.
+            '@value': {},                                // 🚫 Invalid value for @value object.
             '@type': 'Object'
           },
           {
-            '@value': 665                               // 🚫 @value object as document root.
+            '@value': 665                                // 🚫 @value object as document root.
           },
-          {                                             // 🚫 @list object as document root.
-            '@list': [{ '@list': 0 }, { '@set': 0 }]    // 🚫 @list with nested @list and @set.
+          {                                              // 🚫 @list object as document root.
+            '@list': [{ '@list': 0 }, { '@set': 0 }]     // 🚫 @list with nested @list and @set.
           }
         ]
       });
 
       state.parse({ '@id': 'http://example.com/node42', 'prop': 'val' });
-      state.parse({ '@list': NaN });                    // 🚫 @list object as document root.
-      state.parse({ '@set': NaN });                     // 🚫 @set object as document root.
-      state.parse({ '@value': NaN });                   // 🚫 @value object as document root.
+      state.parse({ '@list': NaN });                     // 🚫 @list object as document root.
+      state.parse({ '@set': NaN });                      // 🚫 @set object as document root.
+      state.parse({ '@value': NaN });                    // 🚫 @value object as document root.
 
       t.is(state.diagnostics.length, 24);  // The number of errors above.
       t.is(keysOf(state.nodes).length, 6); // The number of nodes in primary index.
@@ -445,10 +445,11 @@ harness.test('@grr/knowledge', t => {
         `JSON-LD data at path "['@graph'][4]" has @id "665", which is not an IRI`,
         `JSON-LD data at path "['@graph'][5]" has blank node identifier "_:blank" `
           + `unsupported by @grr/knowledge`,
-        `JSON-LD data at path "['@graph'][6]" is a @value object with superfluous key "@reverse"`,
+        `JSON-LD data at path "['@graph'][6]" is a @value object with superfluous `
+          + `key "@reverse"`,
         `JSON-LD data at path "['@graph'][6]" places @value at root`,
-        `JSON-LD data at path "['@graph'][7]" is a @value object with superfluous keys "@reverse" `
-          + `and "@vocab"`,
+        `JSON-LD data at path "['@graph'][7]" is a @value object with superfluous keys `
+          + `"@reverse" and "@vocab"`,
         `JSON-LD data at path "['@graph'][7]" places @value at root`,
         `JSON-LD data at path "['@graph'][8]" is invalid @value "{}", which is neither null, `
           + `a boolean, a number, or a string`,
@@ -528,7 +529,7 @@ harness.test('@grr/knowledge', t => {
 
   t.test('Knowledge', async function test(t) {
     // >>> Check ingestion of a non-trivial JSON-LD document.
-    const file = join(testdir, '..', 'packages', 'apparebit-com', 'site.jsonld');
+    const file = join(__dirname, '..', 'apparebit-com', 'site.jsonld');
     const json = await readFile(file, 'utf8').then(parseJSON);
 
     const corpus = new Knowledge();
@@ -597,7 +598,8 @@ harness.test('@grr/knowledge', t => {
     // >>> Check linking of reverse and inverse properties.
     t.is(ubu.mainEntity.mainEntityOfPage, void 0);
     corpus.link();
-    t.same(ubu.mainEntity.mainEntityOfPage, { '@id': 'https://apparebit.com/project/ubu-trump' });
+    t.same(ubu.mainEntity.mainEntityOfPage,
+      { '@id': 'https://apparebit.com/project/ubu-trump' });
 
     // Clearly, `center` is a regular reference, not a wrapped version.
     const center = {
@@ -652,7 +654,8 @@ harness.test('@grr/knowledge', t => {
     const wrapped = kb.wrap(original);
     t.ok(Knowledge.isGraphView(wrapped));
     t.is(kb.wrap(wrapped), wrapped); // No double wraping, please!
-    t.throws(() => { wrapped.key = 665; });  // No updates, please!
+    t.throws(() => { wrapped.key = 665; },  // No updates, please!
+      `@grr/knowledge's graph view is read-only and prevents modification`);
 
     const result = wrapped.toString();
     t.ok(Knowledge.isGraphView(result));

@@ -37,9 +37,7 @@ const CODE_INVALID_ARG_VALUE = { code: 'ERR_INVALID_ARG_VALUE' };
 const CODE_MISSING_ARGS = { code: 'ERR_MISSING_ARGS' };
 const CODE_RESOURCE_BUSY = { code: 'ERR_RESOURCE_BUSY' };
 
-// -------------------------------------------------------------------------------------------------
-
-harness.test('@grr/proact', t => {
+export default harness(__filename, t => {
   t.test('spec', t => {
     t.test('.isHtmlElement()', t => {
       t.notOk(isHtmlElement(void 0));
@@ -92,8 +90,6 @@ harness.test('@grr/proact', t => {
 
     t.end();
   });
-
-  // -----------------------------------------------------------------------------------------------
 
   const a = Element('a', { href: 'location' }, 'somewhere');
 
@@ -265,8 +261,6 @@ harness.test('@grr/proact', t => {
     t.end();
   });
 
-  // -----------------------------------------------------------------------------------------------
-
   t.test('children', t => {
     t.test('.isIgnorable()', t => {
       t.ok(isIgnorable(void 0));
@@ -391,8 +385,6 @@ harness.test('@grr/proact', t => {
     t.end();
   });
 
-  // -----------------------------------------------------------------------------------------------
-
   const deep = Element('a', null, Element('b', null, Element('i', null, 'nested')));
 
   t.test('html', t => {
@@ -462,8 +454,6 @@ harness.test('@grr/proact', t => {
 
     t.end();
   });
-
-  // -----------------------------------------------------------------------------------------------
 
   t.test('Proact', t => {
     t.test('.renderToString()', t => {

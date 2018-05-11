@@ -15,6 +15,7 @@ import {
   IteratorPrototype,
   maybe,
   memoize,
+  muteWritable,
   normalizeWhitespace,
   toStableJSON,
   toKeyPath,
@@ -22,18 +23,18 @@ import {
   value,
   withExistingKeyPath,
   withKeyPath,
+  withoutInspector,
 } from '@grr/oddjob';
 
 import harness from './harness';
+import { Writable } from 'stream';
 
 const { create } = Object;
 const { iterator } = Symbol;
 
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 
-// -------------------------------------------------------------------------------------------------
-
-harness.test( '@grr/oddjob', t => {
+export default harness(__filename, t => {
   t.test('descriptors', t => {
     t.test('.constant()', t => {
       t.same(constant(665), {
@@ -74,8 +75,6 @@ harness.test( '@grr/oddjob', t => {
 
     t.end();
   });
-
-  // -----------------------------------------------------------------------------------------------
 
   t.test('key-path', t => {
     const sym = Symbol('ooh special');
@@ -118,8 +117,6 @@ harness.test( '@grr/oddjob', t => {
 
     t.end();
   });
-
-  // -----------------------------------------------------------------------------------------------
 
   t.test('iteration', t => {
     t.test('.isIterable()', t => {
@@ -184,8 +181,6 @@ harness.test( '@grr/oddjob', t => {
 
     t.end();
   });
-
-  // -----------------------------------------------------------------------------------------------
 
   t.test('functions', t => {
     t.test('.maybe()', t => {
@@ -257,7 +252,53 @@ harness.test( '@grr/oddjob', t => {
     t.end();
   });
 
-  // -----------------------------------------------------------------------------------------------
+  t.test('processes', t => {
+    t.test('withoutInspector()', t => {
+      t.same(withoutInspector(['--inspect']), []);
+      t.same(withoutInspector(['--inspect-brk']), []);
+      t.same(withoutInspector(['--inspect-port']), []);
+      t.same(withoutInspector(['--inspect=665']), []);
+      t.same(withoutInspector(['--inspect-brk=665']), []);
+      t.same(withoutInspector(['--inspect-port=665']), []);
+      t.same(withoutInspector(['--debug']), []);
+      t.same(withoutInspector(['--debug-brk']), []);
+      t.same(withoutInspector(['--debug-port']), []);
+      t.same(withoutInspector(['--whatever']), ['--whatever']);
+      t.end();
+    });
+
+    t.end();
+  });
+
+  t.test('streams', t => {
+    t.test('muteWritable()', t => {
+      const log = [];
+      const out = new Writable({
+        decodeStrings: false,
+        write(chunk, encoding, callback) {
+          log.push(chunk);
+          callback();
+        }
+      });
+
+      out.write('1');
+      t.same(log, ['1']);
+
+      const unmute = muteWritable(out);
+      out.write('2');
+      out.write('c1', () => log.push('c1'));
+      out.write('c2', 'utf8', () => log.push('c2'));
+      t.same(log, ['1', 'c1', 'c2']);
+
+      unmute();
+      out.write('3');
+      t.same(log, ['1', 'c1', 'c2', '3']);
+
+      t.end();
+    });
+
+    t.end();
+  });
 
   t.test('strings', t => {
     t.test('.dehyphenate()', t => {
