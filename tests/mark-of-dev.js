@@ -6,6 +6,7 @@ import { withoutInspector } from '@grr/oddjob/processes';
 
 const { defineProperty } = Object;
 const { env, execPath } = process;
+const { has } = Reflect;
 const mode = env.MARK_OF_DEV_TEST;
 const RUNNING = Symbol.for('mark-of-dev-test');
 
@@ -44,7 +45,7 @@ export default harness(__filename, async function run(t) {
 });
 
 async function testcase() {
-  const hasMark = '__DEV__' in global;
+  const hasMark = has(global, '__DEV__');
   if( mode === 'oops' ) global.__DEV__ = 'oops';
 
   await load('@grr/mark-of-dev');
