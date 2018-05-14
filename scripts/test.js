@@ -41,7 +41,7 @@ async function main() {
   chalk = (await load('chalk')).default;
 
   const modules = (await readDirectory(tests))
-    .filter(name => name[0] !== '.' && name !== 'harness.js');
+    .filter(name => name.endsWith('.spec.js'));
 
   for( const name of modules ) {
     const path = resolve(tests, name);
