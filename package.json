@@ -26,10 +26,6 @@
       "esm"
     ],
     "cwd": "packages",
-    "exclude": [
-      "apparebit-com",
-      "**/node_modules/**"
-    ],
     "temp-directory": "../.nyc_output",
     "report-dir": "../coverage",
     "check-coverage": true,
@@ -45,8 +41,8 @@
   },
   "scripts": {
     "clean": "node scripts/clean-without-esm.js",
-    "pretest": "node scripts/clean-without-esm.js && eslint .",
-    "test": "tap --node-arg=-r --node-arg=esm scripts/test.js --test-arg=--verbose",
-    "posttest": "nyc node scripts/test.js --verbose"
+    "pretest": "node scripts/clean.js --deep && eslint .",
+    "test": "tap --node-arg=-r --node-arg=esm scripts/test.js",
+    "posttest": "node scripts/clean.js && nyc node scripts/test.js --no-tap"
   }
 }
