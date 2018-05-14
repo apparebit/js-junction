@@ -1,5 +1,7 @@
 /* (c) Copyright 2018 Robert Grimm */
 
+import { ChildProcessError, ChildProcessExited } from '@grr/err';
+
 const { execArgv } = process;
 
 const WITH_INSPECTOR = new RegExp(`^(${['', '-brk', '-port']
@@ -17,4 +19,19 @@ export function withoutInspector(args = execArgv) {
   }
 
   return result;
+}
+
+export function onExit(child) {
+  return new Promise((resolve, reject) => {
+    child.once('error', err => {
+      reject(ChildProcessError(child.pid, err));
+    });
+    child.once('exit', (code, signal) => {
+      if( code === 0 ) {
+        resolve();
+      } else {
+        reject(ChildProcessExited(child.pid, code, signal));
+      }
+    });
+  });
 }

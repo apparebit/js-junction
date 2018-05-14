@@ -27,6 +27,7 @@ export {
 } from './functions';
 
 export {
+  onExit,
   withoutInspector,
 } from './processes';
 

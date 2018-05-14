@@ -17,6 +17,7 @@ import {
   memoize,
   muteWritable,
   normalizeWhitespace,
+  onExit,
   toStableJSON,
   toKeyPath,
   toSymbolKey,
@@ -26,6 +27,7 @@ import {
   withoutInspector,
 } from '@grr/oddjob';
 
+import Emitter from 'events';
 import harness from './harness';
 import { Writable } from 'stream';
 
@@ -253,6 +255,56 @@ export default harness(__filename, t => {
   });
 
   t.test('processes', t => {
+    t.test('onExit()', t => {
+      const e1 = new Emitter();
+      e1.pid = 665;
+      const p1 = onExit(e1)
+        .then(_ => t.pass('resolving Promise'))
+        .catch(_ => t.fail('resolving Promise'));
+      e1.emit('exit', 0, null);
+
+      const e2 = new Emitter();
+      e2.pid = 656;
+      const p2 = onExit(e2)
+        .then(_ => t.fail('rejecting Promise'))
+        .catch(x => {
+          t.is(x.name, 'Error [ERR_CHILD_PROCESS_EXITED]');
+          t.is(x.pid, 656);
+          t.is(x.exitCode, 13);
+          t.is(x.signal, null);
+        });
+      e2.emit('exit', 13, null);
+
+      const e3 = new Emitter();
+      e3.pid = 566;
+      const p3 = onExit(e3)
+        .then(_ => t.fail('rejecting Promise'))
+        .catch(x => {
+          t.is(x.name, 'Error [ERR_CHILD_PROCESS_EXITED]');
+          t.is(x.pid, 566);
+          t.is(x.exitCode, null);
+          t.is(x.signal, 'SIGALRM');
+        });
+      e3.emit('exit', null, 'SIGALRM');
+
+      const e4 = new Emitter();
+      e4.pid = 665;
+      const p4 = onExit(e4)
+        .then(_ => t.fail('rejecting Promise'))
+        .catch(x => {
+          t.is(x.name, 'Error [ERR_CHILD_PROCESS_ERR]');
+          t.is(x.pid, 665);
+          t.is(x.exitCode, null);
+          t.is(x.signal, null);
+          t.is(x.cause.message, 'bad message');
+        });
+      e4.emit('error', new Error('bad message'));
+
+      return Promise.all([p1, p2, p3, p4])
+        .then(t.end)
+        .catch(t.fail);
+    });
+
     t.test('withoutInspector()', t => {
       t.same(withoutInspector(['--inspect']), []);
       t.same(withoutInspector(['--inspect-brk']), []);
