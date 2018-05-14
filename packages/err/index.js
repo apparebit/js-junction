@@ -4,6 +4,8 @@ import { CodedTypeError, E } from './types';
 import punning from './punning';
 import { asArgId, asElements, asValue, quote } from './format';
 
+export { ChildProcessError, ChildProcessExited } from './system';
+
 export const DuplicateBinding = E('ERR_DUPLICATE_BINDING',
   punning((key, value, replacement) =>
     `"${key}" is bound to ${asValue(value)}, cannot be rebound to ${asValue(replacement)}`));

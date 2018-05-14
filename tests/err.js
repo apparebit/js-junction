@@ -4,6 +4,8 @@ import { quote, asArgId, asValue, asElements } from '@grr/err/format';
 import { default as punning, isPropertyKey, toKeyValue } from '@grr/err/punning';
 
 import {
+  ChildProcessError,
+  ChildProcessExited,
   DuplicateBinding,
   FunctionNotImplemented,
   InvalidArgType,
@@ -131,19 +133,21 @@ export default harness(__filename, t => {
 
   t.test('.code', t => {
     [
-      [DuplicateBinding('k', 'v', 'w'),     'ERR_DUPLICATE_BINDING'],
-      [FunctionNotImplemented('m'),         'ERR_FUNCTION_NOT_IMPLEMENTED'],
-      [InvalidArgType('k', 'v', 't'),       'ERR_INVALID_ARG_TYPE'],
-      [InvalidArgValue('k', 'v'),           'ERR_INVALID_ARG_VALUE'],
-      [InvalidArgValue(5, 'v', 'a number'), 'ERR_INVALID_ARG_VALUE'],
-      [InvalidArrayLength('k', 1, 2),       'ERR_INVALID_ARRAY_LENGTH'],
-      [InvalidCallback('c'),                'ERR_INVALID_CALLBACK'],
-      [MissingArgs('n1', 'n2'),             'ERR_MISSING_ARGS'],
-      [MalstructuredData('so bad!'),        'ERR_MALSTRUCTURED_DATA'],
-      [MultipleCallback('cb'),              'ERR_MULTIPLE_CALLBACK'],
-      [ResourceBusy('r'),                   'ERR_RESOURCE_BUSY'],
-      [ResourceNotFound('r'),               'ERR_RESOURCE_NOT_FOUND'],
-      [UnsupportedOperation('op'),          'ERR_UNSUPPORTED_OPERATION'],
+      [ChildProcessError(10, new Error('x')), 'ERR_CHILD_PROCESS_ERR'],
+      [ChildProcessExited(10, 0, null),       'ERR_CHILD_PROCESS_EXITED'],
+      [DuplicateBinding('k', 'v', 'w'),       'ERR_DUPLICATE_BINDING'],
+      [FunctionNotImplemented('m'),           'ERR_FUNCTION_NOT_IMPLEMENTED'],
+      [InvalidArgType('k', 'v', 't'),         'ERR_INVALID_ARG_TYPE'],
+      [InvalidArgValue('k', 'v'),             'ERR_INVALID_ARG_VALUE'],
+      [InvalidArgValue(5, 'v', 'a number'),   'ERR_INVALID_ARG_VALUE'],
+      [InvalidArrayLength('k', 1, 2),         'ERR_INVALID_ARRAY_LENGTH'],
+      [InvalidCallback('c'),                  'ERR_INVALID_CALLBACK'],
+      [MissingArgs('n1', 'n2'),               'ERR_MISSING_ARGS'],
+      [MalstructuredData('so bad!'),          'ERR_MALSTRUCTURED_DATA'],
+      [MultipleCallback('cb'),                'ERR_MULTIPLE_CALLBACK'],
+      [ResourceBusy('r'),                     'ERR_RESOURCE_BUSY'],
+      [ResourceNotFound('r'),                 'ERR_RESOURCE_NOT_FOUND'],
+      [UnsupportedOperation('op'),            'ERR_UNSUPPORTED_OPERATION'],
     ].forEach(([err, code]) => {
       t.is(err.code, code);
     });
@@ -153,6 +157,14 @@ export default harness(__filename, t => {
 
   t.test('.message', t => {
     const arg = null;
+    t.is(ChildProcessError(10, new Error('bad message')).message,
+      'child process 10 raised error: bad message');
+    t.is(ChildProcessExited(10, 0, null).message,
+      'child process 10 exited normally with code "0"');
+    t.is(ChildProcessExited(10, 13, null).message,
+      'child process 10 exited abnormally with code "13"');
+    t.is(ChildProcessExited(10, null, 'SIGALRM').message,
+      'child process 10 exited abnormally with signal "SIGALRM"');
     t.is(FunctionNotImplemented('f').message,
       'function "f" is not implemented');
     t.is(FunctionNotImplemented('f', 'factory function').message,
@@ -194,6 +206,20 @@ export default harness(__filename, t => {
     ].forEach(([err, name]) => {
       t.is(err.name, name);
     });
+
+    t.end();
+  });
+
+  t.test('ChildProcessExited', t => {
+    let x = ChildProcessExited(10, 13, null);
+    t.is(x.pid, 10);
+    t.is(x.exitCode, 13);
+    t.is(x.signal, null);
+
+    x = ChildProcessExited(11, null, 'SIGALRM');
+    t.is(x.pid, 11);
+    t.is(x.exitCode, null);
+    t.is(x.signal, 'SIGALRM');
 
     t.end();
   });
