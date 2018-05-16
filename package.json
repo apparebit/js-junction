@@ -12,14 +12,28 @@
   "devDependencies": {
     "chalk": "2.4.1",
     "eslint": "4.19.1",
+    "eslint-config-prettier": "2.9.0",
     "esm": "3.0.31",
+    "mri": "1.1.1",
     "nyc": "11.7.3",
+    "prettier": "1.12.1",
     "rimraf": "2.6.2",
     "tap": "11.1.5"
   },
   "workspaces": [
     "packages/*"
   ],
+  "prettier": {
+    "printWidth": 80,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "arrowParens": "avoid",
+    "proseWrap": "always"
+  },
   "nyc": {
     "clean": false,
     "require": [
@@ -40,9 +54,12 @@
     ]
   },
   "scripts": {
-    "clean": "node scripts/clean-without-esm.js",
+    "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
+    "pretty": "prettier --write \"**/*.js\"",
+    "clean": "node scripts/clean.js --deep",
     "pretest": "node scripts/clean.js --deep && eslint .",
     "test": "tap --node-arg=-r --node-arg=esm scripts/test.js",
-    "posttest": "node scripts/clean.js && nyc node scripts/test.js --no-tap"
+    "posttest": "node scripts/clean.js && nyc node scripts/test.js --no-tap",
+    "version": "node -r esm scripts/version.js"
   }
 }
