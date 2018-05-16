@@ -2,6 +2,7 @@
 
 import { load } from '../tests/harness';
 import { muteWritable } from '@grr/oddjob/streams';
+import parseArguments from 'mri';
 import { promisify } from 'util';
 import { readdir as doReadDirectory } from 'fs';
 import { resolve } from 'path';
@@ -10,47 +11,42 @@ const { keys: keysOf } = Object;
 const readDirectory = promisify(doReadDirectory);
 const tests = resolve(__dirname, '..', 'tests');
 
-const debug = process.argv.includes('--debug');
-const noTap = process.argv.includes('--no-tap');
+const args = parseArguments(process.argv.slice(2), {
+  default: { trace: false, tap: true },
+});
 
-let chalk; // Loaded dynamically, see beginning of run() below.
+(async function main() {
+  // If node-tap found stdout to be colorful, force chalk to be colorful too.
+  if( process.env.TAP_COLORS === '1' ) process.env.FORCE_COLOR = '1';
+  const highlight = (await load('chalk')).default.blue;
 
-function traceRun(path) {
-  if( debug ) {
-    console.error(chalk.dim.blue(`# Run "${path}"`));
+  // Mute regular tap output if so requested.
+  if( !args.tap ) muteWritable(process.stdout);
+
+  // Determine test module names.
+  const modules = (await readDirectory(tests))
+    .filter(name => name.endsWith('.spec.js'));
+  if( args.trace ) {
+    console.error(highlight(`# found ${modules.map(el => `"${el}"`).join(', ')}.`));
   }
-}
 
-function traceCoverage() {
-  if( debug ) {
-    const cover = global.__coverage__;
-    if( cover ) {
-      for( const key of keysOf(cover) ) {
-        console.error(chalk.cyan(`# Covering "${key}"`));
+  // Dynamically import each module and invoke the default export.
+  for( const name of modules ) {
+    const path = resolve(tests, name);
+    if( args.trace ) {
+      console.error(highlight(`# running "${path}"`));
+    }
+
+    const module = await load(path);
+    await module.default();
+
+    if( args.trace ) {
+      const cover = global.__coverage__;
+      if( cover ) {
+        for( const key of keysOf(cover) ) {
+          console.error(highlight(`# cover for "${key}"`));
+        }
       }
     }
   }
-}
-
-if( noTap ) muteWritable(process.stdout);
-
-async function main() {
-  // stdout is consumed by node-tap and therefore not a TTY stream.
-  // Hence, we need to force color *before* loading chalk.
-  process.env.FORCE_COLOR = '1';
-  chalk = (await load('chalk')).default;
-
-  const modules = (await readDirectory(tests))
-    .filter(name => name.endsWith('.spec.js'));
-
-  for( const name of modules ) {
-    const path = resolve(tests, name);
-    const module = await load(path);
-
-    traceRun(path);
-    await module.default();
-    traceCoverage();
-  }
-}
-
-main();
+})();
