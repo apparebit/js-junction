@@ -1,0 +1,17 @@
+{
+  "name": "@grr/inventory",
+  "description": "Keeping track of modules, packages, and repositories",
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "dependencies": {
+    "@grr/err": "0.1.0",
+    "esm": "3.0.31",
+    "fast-glob": "2.2.1"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/apparebit/js-junction/tree/master/packages/err"
+}

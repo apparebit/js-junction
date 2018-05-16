@@ -5,7 +5,7 @@ JavaScript. While Robert is known as [apparebit](https://github.com/apparebit)
 on GitHub, he uses the onomatopoetic alias [grr](https://www.npmjs.com/~grr) on
 npm. He also [keeps
 notes](https://github.com/apparebit/js-junction/tree/master/notes.md) on his
-experiences with Node.js
+experiences with Node.js.
 
 ## Packages Start With @grr
 
@@ -20,6 +20,9 @@ open source packages:
 
  *  [@grr/oddjob](https://github.com/apparebit/js-junction/tree/master/packages/oddjob):
     Letting you focus on the flying circus.
+
+ *  [@grr/inventory](https://github.com/apparebit/js-junction/tree/master/packages/inventory):
+    Keeping track of modules, packages, and repositories.
 
  *  [@grr/knowledge](https://github.com/apparebit/js-junction/tree/master/packages/knowledge):
     Making the JSON-LD flavor of Schema.org palatable.
