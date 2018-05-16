@@ -3,7 +3,7 @@
 import chalk from 'chalk';
 import { dirname, relative, resolve } from 'path';
 import { EOL } from 'os';
-import { instrumented } from '@grr/oddjob/packages';
+import { originalToInstrumented } from '@grr/inventory';
 import { promisify } from 'util';
 import { readdir as doReadDirectory, readFile as doReadFile } from 'fs';
 
@@ -17,7 +17,7 @@ const readFile = promisify(doReadFile);
 (async function run() {
   const root = resolve(__dirname, '..');
   const pkgs = resolve(root, 'packages');
-  const mapping = await instrumented(root);
+  const mapping = await originalToInstrumented(root);
   const originals = keysOf(mapping).sort();
 
   // *** Print original module name for each instrumented module ***
@@ -34,7 +34,9 @@ const readFile = promisify(doReadFile);
       }
 
       console.error(chalk.black(original));
-      console.error(chalk.gray(`  => ${mapping[original]}`));
+      for( const instrumented of mapping[original] ) {
+        console.error(chalk.gray(`  => ${instrumented}`));
+      }
     }
   }
 
@@ -69,7 +71,7 @@ const readFile = promisify(doReadFile);
     for( const path of [...covered].sort() ) {
       console.error(chalk.black(path));
     }
-
-    console.error();
   }
+
+  console.error();
 })();
