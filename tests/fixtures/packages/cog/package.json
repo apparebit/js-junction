@@ -1,0 +1,7 @@
+{
+  "name": "cog",
+  "private": true,
+  "dependencies": {
+    "clickety-clack": "0.4.2"
+  }
+}

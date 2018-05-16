@@ -1,0 +1,13 @@
+{
+  "name": "gear",
+  "private": true,
+  "peerDependencies": {
+    "clickety-clack": "0.4.2"
+  },
+  "devDependencies": {
+    "clickety-clack": "0.4.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
