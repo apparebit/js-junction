@@ -17,26 +17,31 @@ const remove = pattern => doRemove(pattern, {});
 const deep = argv.includes('--deep');
 
 async function removeNamedDirectories() {
+  // Beware of accidentally deleting the test fixtures via `**/node_modules`!
   let patterns;
   if( !deep ) {
-    patterns = ['**/node_modules/.cache/esm'];
+    patterns = [
+      'node_modules/.cache/esm',
+      'packages/*/node_modules/.cache/esm',
+    ];
   } else {
     patterns = [
       '.nyc_output',
       'coverage',
       'yarn-error.log',
-      '**/node_modules/.cache'
+      'node_modules/.cache',
+      'packages/*/node_modules/.cache',
     ];
   }
 
   await all(patterns.map(pattern => remove(resolve(__dirname, '..', pattern))));
 }
 
+/* eslint-disable global-require */
 async function removeEmptyDirectories() {
-  // Sort the directories from longest path to shortest path. That way, we
-  // always check children before their parents.
-
-  // eslint-disable-next-line global-require
+  // Sort the directories from longest to shortest path so that a child is
+  // always considered before its parent and the child's deletion also enables
+  // the parent's deletion if it is an only child — directory of course.
   const paths = (await require('fast-glob')('packages/*/node_modules/**/', {
     absolute: true,
     cwd: resolve(__dirname, '..'),
