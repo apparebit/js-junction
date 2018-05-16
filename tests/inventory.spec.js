@@ -9,12 +9,10 @@ import {
 
 import { EOL } from 'os';
 import harness from './harness';
-import { MalstructuredData } from '@grr/err';
 import { promisify } from 'util';
 import { resolve } from 'path';
 import { readFile as doReadFile } from 'fs';
 
-const { has } = Reflect;
 const { isArray } = Array;
 const { keys: keysOf } = Object;
 const { parse: parseJSON } = JSON;
@@ -32,7 +30,7 @@ export default harness(__filename, t => {
   }
 
   t.test('manifest()', async function test(t) {
-    await t.rejects(manifest(resolve(root, '..')), {
+    await t.rejects(manifest({ start: resolve(root, '..') }), {
       code: 'ERR_RESOURCE_NOT_FOUND',
     });
 
@@ -56,7 +54,9 @@ export default harness(__filename, t => {
     }
 
     {
-      const { path, text, data, pkgs } = await packages(resolve(pkgdir, 'proact', 'html'));
+      const { path, text, data, pkgs } = await packages({
+        start: resolve(pkgdir, 'proact', 'html')
+      });
 
       t.is(path, resolve(pkgdir, 'proact'));
       t.ok(text.startsWith('{\n  "name": "@grr/proact",\n  '
@@ -70,54 +70,34 @@ export default harness(__filename, t => {
   });
 
   const fixtures = resolve(__dirname, 'fixtures');
+  const gear = resolve(fixtures, 'package.json');
+  const cog = resolve(fixtures, 'packages', 'cog', 'package.json');
   const CLICKETY = 'clickety-clack';
 
   t.test('updateDependency()', async function test(t) {
-    async function manifestAt(path) {
-      const text = await readFile(path, 'utf8');
-      console.log(text);
-      const data = parseJSON(text);
+    await t.rejects(updateDependency('clap-clap', '4.2.0', { start: cog }));
 
-      let version;
-      for( const deps of ['dependencies', 'devDependencies', 'peerDependencies'] ) {
-        if( has(data, deps) && has(data[deps], CLICKETY) ) {
-          const v = data[deps][CLICKETY];
+    const parseFile = async function(path) {
+      return parseJSON(await readFile(path, 'utf8'));
+    };
 
-          if( version == null ) {
-            console.log(`>>>> v${v}`);
-            version = v;
-          } else if( version !== v ) {
-            throw MalstructuredData(`${
-              CLICKETY
-            } has inconsistent versions "${
-              version
-            }" and "${
-              v
-            }"`);
-          }
-        }
-      }
+    const checkManifests = async function() {
+      const gear0 = await parseFile(gear);
+      const cog0 = await parseFile(cog);
 
-      return { text, version };
-    }
+      t.is(gear0.peerDependencies[CLICKETY], '0.4.2');
+      t.is(gear0.devDependencies[CLICKETY], '0.4.2');
+      t.is(cog0.dependencies[CLICKETY], '0.4.2');
+    };
 
-    const gear = resolve(fixtures, 'package.json');
-    const cog = resolve(fixtures, 'packages', 'cog', 'package.json');
+    await checkManifests();
+    await updateDependency('clap-clap', '4.2.0', { start: gear });
 
-    t.is(manifestAt(gear).version, '0.4.2');
-    t.is(manifestAt(cog).version, '0.4.2');
+    await checkManifests();
+    await updateDependency(CLICKETY, '6.6.5', { start: gear });
 
-    await updateDependency('fiction', '6.6.5', {
-      start: fixtures,
-    });
-
-    const m0 = manifestAt(gear);
-    const m1 = manifestAt(cog);
-
-    t.is(m0.version, '6.6.5');
-    t.is(m1.version, '6.6.5');
-
-    t.is(m0.text, [
+    let text = await readFile(gear, 'utf8');
+    t.is(text, [
       '{',
       '  "name": "gear",',
       '  "private": true,',
@@ -131,9 +111,11 @@ export default harness(__filename, t => {
       '    "packages/*"',
       '  ]',
       '}',
+      '',  // Force trailing EOL.
     ].join(EOL));
 
-    t.is(m1.text, [
+    text = await readFile(cog, 'utf8');
+    t.is(text, [
       '{',
       '  "name": "cog",',
       '  "private": true,',
@@ -141,25 +123,26 @@ export default harness(__filename, t => {
       '    "clickety-clack": "6.6.5"',
       '  }',
       '}',
+      '',  // Force trailing EOL.
     ].join(EOL));
 
-    await updateDependency('fiction', '0.4.2', {
-      start: fixtures,
-    });
-
-    t.is(manifestAt(gear).version, '0.4.2');
-    t.is(manifestAt(cog).version, '0.4.2');
+    await updateDependency(CLICKETY, '0.4.2', { start: gear });
+    await checkManifests();
 
     t.end();
   });
 
   t.test('originalToInstrumented()', async function test(t) {
-    const mapping = await originalToInstrumented(fixtures);
-    const originals = keysOf(mapping);
-    t.is(originals.length, 1);
-    t.is(originals[0], '/dev/js-junction/packages/oddjob/index.js');
+    const m1 = await originalToInstrumented({ start: cog });
+    const o1 = keysOf(m1);
+    t.is(o1.length, 0);
 
-    const instrumented = mapping[originals[0]];
+    const m2 = await originalToInstrumented({ start: resolve(fixtures, 'extra') });
+    const o2 = keysOf(m2);
+    t.is(o2.length, 1);
+    t.is(o2[0], '/dev/js-junction/packages/oddjob/index.js');
+
+    const instrumented = m2[o2[0]];
     t.ok(isArray(instrumented));
     t.is(instrumented.length, 3);
 

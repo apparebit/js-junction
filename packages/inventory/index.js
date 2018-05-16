@@ -24,7 +24,7 @@ function glob(pattern, cwd, onlyFiles) {
   });
 }
 
-export async function manifest(start = __dirname) {
+export async function manifest({ start = __dirname } = {}) {
   let path = start;
 
   while(true) {
@@ -45,13 +45,15 @@ export async function manifest(start = __dirname) {
   }
 }
 
-export async function packages(start = __dirname) {
-  const { path, text, data } = await manifest(start);
+export async function packages({ start = __dirname } = {}) {
+  const { path, text, data } = await manifest({ start });
 
   return has(data, 'workspaces')
     ? { path, text, data, pkgs: await glob(data.workspaces, path, false) }
     : { path, text, data };
 }
+
+const DEPENDENCIES = ['dependencies', 'devDependencies', 'peerDependencies'];
 
 export async function updateDependency(name, version, {
   logger = () => {},
@@ -59,34 +61,31 @@ export async function updateDependency(name, version, {
 } = {}) {
   const pattern = new RegExp(`"${name}"\\s*:\\s*"\\d+\\.\\d+\\.\\d+"`, 'gu');
 
-  const { path, text, data, pkgs } = await packages(start);
+  const { path, text, data, pkgs } = await packages({ start });
   if( pkgs == null ) {
     throw ResourceNotFound(`manifest "${path}${sep}package.json" does not define workspaces`);
   }
 
-  const hasName = (data, rel) => has(data, rel) && has(data[rel], name);
-  const appearsIn = data =>
-    hasName(data, 'dependencies')
-    || hasName(data, 'devDependencies')
-    || hasName(data, 'peerDependencies');
-  const update = async function update(path, text, data) {
-    if( appearsIn(data) ) {
-      logger('updating "%s" to "%s" in "%s"', name, version, path);
-      const revised = text.replace(pattern, `"${name}": "${version}"`);
-      await writeFile(path, revised, 'utf8');
-    }
+  const contains = (data, rel) => has(data, rel) && has(data[rel], name);
+  const appearsIn = data => DEPENDENCIES.some(deps => contains(data, deps));
+  const update = (path, text) => {
+    logger('  => update "%s" to "%s"', name, version);
+    const revised = text.replace(pattern, `"${name}": "${version}"`);
+    return writeFile(path, revised, 'utf8');
   };
 
-  // Update the repository's package.json.
-  update(path, text, data);
+  // Do the actual updating.
+  const manifest = resolve(path, 'package.json');
+  logger('check repo manifest "%s"', manifest);
+  if( appearsIn(data) ) await update(manifest, text);
 
-  // Update each package's package.json.
   for( const directory of pkgs ) {
     const path = resolve(directory, 'package.json');
     const text = await readFile(path, 'utf8');
     const data = parse(text);
 
-    update(path, text, data);
+    logger('check package manifest "%s"', path);
+    if( appearsIn(data) ) await update(path, text);
   }
 }
 
@@ -98,18 +97,29 @@ export function originalPath(text) {
   return match != null ? match[1] : null;
 }
 
-export async function originalToInstrumented(root, {
+export async function originalToInstrumented({
   logger = () => {},
+  start = __dirname
 } = {}) {
-  const paths = await glob('**/node_modules/.cache/nyc/*.js', root, true);
+  const { path, pkgs } = await packages({ start });
+
+  const patterns = [];
+  patterns.push(resolve(path, 'node_modules/.cache/nyc/*.js'));
+  if( pkgs != null ) {
+    for( const pkg of pkgs ) {
+      patterns.push(resolve(pkg, 'node_modules/.cache/nyc/*.js'));
+    }
+  }
+
+  const paths = await glob(patterns, path, true);
   const mapping = create(null);
 
   for( const instrumented of paths ) {
-    logger('inspecting "%s"', instrumented);
+    logger('instrumented module "%s"', instrumented);
     const text = await readFile(instrumented, 'utf8');
     const original = originalPath(text);
     if( original ) {
-      logger('  originally "%s"', original);
+      logger('  => original module "%s"', original);
 
       // In a perfect world, we don't expect the same module to be instrumented
       // more than once, i.e., the following condition should never be true.
