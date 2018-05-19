@@ -15,7 +15,6 @@ import { readFile as doReadFile } from 'fs';
 
 const { isArray } = Array;
 const { keys: keysOf } = Object;
-const { parse: parseJSON } = JSON;
 const readFile = promisify(doReadFile);
 
 export default harness(__filename, t => {
@@ -75,81 +74,98 @@ export default harness(__filename, t => {
   const CLICKETY = 'clickety-clack';
 
   t.test('updateDependency()', async function test(t) {
-    await t.rejects(updateDependency('clap-clap', '4.2.0', { start: cog }));
+    // Check that updateDependency() works with default options.
+    const path = resolve(root, 'package.json');
+    const text = await readFile(path, 'utf8');
 
-    const parseFile = async function(path) {
-      return parseJSON(await readFile(path, 'utf8'));
-    };
+    t.is(await updateDependency('@grr/utterly-unknown-package', '13.13.13'), 0);
+    t.is(await readFile(path, 'utf8'), text);
 
-    const checkManifests = async function() {
-      const gear0 = await parseFile(gear);
-      const cog0 = await parseFile(cog);
+    async function checkManifests(version = '0.4.2') {
+      t.is(await readFile(gear, 'utf8'), [
+        '{',
+        '  "name": "gear",',
+        '  "private": true,',
+        '  "peerDependencies": {',
+        `    "clickety-clack": "${version}"`,
+        '  },',
+        '  "devDependencies": {',
+        `    "clickety-clack": "${version}"`,
+        '  },',
+        '  "workspaces": [',
+        '    "packages/*"',
+        '  ]',
+        '}',
+        '',  // Force trailing EOL.
+      ].join(EOL));
 
-      t.is(gear0.peerDependencies[CLICKETY], '0.4.2');
-      t.is(gear0.devDependencies[CLICKETY], '0.4.2');
-      t.is(cog0.dependencies[CLICKETY], '0.4.2');
-    };
+      t.is(await readFile(cog, 'utf8'), [
+        '{',
+        '  "name": "cog",',
+        '  "private": true,',
+        '  "dependencies": {',
+        `    "clickety-clack": "${version}"`,
+        '  }',
+        '}',
+        '',  // Force trailing EOL.
+      ].join(EOL));
+    }
 
+    // Check that manifests have expected content.
     await checkManifests();
-    await updateDependency('clap-clap', '4.2.0', { start: gear });
 
+    // Check that updateDependency() fails for conventional repositories.
+    await t.rejects(updateDependency(CLICKETY, '13.13.13', { start: cog }));
     await checkManifests();
-    await updateDependency(CLICKETY, '6.6.5', { start: gear });
 
-    let text = await readFile(gear, 'utf8');
-    t.is(text, [
-      '{',
-      '  "name": "gear",',
-      '  "private": true,',
-      '  "peerDependencies": {',
-      '    "clickety-clack": "6.6.5"',
-      '  },',
-      '  "devDependencies": {',
-      '    "clickety-clack": "6.6.5"',
-      '  },',
-      '  "workspaces": [',
-      '    "packages/*"',
-      '  ]',
-      '}',
-      '',  // Force trailing EOL.
-    ].join(EOL));
+    // Check that updateDependency() has no effect for unknown package.
+    t.is(await updateDependency('clap-clap', '4.2.0', { start: gear }), 0);
+    await checkManifests();
 
-    text = await readFile(cog, 'utf8');
-    t.is(text, [
-      '{',
-      '  "name": "cog",',
-      '  "private": true,',
-      '  "dependencies": {',
-      '    "clickety-clack": "6.6.5"',
-      '  }',
-      '}',
-      '',  // Force trailing EOL.
-    ].join(EOL));
+    // Check that updateDependency() has expected effect for known package.
+    t.is(await updateDependency(CLICKETY, '6.6.5', { start: gear }), 2);
+    await checkManifests('6.6.5');
 
-    await updateDependency(CLICKETY, '0.4.2', { start: gear });
+    // Restore original state.
+    t.is(await updateDependency(CLICKETY, '0.4.2', { start: gear }), 2);
     await checkManifests();
 
     t.end();
   });
 
   t.test('originalToInstrumented()', async function test(t) {
-    const m1 = await originalToInstrumented({ start: cog });
-    const o1 = keysOf(m1);
-    t.is(o1.length, 0);
+    {
+      // Ensure coverage for default parameters.
+      const mappings = await originalToInstrumented();
+      t.ok(mappings);
+      t.is(typeof mappings, 'object');
+    }
 
-    const m2 = await originalToInstrumented({ start: resolve(fixtures, 'extra') });
-    const o2 = keysOf(m2);
-    t.is(o2.length, 1);
-    t.is(o2[0], '/dev/js-junction/packages/oddjob/index.js');
+    {
+      // Manifest in closest ancestor does not have workspaces; its directory does
+      // not contain node_modules. Hence, there are no files cached by nyc.
+      const mapping = await originalToInstrumented({ start: cog });
+      const originals = keysOf(mapping);
+      t.is(originals.length, 0);
+    }
 
-    const instrumented = m2[o2[0]];
-    t.ok(isArray(instrumented));
-    t.is(instrumented.length, 3);
+    {
+      // Manifest in closest ancestor does have workspaces; its directory does
+      // have node_modules, with three instrumented files.
+      const mapping = await originalToInstrumented({ start: resolve(fixtures, 'extra') });
+      const originals = keysOf(mapping);
+      t.is(originals.length, 1);
+      t.is(originals[0], '/dev/js-junction/packages/oddjob/index.js');
 
-    const path = resolve(fixtures, 'node_modules', '.cache', 'nyc', 'instrumented.');
-    t.ok(instrumented.includes(`${path}1.js`));
-    t.ok(instrumented.includes(`${path}2.js`));
-    t.ok(instrumented.includes(`${path}3.js`));
+      const instrumented = mapping[originals[0]];
+      t.ok(isArray(instrumented));
+      t.is(instrumented.length, 3);
+
+      const path = resolve(fixtures, 'node_modules', '.cache', 'nyc', 'instrumented.');
+      t.ok(instrumented.includes(`${path}1.js`));
+      t.ok(instrumented.includes(`${path}2.js`));
+      t.ok(instrumented.includes(`${path}3.js`));
+    }
 
     t.end();
   });
