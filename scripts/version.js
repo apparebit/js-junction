@@ -20,12 +20,17 @@ if( !/^\d+\.\d+.\d+$/u.test(version) ) {
   process.exit(13); // eslint-disable-line no-process-exit
 }
 
-if( args.debug ) {
-  updateDependency(name, version, {
-    logger(...args) {
-      console.error(chalk.grey(`# ${format(...args)}`));
-    }
-  });
-} else {
-  updateDependency(name, version);
-}
+(async function main() {
+  let count;
+  if( args.debug ) {
+    count = await updateDependency(name, version, {
+      logger(...args) {
+        console.error(chalk.grey(`# ${format(...args)}`));
+      }
+    });
+  } else {
+    count = await updateDependency(name, version);
+  }
+
+  if( count ) console.error(chalk.green(`Updated ${count} manifest(s)`));
+})();
