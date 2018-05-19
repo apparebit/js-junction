@@ -75,9 +75,14 @@ export async function updateDependency(name, version, {
   };
 
   // Do the actual updating.
+  let count = 0;
+
   const manifest = resolve(path, 'package.json');
   logger('check repo manifest "%s"', manifest);
-  if( appearsIn(data) ) await update(manifest, text);
+  if( appearsIn(data) ) {
+    await update(manifest, text);
+    count++;
+  }
 
   for( const directory of pkgs ) {
     const path = resolve(directory, 'package.json');
@@ -85,8 +90,13 @@ export async function updateDependency(name, version, {
     const data = parse(text);
 
     logger('check package manifest "%s"', path);
-    if( appearsIn(data) ) await update(path, text);
+    if( appearsIn(data) ) {
+      await update(path, text);
+      count++;
+    }
   }
+
+  return count;
 }
 
 const ORIGINAL_PATH =
