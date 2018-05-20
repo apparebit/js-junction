@@ -1,6 +1,12 @@
 {
   "name": "@grr/inventory",
   "description": "Keeping track of modules, packages, and repositories",
+  "keywords": [
+    "module",
+    "package",
+    "repository",
+    "storage layout"
+  ],
   "version": "0.1.0",
   "author": "Robert Grimm",
   "license": "MIT",

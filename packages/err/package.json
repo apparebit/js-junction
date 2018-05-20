@@ -1,6 +1,12 @@
 {
   "name": "@grr/err",
   "description": "The joy of refined errors — with code, pun, and Oxford comma",
+  "keywords": [
+    "error",
+    "error code",
+    "cause of error",
+    "causal error chain"
+  ],
   "version": "0.1.0",
   "author": "Robert Grimm",
   "license": "MIT",

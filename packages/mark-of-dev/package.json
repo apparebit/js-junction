@@ -3,7 +3,11 @@
   "description": "Advancing the globalization of __DEV__",
   "keywords": [
     "development",
-    "production"
+    "dev",
+    "production",
+    "prod",
+    "realm",
+    "environment"
   ],
   "version": "0.1.0",
   "author": "Robert Grimm",
