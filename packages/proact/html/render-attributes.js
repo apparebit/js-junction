@@ -21,7 +21,7 @@ const {
 // -------------------------------------------------------------------------------------------------
 
 function formatKeyBoolean(key, value) {
-  return value ? `${key}=true` : `${key}=false`;
+  return `${key}=${Boolean(value)}`;
 }
 
 function formatKeyToken(key, value) {
