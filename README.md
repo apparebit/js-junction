@@ -30,6 +30,9 @@ open source packages:
  *  [@grr/proact](https://github.com/apparebit/js-junction/tree/master/packages/proact):
     Making server-side rendering great again.
 
+ *  [@grr/sequitur](https://github.com/apparebit/js-junction/tree/master/packages/sequitur):
+    Refined iterators, iterables, and generator functions.
+
 All these packages have 100% test coverage across statements, branches,
 functions, and lines alike. Anything less would be uncivilized — and a tad
 reckless for a dynamically typed programming language!

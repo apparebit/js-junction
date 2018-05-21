@@ -1,0 +1,26 @@
+{
+  "name": "@grr/sequitur",
+  "description": "Refined iterators, iterables, and generator functions",
+  "keywords": [
+    "iterable",
+    "iterator",
+    "generator function",
+    "generator",
+    "expressive",
+    "lazy",
+    "higher-order function",
+    "sequence",
+    "functional"
+  ],
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "dependencies": {
+    "esm": "3.0.31"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/apparebit/js-junction/tree/master/packages/sequitur"
+}
