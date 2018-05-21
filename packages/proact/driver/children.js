@@ -1,6 +1,6 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-import { isIterable } from '@grr/oddjob/iteration';
+import { isIterable } from '@grr/sequitur/types';
 
 const { isArray } = Array;
 const { isNaN } = Number;
