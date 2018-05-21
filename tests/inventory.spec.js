@@ -11,10 +11,11 @@ import { EOL } from 'os';
 import harness from './harness';
 import { promisify } from 'util';
 import { resolve } from 'path';
-import { readFile as doReadFile } from 'fs';
+import { readdir as doReadDirectory, readFile as doReadFile } from 'fs';
 
 const { isArray } = Array;
 const { keys: keysOf } = Object;
+const readDirectory = promisify(doReadDirectory);
 const readFile = promisify(doReadFile);
 
 export default harness(__filename, t => {
@@ -43,13 +44,15 @@ export default harness(__filename, t => {
       const { path, text, data, pkgs } = await packages();
 
       checkMainManifest(t, path, text, data);
-      t.is(pkgs.length, 6);
+      const pkgNames = (await readDirectory(pkgdir)).filter(entry => entry[0] !== '.');
+      t.is(pkgs.length, pkgNames.length);
       t.ok(pkgs.includes(resolve(pkgdir, 'err')));
       t.ok(pkgs.includes(resolve(pkgdir, 'inventory')));
       t.ok(pkgs.includes(resolve(pkgdir, 'knowledge')));
       t.ok(pkgs.includes(resolve(pkgdir, 'mark-of-dev')));
       t.ok(pkgs.includes(resolve(pkgdir, 'oddjob')));
       t.ok(pkgs.includes(resolve(pkgdir, 'proact')));
+      t.ok(pkgs.includes(resolve(pkgdir, 'sequitur')));
     }
 
     {
