@@ -10,9 +10,6 @@ import {
   escapeScript,
   hyphenate,
   isAttributeQuoted,
-  isIterable,
-  isIterator,
-  IteratorPrototype,
   maybe,
   memoize,
   muteWritable,
@@ -30,9 +27,6 @@ import {
 import Emitter from 'events';
 import harness from './harness';
 import { Writable } from 'stream';
-
-const { create } = Object;
-const { iterator } = Symbol;
 
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 
@@ -114,70 +108,6 @@ export default harness(__filename, t => {
       t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c'), void 0);
       t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c.d'), void 0);
 
-      t.end();
-    });
-
-    t.end();
-  });
-
-  t.test('iteration', t => {
-    t.test('.isIterable()', t => {
-      t.notOk(isIterable(void 0));
-      t.notOk(isIterable(null));
-      t.notOk(isIterable(false));
-      t.notOk(isIterable(true));
-      t.notOk(isIterable(665));
-      t.notOk(isIterable({}));
-
-      t.ok(isIterable(''));
-      t.ok(isIterable([]));
-      t.ok(isIterable((function* gen() {})()));
-      t.ok(isIterable(new Map()));
-      t.ok(isIterable(new Set()));
-
-      t.ok(isIterable({
-        [iterator]() { return { next() { return { done: true }; }}; },
-      }));
-
-      t.ok(isIterable({
-        [iterator]() { return this; },
-        next() { return { done: true }; },
-      }));
-
-      t.end();
-    });
-
-    t.test('.isIterator()', t => {
-      t.notOk(isIterator(void 0));
-      t.notOk(isIterator(null));
-      t.notOk(isIterator(false));
-      t.notOk(isIterator(true));
-      t.notOk(isIterator(665));
-      t.notOk(isIterator({}));
-
-      t.ok(isIterator(''[iterator]()));
-      t.ok(isIterator([][iterator]()));
-      t.ok(isIterator((function* gen() {})()));
-
-      t.ok(isIterator({
-        [iterator]() { return { next() { return { done: true }; }}; },
-      }[iterator]()));
-
-      t.ok(isIterator({
-        [iterator]() { return this; },
-        next() { return { done: true }; },
-      }));
-
-      t.end();
-    });
-
-    t.test('.IteratorPrototype()', t => {
-      const iter = create(IteratorPrototype, {
-        next: { value: () => ({ done: true })}
-      });
-
-      t.ok(isIterable(iter));
-      t.ok(isIterator(iter));
       t.end();
     });
 

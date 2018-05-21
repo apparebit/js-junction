@@ -15,12 +15,6 @@ export {
 } from './descriptors';
 
 export {
-  isIterable,
-  isIterator,
-  IteratorPrototype,
-} from './iteration';
-
-export {
   deobjectify,
   maybe,
   memoize,
