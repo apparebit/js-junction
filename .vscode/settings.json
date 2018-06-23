@@ -1,4 +1,12 @@
 {
+  "editor.formatOnSave": false,
+  "[javascript]": {
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.formatOnSave": true
+  },
+  "cSpell.allowCompoundWords": true,
   "cSpell.words": [
     "ASTs",
     "Sequitur's",
@@ -40,7 +48,9 @@
     "initializations",
     "ismap",
     "itemscope",
+    "iterable's",
     "iterator's",
+    "iterfact",
     "json-ld",
     "json-ld's",
     "jsonld",
@@ -75,6 +85,7 @@
     "unpublishing",
     "vdom",
     "woff",
-    "workspaces"
+    "workspaces",
+    "xform"
   ]
 }
