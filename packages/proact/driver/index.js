@@ -2,7 +2,7 @@
 
 import assert from 'assert';
 import { InvalidArgType, InvalidArgValue, ResourceBusy } from '@grr/err';
-import { isIterable } from '@grr/sequitur/types';
+import { isIterable } from '@grr/sequitur/iterations';
 import { next, pushAll } from './children';
 import { setDriver } from './hook';
 import { value } from '@grr/oddjob/descriptors';
