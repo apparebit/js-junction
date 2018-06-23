@@ -1,5 +1,13 @@
 module.exports = {
   root: true,
+  extends: [
+    'eslint:recommended',
+
+    // Prettier's configuration comes last, so that it can properly override
+    // rules. It also enables eslint-plugin-prettier and sets the
+    // 'prettier/prettier' rule to error.
+    'plugin:prettier/recommended',
+  ],
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -12,11 +20,6 @@ module.exports = {
     es6: true,
     node: true,
   },
-  plugins: ['prettier'],
-  extends: [
-    'eslint:recommended',
-    'prettier', // Be last!
-  ],
   rules: {
     'accessor-pairs': 'error',
     'array-callback-return': 'error',
@@ -234,8 +237,5 @@ module.exports = {
         onlyEquality: true,
       },
     ],
-
-    // Plugin Rules
-    'prettier/prettier': 'error',
   },
 };
