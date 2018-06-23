@@ -6,25 +6,8 @@
 // condition and applications need not test error messages anymore.
 
 const { defineProperty } = Object;
-
-// Reuse Node.js' symbol both in honor of the Node.js module
-// and in defiance of the Node.js module being internal! 😈
-let sym;
-try {
-  Buffer.from();
-} catch(x) {
-  sym = Object.getOwnPropertySymbols(x);
-}
-
-/* istanbul ignore else since it provides fallback when extraction fails. */
-if( sym.length === 1 ) {
-  [sym] = sym;
-} else {
-  sym = Symbol('code');
-}
-
 const CAUSE = Symbol('cause');
-const CODE = sym;
+const CODE = Symbol('code');
 
 function constant(value) {
   return {
