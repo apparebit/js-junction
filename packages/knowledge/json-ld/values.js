@@ -24,8 +24,8 @@ const { isArray } = Array;
 export function forEachPropertyValue(object, key, callback) {
   const values = object[key];
 
-  if( isArray(values) ) {
-    for( let index = 0; index < values.length; index++ ) {
+  if (isArray(values)) {
+    for (let index = 0; index < values.length; index++) {
       callback(values[index], index, values, key, object);
     }
   } else {
@@ -44,16 +44,18 @@ export function forEachPropertyValue(object, key, callback) {
  * @returns {boolean}
  */
 export function areEqual(value1, value2) {
-  if( isPrimitive(value1) || isPrimitive(value2) ) {
+  if (isPrimitive(value1) || isPrimitive(value2)) {
     return is(value1, value2);
-  } else if( isInvalid(value1) || isInvalid(value2) ) {
+  } else if (isInvalid(value1) || isInvalid(value2)) {
     return false;
-  } else if( isValue(value1) || isValue(value2) ) {
+  } else if (isValue(value1) || isValue(value2)) {
     // @value object values are null, boolean, number, or string.
     // `===` doesn't do the right thing for NaN, whereas `is()` does.
-    return is(value1['@value'], value2['@value'])
-      && value1['@type'] === value2['@type']
-      && value1['@language'] === value2['@language'];
+    return (
+      is(value1['@value'], value2['@value']) &&
+      value1['@type'] === value2['@type'] &&
+      value1['@language'] === value2['@language']
+    );
   } else {
     // To appear in more than one property, a node must be referencable
     // and therefore must have proper `@id`, which equals itself (duh).
@@ -74,42 +76,52 @@ export function areEqual(value1, value2) {
  *   string, a node reference, or a @value object.
  */
 export function addPropertyValue(node, key, value) {
-  if( kindOf(node) !== 'node' ) {
+  if (kindOf(node) !== 'node') {
     throw InvalidArgValue({ node }, 'is not a JSON-LD node');
-  } else if( typeof key !== 'string' ) {
+  } else if (typeof key !== 'string') {
     throw InvalidArgType({ key }, 'a string');
   }
 
   const kind = kindOf(value);
-  if( kind === 'primitive' ) {
+  if (kind === 'primitive') {
     // Nothing to do.
-  } else if( kind === 'reference' ) {
+  } else if (kind === 'reference') {
     const { '@id': id } = value;
-    if( typeof id !== 'string' ) {
-      throw InvalidArgValue({ value }, 'is a reference with non-string identifier');
-    } else if( id.startsWith('_:') ) {
-      throw InvalidArgValue({ value }, 'is a reference with unsupported blank identifier');
+    if (typeof id !== 'string') {
+      throw InvalidArgValue(
+        { value },
+        'is a reference with non-string identifier',
+      );
+    } else if (id.startsWith('_:')) {
+      throw InvalidArgValue(
+        { value },
+        'is a reference with unsupported blank identifier',
+      );
     }
-  } else if( kind === 'value' ) {
-    if( kindOf(value['@value']) !== 'primitive' ) {
-      throw InvalidArgValue({ value },
-        'is an invalid @value due not having null, a boolean, a number, or a string as value');
-    } else if( keysOf(value).length === 1 ) {
+  } else if (kind === 'value') {
+    if (kindOf(value['@value']) !== 'primitive') {
+      throw InvalidArgValue(
+        { value },
+        'is an invalid @value due not having null, a boolean, a number, or a string as value',
+      );
+    } else if (keysOf(value).length === 1) {
       value = value['@value'];
     }
   } else {
-    throw InvalidArgValue({ value },
-      'should be a null, a boolean, a number, a string, a @value, or a node reference');
+    throw InvalidArgValue(
+      { value },
+      'should be a null, a boolean, a number, a string, a @value, or a node reference',
+    );
   }
 
   const old = node[key];
-  if( !(key in node) ) {
+  if (!(key in node)) {
     node[key] = value;
-  } else if( !isArray(old) ) {
-    if( !areEqual(old, value) ) {
+  } else if (!isArray(old)) {
+    if (!areEqual(old, value)) {
       node[key] = [old, value];
     }
-  } else if( old.every(element => !areEqual(element, value)) ) {
+  } else if (old.every(element => !areEqual(element, value))) {
     old.push(value);
   }
 }

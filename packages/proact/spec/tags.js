@@ -13,17 +13,17 @@ const Tag = create(null);
 
   // The many ways of expressing boolean values, optionally including bottom.
   'HTML.Attribute.OnOff',
-  'HTML.Attribute.PresentAbsent',       // A "boolean attribute" in HTML5.
+  'HTML.Attribute.PresentAbsent', // A "boolean attribute" in HTML5.
   'HTML.Attribute.TrueFalse',
-  'HTML.Attribute.TrueFalseMixed',      // A "tristate" value in ARIA.
-  'HTML.Attribute.TrueFalseUndefined',  // ARIA.
+  'HTML.Attribute.TrueFalseMixed', // A "tristate" value in ARIA.
+  'HTML.Attribute.TrueFalseUndefined', // ARIA.
   'HTML.Attribute.YesNo',
 
   'HTML.Content.ContainsPhrasing',
-  'HTML.Content.RawText',               // <script> and <style>.
-  'HTML.Content.EscapableRawText',      // <title> and <textarea>.
+  'HTML.Content.RawText', // <script> and <style>.
+  'HTML.Content.EscapableRawText', // <title> and <textarea>.
   'HTML.Content.Transparent',
-  'HTML.Content.Unspecified',           // Placeholder due to incomplete modelling.
+  'HTML.Content.Unspecified', // Placeholder due to incomplete modelling.
   'HTML.Content.Void',
 ].forEach(path => {
   withKeyPath(Tag, path, (object, key) => {

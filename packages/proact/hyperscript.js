@@ -20,18 +20,21 @@ const { has, get, set } = Reflect;
  */
 function h(type, ...args) {
   const kind = typeof type;
-  if( kind === 'string' ) {
+  if (kind === 'string') {
     return Element(type, ...args);
-  } else if( kind === 'function' ) {
+  } else if (kind === 'function') {
     return type(...args);
   } else {
-    throw InvalidArgValue({ type }, 'should be an element name or component constructor');
+    throw InvalidArgValue(
+      { type },
+      'should be an element name or component constructor',
+    );
   }
 }
 
 export default new Proxy(h, {
   get(target, key, receiver) {
-    if( has(target, key) ) {
+    if (has(target, key)) {
       return get(target, key, receiver);
     } else {
       const factory = function factory(...args) {
@@ -41,5 +44,5 @@ export default new Proxy(h, {
       set(target, key, factory);
       return factory;
     }
-  }
+  },
 });

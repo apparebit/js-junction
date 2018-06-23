@@ -9,12 +9,12 @@ const { create, defineProperty } = Object;
 const { toStringTag } = Symbol;
 
 export default function Element(...args) {
-  if( !new.target ) return new Element(...args);
+  if (!new.target) return new Element(...args);
 
   // 1st argument must be the element name.
-  if( args.length === 0 ) {
+  if (args.length === 0) {
     throw MissingArgs('name');
-  } else if( typeof args[0] !== 'string' ) {
+  } else if (typeof args[0] !== 'string') {
     throw InvalidArgType('name', args[0], 'a string');
   }
   this.name = args.shift();

@@ -2,7 +2,7 @@
 
 const { isArray } = Array;
 const { keys: keysOf } = Object;
-const { stringify } =  JSON;
+const { stringify } = JSON;
 
 const WHITESPACE = /[\t\n\f\r ]+/g;
 export function normalizeWhitespace(text) {
@@ -11,11 +11,9 @@ export function normalizeWhitespace(text) {
 
 const DEHYPHENATABLE = /(-[a-z])/g;
 export function dehyphenate(name) {
-  return String(name)
-    .replace(DEHYPHENATABLE, fragment =>
-      fragment
-        .charAt(1)
-        .toUpperCase());
+  return String(name).replace(DEHYPHENATABLE, fragment =>
+    fragment.charAt(1).toUpperCase(),
+  );
 }
 
 const HYPHENATABLE = /([A-Z])/g;
@@ -49,12 +47,15 @@ export function isAttributeQuoted(value) {
 const ATTRIBUTE_ESCAPES = {
   '"': '&quot;',
   '&': '&amp;',
-  '\'': '&#x27;',
+  "'": '&#x27;',
   '<': '&lt;',
   '>': '&gt;',
   '`': '&#x60;',
 };
-const ATTRIBUTE_ESCAPABLE = new RegExp(`[${keysOf(ATTRIBUTE_ESCAPES).join('')}]`, 'g');
+const ATTRIBUTE_ESCAPABLE = new RegExp(
+  `[${keysOf(ATTRIBUTE_ESCAPES).join('')}]`,
+  'g',
+);
 export function escapeAttribute(text) {
   return String(text).replace(ATTRIBUTE_ESCAPABLE, c => ATTRIBUTE_ESCAPES[c]);
 }
@@ -70,30 +71,24 @@ export function escapeScript(text) {
 }
 
 export function toStableJSON(value) {
-  if( value && typeof value.toJSON === 'function' ) {
+  if (value && typeof value.toJSON === 'function') {
     value = value.toJSON();
   }
 
-  if( value == null || typeof value !== 'object' ) {
+  if (value == null || typeof value !== 'object') {
     // Defer to standard-issue JSON.stringify()
     return stringify(value);
-
-  } else if( isArray(value) ) {
-    return `[${
-      value.map(el => toStableJSON(el) || 'null').join(',')
-    }]`;
-
+  } else if (isArray(value)) {
+    return `[${value.map(el => toStableJSON(el) || 'null').join(',')}]`;
   } else {
     const properties = [];
 
-    for( const key of keysOf(value).sort() ) {
+    for (const key of keysOf(value).sort()) {
       const v = toStableJSON(value[key]);
-      if( v ) properties.push(`${toStableJSON(key)}:${v}`);
+      if (v) properties.push(`${toStableJSON(key)}:${v}`);
     }
 
-    return `{${
-      properties.join(',')
-    }}`;
+    return `{${properties.join(',')}}`;
   }
 }
 

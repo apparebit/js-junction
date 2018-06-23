@@ -12,14 +12,14 @@ const PREFIXES = {
 };
 
 export function toSiteAndAccount(url) {
-  if( url.endsWith('/') ) url = url.slice(0, -1);
+  if (url.endsWith('/')) url = url.slice(0, -1);
 
-  for( const site of keysOf(PREFIXES) ) {
+  for (const site of keysOf(PREFIXES)) {
     const prefix = PREFIXES[site];
 
-    if( url.startsWith(prefix) ) {
+    if (url.startsWith(prefix)) {
       const account = url.slice(prefix.length);
-      if( account ) return { site, account };
+      if (account) return { site, account };
     }
   }
 

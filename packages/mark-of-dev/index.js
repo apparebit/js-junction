@@ -9,11 +9,11 @@
 /* eslint-disable no-var, strict */
 'use strict';
 
-if( !('__DEV__' in global) ) {
+if (!('__DEV__' in global)) {
   var dev = true;
 
   var label = (process.env.NODE_ENV || '').toLowerCase();
-  if( label === 'prod' || label === 'production' ) {
+  if (label === 'prod' || label === 'production') {
     process.env.NODE_ENV = 'production';
     dev = false;
   }
@@ -22,6 +22,6 @@ if( !('__DEV__' in global) ) {
     configurable: false,
     enumerable: false,
     value: dev,
-    writable: false
+    writable: false,
   });
 }

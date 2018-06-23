@@ -15,7 +15,8 @@ function isGraphView(entity) {
 
 function unsupported() {
   throw UnsupportedOperation(
-    `${PACKAGE}'s graph view is read-only and prevents modification`);
+    `${PACKAGE}'s graph view is read-only and prevents modification`,
+  );
 }
 
 /**
@@ -34,24 +35,31 @@ export default function addGraphView(corpus) {
 
   const wrap = value => {
     const type = typeof value;
-    if( value == null || (type !== 'object' && type !== 'function') || isGraphView(value) ) {
+    if (
+      value == null ||
+      (type !== 'object' && type !== 'function') ||
+      isGraphView(value)
+    ) {
       return value;
     }
 
     let wrapped = wrappers.get(value);
-    if( wrapped != null ) return wrapped;
+    if (wrapped != null) return wrapped;
 
     // Note that property descriptors cannot possibly be linked data and thus do
     // not need resolution, though call results, properties, and prototypes may
     // be and thus need resolution.
     wrapped = new Proxy(value, {
-      apply:
-        (target, that, args) => wrap(corpus.resolve(apply(target, that, args))),
+      apply: (target, that, args) =>
+        wrap(corpus.resolve(apply(target, that, args))),
       construct: unsupported,
       defineProperty: unsupported,
       deleteProperty: unsupported,
-      get: (target, key, receiver) => { // eslint-disable-line arrow-body-style
-        return key !== SECRET ? wrap(corpus.resolve(get(target, key, receiver))) : true;
+      // eslint-disable-next-line arrow-body-style
+      get: (target, key, receiver) => {
+        return key !== SECRET
+          ? wrap(corpus.resolve(get(target, key, receiver)))
+          : true;
       },
       getOwnPropertyDescriptor: (target, key) => {
         // For unclear reasons, wrapping a property descriptor does not work;
@@ -61,9 +69,9 @@ export default function addGraphView(corpus) {
         // modify the descriptor in place, setting the `value` and `get`
         // properties to wrapped versions and `set` to `undefined`.
         const descriptor = getOwnPropertyDescriptor(target, key);
-        if( descriptor == null ) return descriptor;
+        if (descriptor == null) return descriptor;
 
-        if( 'value' in descriptor ) {
+        if ('value' in descriptor) {
           descriptor.value = wrap(descriptor.value);
         } else {
           descriptor.get = wrap(descriptor.get);
@@ -71,7 +79,7 @@ export default function addGraphView(corpus) {
         }
         return descriptor;
       },
-      getPrototypeOf: (target) => wrap(corpus.resolve(getPrototypeOf(target))),
+      getPrototypeOf: target => wrap(corpus.resolve(getPrototypeOf(target))),
       // has: pass-through,
       // isExtensible: pass-through
       // ownKeys: pass-through,
@@ -84,15 +92,19 @@ export default function addGraphView(corpus) {
     return wrapped;
   };
 
-  defineProperty(corpus, 'graph', nonenumerable(function graph(id) {
-    return this.has(id) ? wrap(this.get(id)) : null;
-  }));
+  defineProperty(
+    corpus,
+    'graph',
+    nonenumerable(function graph(id) {
+      return this.has(id) ? wrap(this.get(id)) : null;
+    }),
+  );
 
   /* istanbul ignore else since we don't test in production. */
-  if( __DEV__ ) defineProperty(corpus, 'wrap', nonenumerable(wrap));
+  if (__DEV__) defineProperty(corpus, 'wrap', nonenumerable(wrap));
 
   const { constructor: Knowledge } = corpus;
-  if( 'isGraphView' in Knowledge ) return;
+  if ('isGraphView' in Knowledge) return;
 
   defineProperty(Knowledge, 'isGraphView', nonenumerable(isGraphView));
 }

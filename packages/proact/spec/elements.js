@@ -15,7 +15,7 @@ const HTML = new Map();
 
 function addType(type) {
   return function toTagName(tag) {
-    if( !HTML.has(tag) ) HTML.set(tag, []);
+    if (!HTML.has(tag)) HTML.set(tag, []);
     HTML.get(tag).push(type);
   };
 }
@@ -158,9 +158,9 @@ function toTag(value) {
 function hasType(tag, ...types) {
   const actual = HTML.get(String(tag).toLowerCase());
 
-  if( actual ) {
-    for( const type of types ) {
-      if( actual.includes(type) ) return true;
+  if (actual) {
+    for (const type of types) {
+      if (actual.includes(type)) return true;
     }
   }
 

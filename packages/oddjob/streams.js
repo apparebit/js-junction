@@ -4,9 +4,9 @@ export function muteWritable(stream) {
   const { write } = stream;
 
   stream.write = (chunk, encoding, callback) => {
-    if( typeof encoding === 'function' ) {
+    if (typeof encoding === 'function') {
       encoding();
-    } else if( typeof callback === 'function' ) {
+    } else if (typeof callback === 'function') {
       callback();
     }
 

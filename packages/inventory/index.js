@@ -27,9 +27,10 @@ function glob(pattern, cwd, onlyFiles) {
 export async function manifest({ start = __dirname } = {}) {
   let path = start;
 
-  while(true) {
+  while (true) {
     const parent = dirname(path);
-    if( parent === path ) throw ResourceNotFound(`no "package.json" above "${start}"`);
+    if (parent === path)
+      throw ResourceNotFound(`no "package.json" above "${start}"`);
     path = parent;
 
     try {
@@ -38,9 +39,9 @@ export async function manifest({ start = __dirname } = {}) {
       const text = await readFile(resolve(path, 'package.json'), 'utf8');
       const data = parse(text);
       return { path, text, data };
-    } catch(x) {
+    } catch (x) {
       /* istanbul ignore if or we need to inject errors into readFile(). */
-      if( x.code !== 'ENOENT' ) throw x;
+      if (x.code !== 'ENOENT') throw x;
     }
   }
 }
@@ -55,15 +56,18 @@ export async function packages({ start = __dirname } = {}) {
 
 const DEPENDENCIES = ['dependencies', 'devDependencies', 'peerDependencies'];
 
-export async function updateDependency(name, version, {
-  logger = () => {},
-  start = __dirname,
-} = {}) {
+export async function updateDependency(
+  name,
+  version,
+  { logger = () => {}, start = __dirname } = {},
+) {
   const pattern = new RegExp(`"${name}"\\s*:\\s*"\\d+\\.\\d+\\.\\d+"`, 'gu');
 
   const { path, text, data, pkgs } = await packages({ start });
-  if( pkgs == null ) {
-    throw ResourceNotFound(`manifest "${path}${sep}package.json" does not define workspaces`);
+  if (pkgs == null) {
+    throw ResourceNotFound(
+      `manifest "${path}${sep}package.json" does not define workspaces`,
+    );
   }
 
   const contains = (data, rel) => has(data, rel) && has(data[rel], name);
@@ -79,18 +83,18 @@ export async function updateDependency(name, version, {
 
   const manifest = resolve(path, 'package.json');
   logger('check repo manifest "%s"', manifest);
-  if( appearsIn(data) ) {
+  if (appearsIn(data)) {
     await update(manifest, text);
     count++;
   }
 
-  for( const directory of pkgs ) {
+  for (const directory of pkgs) {
     const path = resolve(directory, 'package.json');
     const text = await readFile(path, 'utf8');
     const data = parse(text);
 
     logger('check package manifest "%s"', path);
-    if( appearsIn(data) ) {
+    if (appearsIn(data)) {
       await update(path, text);
       count++;
     }
@@ -99,8 +103,7 @@ export async function updateDependency(name, version, {
   return count;
 }
 
-const ORIGINAL_PATH =
-  /var cov_\w+=function\(\)\{var path='(([^\\']|\\.)*)',/u;
+const ORIGINAL_PATH = /var cov_\w+=function\(\)\{var path='(([^\\']|\\.)*)',/u;
 
 export function originalPath(text) {
   const match = ORIGINAL_PATH.exec(text);
@@ -109,14 +112,14 @@ export function originalPath(text) {
 
 export async function originalToInstrumented({
   logger = () => {},
-  start = __dirname
+  start = __dirname,
 } = {}) {
   const { path, pkgs } = await packages({ start });
 
   const patterns = [];
   patterns.push(resolve(path, 'node_modules/.cache/nyc/*.js'));
-  if( pkgs != null ) {
-    for( const pkg of pkgs ) {
+  if (pkgs != null) {
+    for (const pkg of pkgs) {
       patterns.push(resolve(pkg, 'node_modules/.cache/nyc/*.js'));
     }
   }
@@ -124,18 +127,18 @@ export async function originalToInstrumented({
   const paths = await glob(patterns, path, true);
   const mapping = create(null);
 
-  for( const instrumented of paths ) {
+  for (const instrumented of paths) {
     logger('instrumented module "%s"', instrumented);
     const text = await readFile(instrumented, 'utf8');
     const original = originalPath(text);
-    if( original ) {
+    if (original) {
       logger('  => original module "%s"', original);
 
       // In a perfect world, we don't expect the same module to be instrumented
       // more than once, i.e., the following condition should never be true.
       // However, to be effective as a debugging aid, this function must assume
       // the opposite, i.e., that the constraint may be violated in practice.
-      if( has(mapping, original) ) {
+      if (has(mapping, original)) {
         mapping[original].push(instrumented);
       } else {
         mapping[original] = [instrumented];

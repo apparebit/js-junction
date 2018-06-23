@@ -15,7 +15,7 @@ export function value(value, overrides = null) {
     configurable: true,
     enumerable: false,
     value,
-    writable: false
+    writable: false,
   };
 
   return overrides ? assign(descriptor, overrides) : descriptor;

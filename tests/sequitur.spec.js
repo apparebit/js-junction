@@ -41,14 +41,28 @@ export default harness(__filename, t => {
       t.ok(isIterable(new Map()));
       t.ok(isIterable(new Set()));
 
-      t.ok(isIterable({
-        [iterator]() { return { next() { return { done: true }; }}; },
-      }));
+      t.ok(
+        isIterable({
+          [iterator]() {
+            return {
+              next() {
+                return { done: true };
+              },
+            };
+          },
+        }),
+      );
 
-      t.ok(isIterable({
-        [iterator]() { return this; },
-        next() { return { done: true }; },
-      }));
+      t.ok(
+        isIterable({
+          [iterator]() {
+            return this;
+          },
+          next() {
+            return { done: true };
+          },
+        }),
+      );
 
       t.end();
     });
@@ -65,21 +79,37 @@ export default harness(__filename, t => {
       t.ok(isIterator([][iterator]()));
       t.ok(isIterator((function* gen() {})()));
 
-      t.ok(isIterator({
-        [iterator]() { return { next() { return { done: true }; }}; },
-      }[iterator]()));
+      t.ok(
+        isIterator(
+          {
+            [iterator]() {
+              return {
+                next() {
+                  return { done: true };
+                },
+              };
+            },
+          }[iterator](),
+        ),
+      );
 
-      t.ok(isIterator({
-        [iterator]() { return this; },
-        next() { return { done: true }; },
-      }));
+      t.ok(
+        isIterator({
+          [iterator]() {
+            return this;
+          },
+          next() {
+            return { done: true };
+          },
+        }),
+      );
 
       t.end();
     });
 
     t.test('IteratorPrototype()', t => {
       const iter = create(IteratorPrototype, {
-        next: { value: () => ({ done: true })}
+        next: { value: () => ({ done: true }) },
       });
 
       t.ok(isIterable(iter));
@@ -88,16 +118,35 @@ export default harness(__filename, t => {
     });
 
     t.test('toIteratorFactory()', t => {
+      let fact = toIteratorFactory();
+      t.same([...fact()], []);
+      t.same([...fact()], []);
+
       const NUMBERS = [42, 665, 13];
-      let make = toIteratorFactory(NUMBERS[iterator]());
-      t.same([...make()], NUMBERS);
-      t.same([...make()], NUMBERS);
+      fact = toIteratorFactory(NUMBERS[iterator]());
+      t.same([...fact()], NUMBERS);
+      t.same([...fact()], NUMBERS);
 
       const iter = NUMBERS[iterator]();
-      make = toIteratorFactory({ next() { return iter.next(); } });
-      t.same([...make()], NUMBERS);
-      t.same([...make()], NUMBERS);
+      fact = toIteratorFactory({
+        next() {
+          return iter.next();
+        },
+      });
+      t.same([...fact()], NUMBERS);
+      t.same([...fact()], NUMBERS);
 
+      fact = toIteratorFactory(NUMBERS);
+      t.same([...fact()], NUMBERS);
+      t.same([...fact()], NUMBERS);
+
+      fact = toIteratorFactory(() => NUMBERS);
+      t.same([...fact()], NUMBERS);
+      t.same([...fact()], NUMBERS);
+
+      fact = toIteratorFactory(665);
+      t.same([...fact()], [665]);
+      t.same([...fact()], [665]);
 
       t.end();
     });

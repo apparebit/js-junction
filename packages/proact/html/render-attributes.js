@@ -1,6 +1,10 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { escapeAttribute, hyphenate, isAttributeQuoted } from '@grr/oddjob/strings';
+import {
+  escapeAttribute,
+  hyphenate,
+  isAttributeQuoted,
+} from '@grr/oddjob/strings';
 import { maybe, memoize } from '@grr/oddjob/functions';
 import Tags from '../spec/tags';
 import typeAttribute from '../spec/attributes';
@@ -29,7 +33,7 @@ function formatKeyToken(key, value) {
 }
 
 function formatKeyValue(key, value, separator = ' ') {
-  if( isArray(value) ) {
+  if (isArray(value)) {
     value = value
       .filter(el => el != null)
       .map(el => String(el).trim())
@@ -38,7 +42,7 @@ function formatKeyValue(key, value, separator = ' ') {
     value = String(value).trim();
   }
 
-  if( isAttributeQuoted(value) ) {
+  if (isAttributeQuoted(value)) {
     return `${key}="${escapeAttribute(value)}"`;
   } else {
     return `${key}=${value}`;
@@ -50,16 +54,16 @@ function formatKeyValue(key, value, separator = ' ') {
 const renderAttribute = maybe((key, value) => {
   key = memoizedHyphenate(key);
 
-  switch( typeAttribute(key) ) {
+  switch (typeAttribute(key)) {
     case PresentAbsent:
       return value ? key : null;
     case TrueFalse:
       return formatKeyBoolean(key, value);
     case TrueFalseMixed:
-      if( value === 'mixed' ) return formatKeyToken(key, value);
+      if (value === 'mixed') return formatKeyToken(key, value);
       return formatKeyBoolean(key, value);
     case TrueFalseUndefined:
-      if( value === 'undefined' ) return formatKeyToken(key, value);
+      if (value === 'undefined') return formatKeyToken(key, value);
       return formatKeyBoolean(key, value);
     case YesNo:
       return formatKeyToken(key, value ? 'yes' : 'no');
@@ -71,8 +75,8 @@ const renderAttribute = maybe((key, value) => {
 });
 
 export default function* renderAttributes(attributes) {
-  for( const key of keysOf(Object(attributes)) ) {
+  for (const key of keysOf(Object(attributes))) {
     const attribute = renderAttribute(key, attributes[key]);
-    if( attribute ) yield attribute;
+    if (attribute) yield attribute;
   }
 }

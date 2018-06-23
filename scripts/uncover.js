@@ -21,20 +21,20 @@ const readFile = promisify(doReadFile);
   const originals = keysOf(mapping).sort();
 
   // *** Print original module name for each instrumented module ***
-  if( originals.length ) {
+  if (originals.length) {
     console.error(`${EOL}${chalk.bold.black('Modules Instrumented by NYC')}`);
 
     let header;
-    for( const original of originals ) {
+    for (const original of originals) {
       const pkg = `@grr/${relative(pkgs, dirname(original))}`;
 
-      if( pkg !== header ) {
+      if (pkg !== header) {
         header = pkg;
         console.error(`${EOL}${chalk.underline.black(pkg)}${EOL}`);
       }
 
       console.error(chalk.black(original));
-      for( const instrumented of mapping[original] ) {
+      for (const instrumented of mapping[original]) {
         console.error(chalk.gray(`  => ${instrumented}`));
       }
     }
@@ -45,10 +45,11 @@ const readFile = promisify(doReadFile);
 
   let files;
   try {
-    files = (await readDirectory(nycOutput))
-      .filter(name => name[0] !== '.' && name.endsWith('.json'));
-  } catch(x) {
-    if( x.code === 'ENOENT' ) {
+    files = (await readDirectory(nycOutput)).filter(
+      name => name[0] !== '.' && name.endsWith('.json'),
+    );
+  } catch (x) {
+    if (x.code === 'ENOENT') {
       files = [];
     } else {
       throw x;
@@ -56,19 +57,19 @@ const readFile = promisify(doReadFile);
   }
 
   const coverset = new Set();
-  for( const file of files ) {
+  for (const file of files) {
     const path = resolve(nycOutput, file);
     const text = await readFile(path, 'utf8');
-    for( const key of keysOf(parse(text)) ) {
+    for (const key of keysOf(parse(text))) {
       coverset.add(key);
     }
   }
 
   const covered = [...coverset].sort();
-  if( covered.length ) {
+  if (covered.length) {
     console.error(chalk.bold.black(`${EOL}Modules Covered by NYC${EOL}`));
 
-    for( const path of [...covered].sort() ) {
+    for (const path of [...covered].sort()) {
       console.error(chalk.black(path));
     }
   }

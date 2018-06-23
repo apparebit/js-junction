@@ -6,18 +6,26 @@ const { isArray } = Array;
 const { isNaN } = Number;
 
 export function isIgnorable(value) {
-  return value == null || value === false || value === true || isNaN(value) || value === '';
+  return (
+    value == null ||
+    value === false ||
+    value === true ||
+    isNaN(value) ||
+    value === ''
+  );
 }
 
 export function isTextual(value) {
   const type = typeof value;
-  return type === 'number' && !isNaN(value) || type === 'string' && value !== '';
+  return (
+    (type === 'number' && !isNaN(value)) || (type === 'string' && value !== '')
+  );
 }
 
 export function pushAll(todo, items) {
-  if( !isArray(items) ) items = [...items];
+  if (!isArray(items)) items = [...items];
 
-  for( let index = items.length - 1; index >= 0; index-- ) {
+  for (let index = items.length - 1; index >= 0; index--) {
     todo.push(items[index]);
   }
 
@@ -36,22 +44,22 @@ export function pushAll(todo, items) {
  * modifies the argument, popping values and pushing the elements of iterables.
  */
 export function next(todo) {
-  while( todo.length >  0 ) {
+  while (todo.length > 0) {
     const value = todo.pop();
 
-    if( isIgnorable(value) ) {
+    if (isIgnorable(value)) {
       continue;
-    } else if( isTextual(value) ) {
+    } else if (isTextual(value)) {
       let text = String(value);
 
-      while( todo.length > 0 ) {
+      while (todo.length > 0) {
         const top = todo[todo.length - 1];
 
-        if( isIgnorable(top) ) {
+        if (isIgnorable(top)) {
           todo.pop();
-        } else if( isTextual(top) ) {
+        } else if (isTextual(top)) {
           text += todo.pop();
-        } else if( isIterable(top) ) {
+        } else if (isIterable(top)) {
           pushAll(todo, todo.pop());
         } else {
           break;
@@ -59,7 +67,7 @@ export function next(todo) {
       }
 
       return text;
-    } else if( isIterable(value) ) {
+    } else if (isIterable(value)) {
       pushAll(todo, value);
     } else {
       return value;
@@ -79,7 +87,7 @@ export function normalize(children) {
   const normalized = [];
 
   let child = next(children);
-  while( child != null ) {
+  while (child != null) {
     normalized.push(child);
     child = next(children);
   }

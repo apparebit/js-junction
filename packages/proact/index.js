@@ -11,24 +11,22 @@ export { default as h } from './hyperscript';
 const defaultDriver = new Driver();
 export const renderToHtml = doRenderToHtml;
 
-export function renderToString(node, {
-  context = {},
-  driver = defaultDriver,
-  handler = renderToHtml,
-} = {}) {
+export function renderToString(
+  node,
+  { context = {}, driver = defaultDriver, handler = renderToHtml } = {},
+) {
   return [...driver.traverse(node, { context, handler })].join('');
 }
 
-export function renderToStream(node, {
-  context = {},
-  driver = defaultDriver,
-  handler = renderToHtml,
-} = {}) {
+export function renderToStream(
+  node,
+  { context = {}, driver = defaultDriver, handler = renderToHtml } = {},
+) {
   const renderer = driver.traverse(node, { context, handler });
 
   return new Readable({
     read() {
-      while( true ) {
+      while (true) {
         const { value, done } = renderer.next();
 
         // 1.  Per Readable's documentation, do not call push on empty strings.
@@ -36,8 +34,8 @@ export function renderToStream(node, {
         // 3.  If Readable has no more internal buffer space or traversal is done,
         //     then return from read(). In the former case, Readable calls again
         //     when sufficient buffer space has become available.
-        if( value !== '' && (!this.push(done ? null : value) || done) ) break;
+        if (value !== '' && (!this.push(done ? null : value) || done)) break;
       }
-    }
+    },
   });
 }

@@ -27,15 +27,15 @@ const CASES = [
 
 export default harness(__filename, async function run(t) {
   // Protect against this module becoming a fork bomb!
-  if( mode === void 0 && !global[RUNNING] ) {
+  if (mode === void 0 && !global[RUNNING]) {
     defineProperty(global, RUNNING, constant(true));
 
-    for( const [expected, actual] of CASES ) {
+    for (const [expected, actual] of CASES) {
       const options = {
         buffered: true,
         env: { MARK_OF_DEV_TEST: expected },
       };
-      if( actual !== void 0 ) options.env.NODE_ENV = actual;
+      if (actual !== void 0) options.env.NODE_ENV = actual;
 
       await t.spawn(execPath, [...withoutInspector(), __filename], options);
     }
@@ -46,14 +46,14 @@ export default harness(__filename, async function run(t) {
 
 async function testcase() {
   const hasMark = has(global, '__DEV__');
-  if( mode === 'oops' ) global.__DEV__ = 'oops';
+  if (mode === 'oops') global.__DEV__ = 'oops';
 
   await load('@grr/mark-of-dev');
 
   await harness(mode, t => {
     t.is(hasMark, false);
 
-    switch( mode ) {
+    switch (mode) {
       case 'dev':
         t.is(__DEV__, true);
         break;
@@ -72,6 +72,6 @@ async function testcase() {
   })();
 }
 
-if( mode === 'dev' || mode === 'prod' || mode === 'oops') {
+if (mode === 'dev' || mode === 'prod' || mode === 'oops') {
   testcase();
 }

@@ -90,23 +90,26 @@ export default harness(__filename, t => {
     });
 
     t.test('.withKeyPath()', t => {
-      t.throws(() => withKeyPath(0, '', () => {}),
-        CODE_INVALID_ARG_TYPE);
-      t.throws(() => withKeyPath({ a: { b: 665 }}, 'a.b.c'),
-        CODE_INVALID_ARG_TYPE);
+      t.throws(() => withKeyPath(0, '', () => {}), CODE_INVALID_ARG_TYPE);
+      t.throws(
+        () => withKeyPath({ a: { b: 665 } }, 'a.b.c'),
+        CODE_INVALID_ARG_TYPE,
+      );
 
       const root = {};
-      withKeyPath(root, 'a.b.c', (object, key) => { object[key] = 42; });
-      t.same(root, { a: { b: { c: 42 }}});
+      withKeyPath(root, 'a.b.c', (object, key) => {
+        object[key] = 42;
+      });
+      t.same(root, { a: { b: { c: 42 } } });
 
       t.end();
     });
 
     t.test('.withExistingKeyPath()', t => {
-      const root = { a: { b: { c: 665 }}};
+      const root = { a: { b: { c: 665 } } };
       t.is(withExistingKeyPath(root, 'a.b.c')[2], 665);
-      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c'), void 0);
-      t.is(withExistingKeyPath({ a: { b: { c: 665 }}}, 'a.c.d'), void 0);
+      t.is(withExistingKeyPath({ a: { b: { c: 665 } } }, 'a.c'), void 0);
+      t.is(withExistingKeyPath({ a: { b: { c: 665 } } }, 'a.c.d'), void 0);
 
       t.end();
     });
@@ -260,7 +263,7 @@ export default harness(__filename, t => {
         write(chunk, encoding, callback) {
           log.push(chunk);
           callback();
-        }
+        },
       });
 
       out.write('1');
@@ -291,20 +294,28 @@ export default harness(__filename, t => {
     });
 
     t.test('.escapeAttribute()', t => {
-      t.is(escapeAttribute('mayhem: <&`\'">'), 'mayhem: &lt;&amp;&#x60;&#x27;&quot;&gt;');
+      t.is(
+        escapeAttribute('mayhem: <&`\'">'),
+        'mayhem: &lt;&amp;&#x60;&#x27;&quot;&gt;',
+      );
       t.end();
     });
 
     t.test('.escapeHTML()', t => {
       t.is(escapeHTML('&lt;'), '&amp;lt;');
-      t.is(escapeHTML('<script>evil()</script>'), '&lt;script&gt;evil()&lt;/script&gt;');
+      t.is(
+        escapeHTML('<script>evil()</script>'),
+        '&lt;script&gt;evil()&lt;/script&gt;',
+      );
       t.end();
     });
 
     t.test('.escapeScript()', t => {
       // Picture the string between <script> and </script>.
-      t.is(escapeScript(`<!-- ooh -->'<script></script>'`),
-        `<\\!-- ooh -->'<\\script><\\/script>'`);
+      t.is(
+        escapeScript(`<!-- ooh -->'<script></script>'`),
+        `<\\!-- ooh -->'<\\script><\\/script>'`,
+      );
       t.end();
     });
 
@@ -348,10 +359,15 @@ export default harness(__filename, t => {
       t.is(toStableJSON({ a: void 0, b: NaN, c: 665 }), '{"b":null,"c":665}');
       t.is(toStableJSON({ a: 1, b: 2, c: 3 }), '{"a":1,"b":2,"c":3}');
       t.is(toStableJSON({ c: 3, b: 2, a: 1 }), '{"a":1,"b":2,"c":3}');
-      t.is(toStableJSON({
-        toJSON() { return { rating: 'completely nuts' }; },
-        rating: 'very stable genius'
-      }), '{"rating":"completely nuts"}');
+      t.is(
+        toStableJSON({
+          toJSON() {
+            return { rating: 'completely nuts' };
+          },
+          rating: 'very stable genius',
+        }),
+        '{"rating":"completely nuts"}',
+      );
 
       t.end();
     });

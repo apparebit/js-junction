@@ -15,30 +15,38 @@ export const VISITORS = freeze({
   primitive: noop,
   reference: noop,
 
-  graph(value, state, dispatch) { dispatch(state, value, '@graph'); },
-  list(value, state, dispatch) { dispatch(state, value, '@list'); },
-  set(value, state, dispatch) { dispatch(state, value, '@set'); },
-  value(value, state, dispatch) { dispatch(state, value, '@value'); },
+  graph(value, state, dispatch) {
+    dispatch(state, value, '@graph');
+  },
+  list(value, state, dispatch) {
+    dispatch(state, value, '@list');
+  },
+  set(value, state, dispatch) {
+    dispatch(state, value, '@set');
+  },
+  value(value, state, dispatch) {
+    dispatch(state, value, '@value');
+  },
 
   array(value, state, dispatch) {
-    for( let index = 0; index < value.length; index++ ) {
+    for (let index = 0; index < value.length; index++) {
       dispatch(state, value, index);
     }
   },
 
   node(value, state, dispatch) {
-    for( const key of keysOf(value) ) {
+    for (const key of keysOf(value)) {
       dispatch(state, value, key);
     }
   },
 
   reverse(value, state, dispatch) {
-    if( value != null && typeof value === 'object' ) {
-      for( const key of keysOf(value) ) {
+    if (value != null && typeof value === 'object') {
+      for (const key of keysOf(value)) {
         dispatch(state, value, key);
       }
     }
-  }
+  },
 });
 
 /**
@@ -53,13 +61,16 @@ export const VISITORS = freeze({
  * and including the current entity. The `key` and `parent` are `null` for the
  * root and `value` is identical to `parent[key]` otherwise.
  */
-export default function walk(root, {
-  base = noop,
-  handlers = {},
-  skipped = null,
-  state = new State(),
-  visitors = VISITORS,
-} = {}) {
+export default function walk(
+  root,
+  {
+    base = noop,
+    handlers = {},
+    skipped = null,
+    state = new State(),
+    visitors = VISITORS,
+  } = {},
+) {
   const dispatch = (state, parent, key, value = parent[key]) => {
     const kind = key === '@reverse' ? 'reverse' : kindOf(value);
 
@@ -67,7 +78,7 @@ export default function walk(root, {
     try {
       visitors[kind](value, state, dispatch);
 
-      if( handlers[kind] ) {
+      if (handlers[kind]) {
         handlers[kind](value, state); // Invoke as method!
       } else {
         base(value, state);
@@ -78,7 +89,7 @@ export default function walk(root, {
   };
 
   // Ensure the ancestors property exists and is an array.
-  if( !isArray(state.ancestors) ) state.ancestors = [];
+  if (!isArray(state.ancestors)) state.ancestors = [];
   dispatch(state, null, skipped, root);
   return state;
 }

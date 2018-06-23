@@ -22,11 +22,11 @@ export default class Knowledge {
 
   add(node) {
     const kind = kindOf(node);
-    if( kind !== 'node' ) {
+    if (kind !== 'node') {
       throw new InvalidArgType({ node }, 'a JSON-LD node with @id');
-    } else if( !('@id' in node) ) {
+    } else if (!('@id' in node)) {
       throw new InvalidArgValue({ node }, 'should have an @id');
-    } else if( node['@id'] in this[NODES] ) {
+    } else if (node['@id'] in this[NODES]) {
       throw new DuplicateBinding('@id', this[NODES][node['@id']], node);
     }
 
@@ -40,7 +40,9 @@ export default class Knowledge {
   }
 
   ingest(jsonld) {
-    parse(jsonld, this).throwOnFailure().transferOnSuccess();
+    parse(jsonld, this)
+      .throwOnFailure()
+      .transferOnSuccess();
     return this;
   }
 
@@ -51,22 +53,28 @@ export default class Knowledge {
 
   // ===== Consulting This Knowledge Base =====
 
-  has(id) { return id in this[NODES]; }
-  get(id) { return this[NODES][id]; }
+  has(id) {
+    return id in this[NODES];
+  }
+  get(id) {
+    return this[NODES][id];
+  }
 
-  * entries() {
-    for( const key of keysOf(this[NODES]) ) {
+  *entries() {
+    for (const key of keysOf(this[NODES])) {
       yield [key, this[NODES][key]];
     }
   }
 
-  * values() {
-    for( const key of keysOf(this[NODES]) ) {
+  *values() {
+    for (const key of keysOf(this[NODES])) {
       yield this[NODES][key];
     }
   }
 
-  [iterator]() { return this.values(); }
+  [iterator]() {
+    return this.values();
+  }
 
   /**
    * Resolve the entity by trying to resolve references to nodes in this
@@ -75,7 +83,7 @@ export default class Knowledge {
    * does not recognize an entity, it must return said entity.
    */
   resolve(entity) {
-    switch( kindOf(entity) ) {
+    switch (kindOf(entity)) {
       case 'reference': {
         const { '@id': id } = entity;
         return this.has(id) ? this.get(id) : entity;

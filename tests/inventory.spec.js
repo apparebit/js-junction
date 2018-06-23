@@ -44,7 +44,9 @@ export default harness(__filename, t => {
       const { path, text, data, pkgs } = await packages();
 
       checkMainManifest(t, path, text, data);
-      const pkgNames = (await readDirectory(pkgdir)).filter(entry => entry[0] !== '.');
+      const pkgNames = (await readDirectory(pkgdir)).filter(
+        entry => entry[0] !== '.',
+      );
       t.is(pkgs.length, pkgNames.length);
       t.ok(pkgs.includes(resolve(pkgdir, 'err')));
       t.ok(pkgs.includes(resolve(pkgdir, 'inventory')));
@@ -57,12 +59,16 @@ export default harness(__filename, t => {
 
     {
       const { path, text, data, pkgs } = await packages({
-        start: resolve(pkgdir, 'proact', 'html')
+        start: resolve(pkgdir, 'proact', 'html'),
       });
 
       t.is(path, resolve(pkgdir, 'proact'));
-      t.ok(text.startsWith('{\n  "name": "@grr/proact",\n  '
-        + '"description": "Making server-side rendering great again!",'));
+      t.ok(
+        text.startsWith(
+          '{\n  "name": "@grr/proact",\n  ' +
+            '"description": "Making server-side rendering great again!",',
+        ),
+      );
       t.is(data.name, '@grr/proact');
       t.is(data.description, 'Making server-side rendering great again!');
       t.is(pkgs, void 0);
@@ -85,33 +91,39 @@ export default harness(__filename, t => {
     t.is(await readFile(path, 'utf8'), text);
 
     async function checkManifests(version = '0.4.2') {
-      t.is(await readFile(gear, 'utf8'), [
-        '{',
-        '  "name": "gear",',
-        '  "private": true,',
-        '  "peerDependencies": {',
-        `    "clickety-clack": "${version}"`,
-        '  },',
-        '  "devDependencies": {',
-        `    "clickety-clack": "${version}"`,
-        '  },',
-        '  "workspaces": [',
-        '    "packages/*"',
-        '  ]',
-        '}',
-        '',  // Force trailing EOL.
-      ].join(EOL));
+      t.is(
+        await readFile(gear, 'utf8'),
+        [
+          '{',
+          '  "name": "gear",',
+          '  "private": true,',
+          '  "peerDependencies": {',
+          `    "clickety-clack": "${version}"`,
+          '  },',
+          '  "devDependencies": {',
+          `    "clickety-clack": "${version}"`,
+          '  },',
+          '  "workspaces": [',
+          '    "packages/*"',
+          '  ]',
+          '}',
+          '', // Force trailing EOL.
+        ].join(EOL),
+      );
 
-      t.is(await readFile(cog, 'utf8'), [
-        '{',
-        '  "name": "cog",',
-        '  "private": true,',
-        '  "dependencies": {',
-        `    "clickety-clack": "${version}"`,
-        '  }',
-        '}',
-        '',  // Force trailing EOL.
-      ].join(EOL));
+      t.is(
+        await readFile(cog, 'utf8'),
+        [
+          '{',
+          '  "name": "cog",',
+          '  "private": true,',
+          '  "dependencies": {',
+          `    "clickety-clack": "${version}"`,
+          '  }',
+          '}',
+          '', // Force trailing EOL.
+        ].join(EOL),
+      );
     }
 
     // Check that manifests have expected content.
@@ -155,7 +167,9 @@ export default harness(__filename, t => {
     {
       // Manifest in closest ancestor does have workspaces; its directory does
       // have node_modules, with three instrumented files.
-      const mapping = await originalToInstrumented({ start: resolve(fixtures, 'extra') });
+      const mapping = await originalToInstrumented({
+        start: resolve(fixtures, 'extra'),
+      });
       const originals = keysOf(mapping);
       t.is(originals.length, 1);
       t.is(originals[0], '/dev/js-junction/packages/oddjob/index.js');
@@ -164,7 +178,13 @@ export default harness(__filename, t => {
       t.ok(isArray(instrumented));
       t.is(instrumented.length, 3);
 
-      const path = resolve(fixtures, 'node_modules', '.cache', 'nyc', 'instrumented.');
+      const path = resolve(
+        fixtures,
+        'node_modules',
+        '.cache',
+        'nyc',
+        'instrumented.',
+      );
       t.ok(instrumented.includes(`${path}1.js`));
       t.ok(instrumented.includes(`${path}2.js`));
       t.ok(instrumented.includes(`${path}3.js`));

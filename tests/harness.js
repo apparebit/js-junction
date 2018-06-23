@@ -9,7 +9,7 @@ export default function test(path, callback) {
   const name = isAbsolute(path) ? `@grr/${basename(path, '.js')}` : path;
 
   // If caller is main module, run tests. Otherwise, return thunk.
-  if( main === path ) {
+  if (main === path) {
     return tap.test(name, callback);
   } else {
     return () => tap.test(name, callback);

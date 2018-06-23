@@ -7,25 +7,35 @@ import { normalize } from '../driver/children';
 const { defineProperty } = Object;
 
 function isPropsObject(value) {
-  return value != null
-    && typeof value === 'object'
-    && !value.isViewElement
-    && !value.isViewComponent;
+  return (
+    value != null &&
+    typeof value === 'object' &&
+    !value.isViewElement &&
+    !value.isViewComponent
+  );
 }
 
 export default function Node(...args) {
   let [props] = args;
 
-  if( props == null || isPropsObject(props) ) {
+  if (props == null || isPropsObject(props)) {
     this.properties = props = Object(args.shift());
   } else {
     this.properties = props = {};
   }
 
-  if( 'context' in props ) {
-    throw InvalidArgValue('properties', props, 'should not have a "context" property');
-  } else if( 'children' in props ) {
-    throw InvalidArgValue('properties', props, 'should not have a "children" property');
+  if ('context' in props) {
+    throw InvalidArgValue(
+      'properties',
+      props,
+      'should not have a "context" property',
+    );
+  } else if ('children' in props) {
+    throw InvalidArgValue(
+      'properties',
+      props,
+      'should not have a "children" property',
+    );
   }
 
   // Normalize the children (again), since it flattens nested arrays, removes

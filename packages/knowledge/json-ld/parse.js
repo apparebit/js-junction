@@ -13,28 +13,36 @@ const { asElements, asValue, quote } = State;
 const { create, keys: keysOf } = Object;
 const { isArray } = Array;
 
-const GRAPH_KEYS = { '@context': true, '@graph': true, '@id': true, '@index': true };
+const GRAPH_KEYS = {
+  '@context': true,
+  '@graph': true,
+  '@id': true,
+  '@index': true,
+};
 const LIST_KEYS = { '@context': true, '@index': true, '@list': true };
 const SET_KEYS = { '@context': true, '@index': true, '@set': true };
-const VALUE_KEYS =
-  { '@context': true, '@index': true, '@language': true, '@type': true, '@value': true };
+const VALUE_KEYS = {
+  '@context': true,
+  '@index': true,
+  '@language': true,
+  '@type': true,
+  '@value': true,
+};
 
 function checkPropertyKeys(value, state, keys) {
   const superfluous = keysOf(value).filter(k => !keys[k]);
 
-  if( superfluous.length > 0 ) {
-    state.emitBadValue(`is a @${
-      state.current.kind
-    } object with superfluous key${
-      superfluous.length !== 1 ? 's' : ''
-    } ${
-      asElements(quote(superfluous))
-    }`);
+  if (superfluous.length > 0) {
+    state.emitBadValue(
+      `is a @${state.current.kind} object with superfluous key${
+        superfluous.length !== 1 ? 's' : ''
+      } ${asElements(quote(superfluous))}`,
+    );
   }
 }
 
 function checkNestedContext(value, state) {
-  if( '@context' in value ) {
+  if ('@context' in value) {
     state.emitBadValue(`includes nested @context unsupported by ${PACKAGE}`);
   }
 }
@@ -42,10 +50,12 @@ function checkNestedContext(value, state) {
 function checkIdentifier(value, state) {
   const iri = value['@id'];
 
-  if( typeof iri !== 'string' ) {
+  if (typeof iri !== 'string') {
     state.emitBadValue(`has @id ${asValue(iri)}, which is not an IRI`);
-  } else if( iri.startsWith('_:') ) {
-    state.emitBadValue(`has blank node identifier "${iri}" unsupported by ${PACKAGE}`);
+  } else if (iri.startsWith('_:')) {
+    state.emitBadValue(
+      `has blank node identifier "${iri}" unsupported by ${PACKAGE}`,
+    );
   }
 }
 
@@ -55,7 +65,7 @@ function checkValueIgnoringArray(value, state, label) {
   const check = entity => {
     const kind = kindOf(entity);
 
-    switch( kind ) {
+    switch (kind) {
       case 'node':
       case 'primitive':
       case 'reference':
@@ -63,21 +73,21 @@ function checkValueIgnoringArray(value, state, label) {
         break;
       case 'list':
       case 'set':
-        if( areSetAndListAllowed ) break;
-        // Fall through.
+        if (areSetAndListAllowed) break;
+      // Fall through.
       default:
-        state.emitBadValue(`is ${
-          label
-        } with invalid value ${
-          asValue(entity)
-        },\nwhich should be null, a boolean, number, string, @value, ${
-          areSetAndListAllowed ? '@set, @list, ' : ''
-        }reference, or node`);
+        state.emitBadValue(
+          `is ${label} with invalid value ${asValue(
+            entity,
+          )},\nwhich should be null, a boolean, number, string, @value, ${
+            areSetAndListAllowed ? '@set, @list, ' : ''
+          }reference, or node`,
+        );
     }
   };
 
-  if( isArray(value) ) {
-    for( const element of value ) {
+  if (isArray(value)) {
+    for (const element of value) {
       check(element);
     }
   } else {
@@ -88,19 +98,22 @@ function checkValueIgnoringArray(value, state, label) {
 function createReversePropertyChecker(state) {
   return (value, key, container) => {
     // Normalize a valid URL to the equivalent reference.
-    if( typeof value === 'string' ) {
+    if (typeof value === 'string') {
       try {
         value = container[key] = { '@id': new URL(value).href };
-      } catch(_) {
+      } catch (_) {
         // Nothing to do.
       }
     }
 
     const kind = kindOf(value);
-    if( kind !== 'reference' && kind !== 'node' ) {
+    if (kind !== 'reference' && kind !== 'node') {
       state.ancestors.push({ key });
       state.emitBadValue(
-        `is @reverse property value ${asValue(value)} but should be a node, reference, or URL`);
+        `is @reverse property value ${asValue(
+          value,
+        )} but should be a node, reference, or URL`,
+      );
       state.ancestors.pop();
     }
   };
@@ -117,7 +130,7 @@ const handlers = {
     checkPropertyKeys(value, state, LIST_KEYS);
     checkNestedContext(value, state);
     checkValueIgnoringArray(value['@list'], state, '@list');
-    if( state.isRoot() ) {
+    if (state.isRoot()) {
       state.emitBadRoot();
     }
   },
@@ -129,13 +142,13 @@ const handlers = {
     const set = value['@set'];
     checkValueIgnoringArray(set, state, '@set');
 
-    if( state.isRoot() ) {
+    if (state.isRoot()) {
       state.emitBadRoot();
     } else {
       // The @set isn't at the root and hence must have a parent.
       const { parent } = state.current;
 
-      if( isArray(parent) && isArray(set) ) {
+      if (isArray(parent) && isArray(set)) {
         parent.splice(state.current.key, 1, ...set);
       } else {
         parent[state.current.key] = set;
@@ -148,21 +161,23 @@ const handlers = {
     checkNestedContext(value, state);
 
     const v = value['@value'];
-    if( !isPrimitive(v) ) {
-      state.emitBadValue(`is invalid @value ${
-        asValue(v)
-      }, which is neither null, a boolean, a number, or a string`);
+    if (!isPrimitive(v)) {
+      state.emitBadValue(
+        `is invalid @value ${asValue(
+          v,
+        )}, which is neither null, a boolean, a number, or a string`,
+      );
     }
 
-    if( state.isRoot() ) {
+    if (state.isRoot()) {
       state.emitBadRoot();
-    } else if( keysOf(value).length === 1 ) {
+    } else if (keysOf(value).length === 1) {
       state.current.parent[state.current.key] = v;
     }
   },
 
   array(value, state) {
-    if( !state.isRoot() ) {
+    if (!state.isRoot()) {
       checkValueIgnoringArray(value, state, 'array');
     }
   },
@@ -174,23 +189,27 @@ const handlers = {
   node(value, state) {
     checkNestedContext(value, state);
 
-    if( '@id' in value ) {
+    if ('@id' in value) {
       checkIdentifier(value, state);
 
       const id = value['@id'];
-      if( state.corpus.has(id) ) {
-        state.emitBadValue(`is duplicate of node with @id "${id}" in knowledge base`);
-      } else if( id in state.nodes ) {
-        state.emitBadValue(`is duplicate of node with @id "${id}" in same document`);
+      if (state.corpus.has(id)) {
+        state.emitBadValue(
+          `is duplicate of node with @id "${id}" in knowledge base`,
+        );
+      } else if (id in state.nodes) {
+        state.emitBadValue(
+          `is duplicate of node with @id "${id}" in same document`,
+        );
       } else {
         state.nodes[id] = value;
 
         const { key, parent } = state.current;
-        if( !state.isRoot() ) {
+        if (!state.isRoot()) {
           parent[key] = { '@id': id };
         }
       }
-    } else if( state.isRoot() ) {
+    } else if (state.isRoot()) {
       state.emitBadValue(`is a root node without @id`);
     }
   },
@@ -211,46 +230,55 @@ const handlers = {
      * kinds besides nodes.
      */
     const { parent } = state;
-    if( !('@id' in parent.value ) ) {
+    if (!('@id' in parent.value)) {
       state.emitBadValue(`is the @reverse property of a node without @id`);
     }
 
-    if( value == null || typeof value !== 'object' ) {
+    if (value == null || typeof value !== 'object') {
       state.emitBadValue(`is a value other than an object`);
     } else {
       const checkReversePropertyValue = createReversePropertyChecker(state);
 
-      for( const key of keysOf(value) ) {
+      for (const key of keysOf(value)) {
         forEachPropertyValue(value, key, checkReversePropertyValue);
       }
     }
   },
 
   invalid(value, state) {
-    state.emitBadValue(`has value ${asValue(value)}, which is not supported by JSON-LD`);
+    state.emitBadValue(
+      `has value ${asValue(value)}, which is not supported by JSON-LD`,
+    );
   },
 };
 
 function doParse(value, state) {
-  if( value == null || typeof value !== 'object' ) {
-    state.emitBadDocument('a JSON-LD document must have a JSON object as content');
+  if (value == null || typeof value !== 'object') {
+    state.emitBadDocument(
+      'a JSON-LD document must have a JSON object as content',
+    );
     value = { '@id': 'http://example.com/' };
-  } else  if( isArray(value ) ) {
-    state.emitBadDocument('a JSON-LD document must have a JSON object, not an array, as content');
+  } else if (isArray(value)) {
+    state.emitBadDocument(
+      'a JSON-LD document must have a JSON object, not an array, as content',
+    );
     value = { '@graph': value };
   }
 
   const { '@context': context, '@graph': graph, ...rest } = value;
-  if( context != null && !isSchemaOrgContext(context) ) {
-    state.emitBadDocument(`${PACKAGE} requires @context to be based on Schema.org,\n`
-      + `with either @context or @vocab being "http://schema.org/"`);
+  if (context != null && !isSchemaOrgContext(context)) {
+    state.emitBadDocument(
+      `${PACKAGE} requires @context to be based on Schema.org,\n` +
+        `with either @context or @vocab being "http://schema.org/"`,
+    );
   }
 
   let skipped, data;
-  if( graph != null ) {
-    if( keysOf(rest).length !== 0 ) {
+  if (graph != null) {
+    if (keysOf(rest).length !== 0) {
       state.emitBadDocument(
-        `a JSON-LD document cannot have both a root node and a @graph of nodes`);
+        `a JSON-LD document cannot have both a root node and a @graph of nodes`,
+      );
     }
 
     skipped = '@graph';
@@ -279,8 +307,8 @@ class ParseState extends State {
 
   /** Move parsed nodes into the corpus, if all parses so far succeeded. */
   transferOnSuccess() {
-    if( !this.hasDiagnostics() ) {
-      for( const key of keysOf(this.nodes) ) {
+    if (!this.hasDiagnostics()) {
+      for (const key of keysOf(this.nodes)) {
         this.corpus.add(this.nodes[key]);
       }
       this.nodes = create(null);
@@ -289,8 +317,10 @@ class ParseState extends State {
 
   /** Throw a wrapper error with more errors as `diagnostics`, if some parses so far failed. */
   throwOnFailure() {
-    if( this.hasDiagnostics() ) {
-      const x = MalstructuredData(`JSON-LD document with ${this.diagnostics.length} errors`);
+    if (this.hasDiagnostics()) {
+      const x = MalstructuredData(
+        `JSON-LD document with ${this.diagnostics.length} errors`,
+      );
       x.diagnostics = this.diagnostics;
       throw x;
     }

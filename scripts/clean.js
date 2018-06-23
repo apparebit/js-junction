@@ -19,7 +19,7 @@ const deep = argv.includes('--deep');
 async function removeNamedDirectories() {
   // Beware of accidentally deleting the test fixtures via `**/node_modules`!
   let patterns;
-  if( !deep ) {
+  if (!deep) {
     patterns = [
       'node_modules/.cache/esm',
       'packages/*/node_modules/.cache/esm',
@@ -51,12 +51,12 @@ async function removeEmptyDirectories() {
     unique: true,
   })).sort((a, b) => b.length - a.length);
 
-  for( const path of paths ) {
-    if( (await readDirectory(path)).length === 0 ) {
+  for (const path of paths) {
+    if ((await readDirectory(path)).length === 0) {
       await remove(path);
     }
   }
 }
 
 removeNamedDirectories();
-if( deep ) removeEmptyDirectories();
+if (deep) removeEmptyDirectories();

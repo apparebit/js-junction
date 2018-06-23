@@ -16,22 +16,22 @@ export function isPropertyKey(value) {
  * an object.
  */
 export function toKeyValue(object) {
-  if( typeof object === 'function' ) {
+  if (typeof object === 'function') {
     return [object.name, object];
-  } else if( isArray(object) ) {
-    if( object.length === 2 && isPropertyKey(object[0]) ) {
+  } else if (isArray(object)) {
+    if (object.length === 2 && isPropertyKey(object[0])) {
       return object;
     }
   } else {
     const keys = keysOf(object);
 
-    if( keys.length === 1 ) {
+    if (keys.length === 1) {
       const [key] = keys;
       return [key, object[key]];
-    } else if(
-      keys.length === 2
-      && keys.includes('key')
-      && keys.includes('value')
+    } else if (
+      keys.length === 2 &&
+      keys.includes('key') &&
+      keys.includes('value')
     ) {
       return [object.key, object.value];
     }
@@ -42,19 +42,21 @@ export function toKeyValue(object) {
 }
 
 export default function punning(original, ...indices) {
-  if( !indices.length ) indices = [0];
+  if (!indices.length) indices = [0];
 
-  return new Proxy(original, { apply(target, that, args) {
-    for( const index of indices ) {
-      const arg = args[index];
+  return new Proxy(original, {
+    apply(target, that, args) {
+      for (const index of indices) {
+        const arg = args[index];
 
-      if( arg != null && typeof arg === 'object' ) {
-        const [key, value] = toKeyValue(arg);
-        args[index] = key;
-        args.splice(index + 1, 0, value);
+        if (arg != null && typeof arg === 'object') {
+          const [key, value] = toKeyValue(arg);
+          args[index] = key;
+          args.splice(index + 1, 0, value);
+        }
       }
-    }
 
-    return doApply(target, that, args);
-  }});
+      return doApply(target, that, args);
+    },
+  });
 }

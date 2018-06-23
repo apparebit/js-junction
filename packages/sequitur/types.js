@@ -22,11 +22,11 @@ export function isIterator(value) {
   return value != null && typeof value.next === 'function';
 }
 
-export function toIteratorFactory(iter) {
+function makeReusable(iter) {
   let capture;
 
   return function* createIterator() {
-    if( capture === void 0 ) {
+    if (capture === void 0) {
       // Consistent with this package's lazy and reusable combinators, capture
       // an iterator's elements during its first iteration and then play them
       // back on subsequent iterations. Of course, that only works if the
@@ -34,7 +34,7 @@ export function toIteratorFactory(iter) {
       capture = [];
 
       const elements = isIterable(iter) ? iter : { [iterator]: () => iter };
-      for( const element of elements ) {
+      for (const element of elements) {
         capture.push(element);
         yield element;
       }
@@ -42,4 +42,24 @@ export function toIteratorFactory(iter) {
       yield* capture;
     }
   };
+}
+
+export function toIteratorFactory(value) {
+  if (value == null) {
+    return () => ({
+      __proto__: IteratorPrototype,
+      next() {
+        return { done: true };
+      },
+    });
+  } else if (isIterator(value)) {
+    return makeReusable(value);
+  } else if (isIterable(value)) {
+    return value[iterator].bind(value);
+  } else if (typeof value === 'function') {
+    return value;
+  } else {
+    const iterable = [value];
+    return iterable[iterator].bind(iterable);
+  }
 }

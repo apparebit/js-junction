@@ -3,7 +3,11 @@
 // Domain Description
 import Tags from '@grr/proact/spec/tags';
 import typeAttribute from '@grr/proact/spec/attributes';
-import { isHtmlElement, isVoidElement, hasRawText } from '@grr/proact/spec/elements';
+import {
+  isHtmlElement,
+  isVoidElement,
+  hasRawText,
+} from '@grr/proact/spec/elements';
 
 // vDOM
 import Node from '@grr/proact/vdom/node';
@@ -12,7 +16,13 @@ import Component from '@grr/proact/vdom/component';
 import { define, lookup } from '@grr/proact/vdom/registry';
 
 // Driver
-import { isIgnorable, isTextual, next, normalize, pushAll } from '@grr/proact/driver/children';
+import {
+  isIgnorable,
+  isTextual,
+  next,
+  normalize,
+  pushAll,
+} from '@grr/proact/driver/children';
 import Driver from '@grr/proact/driver';
 
 // Render to HTML
@@ -140,18 +150,41 @@ export default harness(__filename, t => {
       const format = el => inspect(el, { breakLength: Infinity });
       const pattern = s => new RegExp(`Element( \\[Proact.Element\\])? ${s}`);
 
-      t.match(format(Element('span')),
-        pattern(`{ name: 'span', properties: {}, children: \\[\\] }`));
+      t.match(
+        format(Element('span')),
+        pattern(`{ name: 'span', properties: {}, children: \\[\\] }`),
+      );
       // The null as 2nd argument is important, since it should *not* be treated as a child.
-      t.match(format(Element('span', null, 'hello!')),
-        pattern(`{ name: 'span', properties: {}, children: \\[ 'hello!' \\] }`));
-      t.match(format(Element('span', null, Symbol('ooh special'))),
-        pattern(`{ name: 'span', properties: {}, children: \\[ Symbol\\(ooh special\\) \\] }`));
-      t.match(format(Element('span', { class: ['x', 42] })),
-        pattern(`{ name: 'span', properties: { class: \\[ 'x', 42 \\] }, children: \\[\\] }`));
-      t.match(format(Element('span', { class: 'greeting', lang: 'en', tabindex: -1 }, 'yo', 42)),
-        pattern(`{ name: 'span', properties: { class: 'greeting', lang: 'en', tabindex: -1 }, `
-          + `children: \\[ 'yo42' \\] }`));
+      t.match(
+        format(Element('span', null, 'hello!')),
+        pattern(`{ name: 'span', properties: {}, children: \\[ 'hello!' \\] }`),
+      );
+      t.match(
+        format(Element('span', null, Symbol('ooh special'))),
+        pattern(
+          `{ name: 'span', properties: {}, children: \\[ Symbol\\(ooh special\\) \\] }`,
+        ),
+      );
+      t.match(
+        format(Element('span', { class: ['x', 42] })),
+        pattern(
+          `{ name: 'span', properties: { class: \\[ 'x', 42 \\] }, children: \\[\\] }`,
+        ),
+      );
+      t.match(
+        format(
+          Element(
+            'span',
+            { class: 'greeting', lang: 'en', tabindex: -1 },
+            'yo',
+            42,
+          ),
+        ),
+        pattern(
+          `{ name: 'span', properties: { class: 'greeting', lang: 'en', tabindex: -1 }, ` +
+            `children: \\[ 'yo42' \\] }`,
+        ),
+      );
       t.end();
     });
 
@@ -173,7 +206,10 @@ export default harness(__filename, t => {
       // simplifies code that inspects only one or two vDOM nodes. All other
       // traversals should utilize a driver, which does normalization during
       // traversal.
-      t.same(Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children, []);
+      t.same(
+        Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children,
+        [],
+      );
       t.end();
     });
 
@@ -187,19 +223,34 @@ export default harness(__filename, t => {
       t.throws(() => Component.from(665), CODE_INVALID_ARG_TYPE);
       t.throws(() => Component.from(() => {}), CODE_INVALID_ARG_VALUE);
       t.is(Component.from(function fn() {}).prototype.name, 'fn');
-      t.is(Component.from(function fn() {}, 'SomeComponent').prototype.name, 'SomeComponent');
+      t.is(
+        Component.from(function fn() {}, 'SomeComponent').prototype.name,
+        'SomeComponent',
+      );
       t.is(Component.from(function fn() {}, 665).prototype.name, '665');
-      t.is(Component.from(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
-      t.is(Component.from('YetAnotherComponent', () => {}).prototype.name, 'YetAnotherComponent');
+      t.is(
+        Component.from(() => {}, 'AnotherComponent').prototype.name,
+        'AnotherComponent',
+      );
+      t.is(
+        Component.from('YetAnotherComponent', () => {}).prototype.name,
+        'YetAnotherComponent',
+      );
       t.is(Component.from(665, () => {}).prototype.name, '665');
 
       t.throws(() => H(665), CODE_INVALID_ARG_TYPE);
       t.throws(() => H(() => {}), CODE_INVALID_ARG_VALUE);
       t.is(H(function fn() {}).prototype.name, 'fn');
-      t.is(H(function fn() {}, 'SomeComponent').prototype.name, 'SomeComponent');
+      t.is(
+        H(function fn() {}, 'SomeComponent').prototype.name,
+        'SomeComponent',
+      );
       t.is(H(function fn() {}, 665).prototype.name, '665');
       t.is(H(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
-      t.is(H('YetAnotherComponent', () => {}).prototype.name, 'YetAnotherComponent');
+      t.is(
+        H('YetAnotherComponent', () => {}).prototype.name,
+        'YetAnotherComponent',
+      );
       t.is(H(665, () => {}).prototype.name, '665');
 
       t.is(Container.name, 'Container');
@@ -250,10 +301,11 @@ export default harness(__filename, t => {
     });
 
     t.test('h[]', t => {
-      // Make sure `h.a` returns the same element factory every time.
-      const { a } = h;
+      // Make sure h.a returns the same element factory every time. For some
+      // reason, using a destructuring below, results in a syntax error.
+      const a = h.a; // eslint-disable-line prefer-destructuring
 
-      checkElementInstance(t, a({ href: 'location'}, 'somewhere'));
+      checkElementInstance(t, a({ href: 'location' }, 'somewhere'));
       t.is(h.a, a);
       t.end();
     });
@@ -314,12 +366,20 @@ export default harness(__filename, t => {
 
   t.test('Driver()', t => {
     t.test('.context', t => {
-      const ContextConsumer = Component.from(function ContextConsumer(_, __, context) {
+      const ContextConsumer = Component.from(function ContextConsumer(
+        _,
+        __,
+        context,
+      ) {
         t.same(context, { answer: 42 });
         return Element('span');
       });
 
-      const ContextProvider = Component.from(function ContextProvider(_, __, context) {
+      const ContextProvider = Component.from(function ContextProvider(
+        _,
+        __,
+        context,
+      ) {
         t.same(context, {});
         this.provideContext({ answer: 42 });
         return Element('div', null, ContextConsumer());
@@ -336,21 +396,28 @@ export default harness(__filename, t => {
       const nullDriver = new Driver();
       let iter = nullDriver.traverse(a);
 
-      t.same(iter.next(), { done: false, value: { tag: 'enter', object: a }});
-      t.same(iter.next(), { done: false, value: { tag: 'text',  object: 'somewhere' }});
-      t.same(iter.next(), { done: false, value: { tag: 'exit',  object: a }});
-      t.same(iter.next(), { done: true,  value: void 0 });
+      t.same(iter.next(), { done: false, value: { tag: 'enter', object: a } });
+      t.same(iter.next(), {
+        done: false,
+        value: { tag: 'text', object: 'somewhere' },
+      });
+      t.same(iter.next(), { done: false, value: { tag: 'exit', object: a } });
+      t.same(iter.next(), { done: true, value: void 0 });
 
       // Test late binding between driver and handler through handler option.
-      t.is([...nullDriver.traverse(a, { handler: renderToHtml })].join(''),
-        '<a href=location>somewhere</a>');
-      t.is([...nullDriver.traverse(container, { handler: renderToHtml })].join(''),
-        '<div class=custom-container>some text</div>');
+      t.is(
+        [...nullDriver.traverse(a, { handler: renderToHtml })].join(''),
+        '<a href=location>somewhere</a>',
+      );
+      t.is(
+        [...nullDriver.traverse(container, { handler: renderToHtml })].join(''),
+        '<div class=custom-container>some text</div>',
+      );
 
       // Test driver control pane.
       let tested = false;
       const driver = new Driver(function handle(tag, object) {
-        if(!tested && tag === 'enter') {
+        if (!tested && tag === 'enter') {
           tested = true;
 
           t.is(object, a);
@@ -360,13 +427,25 @@ export default harness(__filename, t => {
           t.throws(() => this.skipChildren(container), CODE_INVALID_ARG_VALUE);
 
           t.is(this.replaceChildren(object, 665), this);
-          t.throws(() => this.replaceChildren(void 0, 665), CODE_INVALID_ARG_VALUE);
-          t.throws(() => this.replaceChildren(container, 665), CODE_INVALID_ARG_VALUE);
+          t.throws(
+            () => this.replaceChildren(void 0, 665),
+            CODE_INVALID_ARG_VALUE,
+          );
+          t.throws(
+            () => this.replaceChildren(container, 665),
+            CODE_INVALID_ARG_VALUE,
+          );
           t.throws(() => this.replaceChildren(object), CODE_INVALID_ARG_TYPE);
 
           t.is(this.provideContext(object, {}), this);
-          t.throws(() => this.provideContext(void 0, {}), CODE_INVALID_ARG_VALUE);
-          t.throws(() => this.provideContext(container, {}), CODE_INVALID_ARG_VALUE);
+          t.throws(
+            () => this.provideContext(void 0, {}),
+            CODE_INVALID_ARG_VALUE,
+          );
+          t.throws(
+            () => this.provideContext(container, {}),
+            CODE_INVALID_ARG_VALUE,
+          );
           t.throws(() => this.provideContext(a, 665), CODE_INVALID_ARG_TYPE);
         }
       });
@@ -377,7 +456,7 @@ export default harness(__filename, t => {
       t.throws(() => driver.traverse(), CODE_RESOURCE_BUSY);
 
       let done; // eslint-disable-line no-unused-vars
-      while( !({ done } = iter.next()) );
+      while (!({ done } = iter.next()));
 
       t.end();
     });
@@ -385,7 +464,11 @@ export default harness(__filename, t => {
     t.end();
   });
 
-  const deep = Element('a', null, Element('b', null, Element('i', null, 'nested')));
+  const deep = Element(
+    'a',
+    null,
+    Element('b', null, Element('i', null, 'nested')),
+  );
 
   t.test('html', t => {
     t.test('.renderAttributes()', t => {
@@ -395,7 +478,7 @@ export default harness(__filename, t => {
       const render = attributes => {
         const result = [...renderAttributes(attributes)];
 
-        switch( result.length ) {
+        switch (result.length) {
           case 0:
             return NIL;
           case 1:
@@ -437,17 +520,23 @@ export default harness(__filename, t => {
       t.throws(() => renderToHtml('mad'), CODE_INVALID_ARG_VALUE);
 
       // >>> Custom handler overriding built-in HTML handler.
-      t.is([
-        ...new Driver(new Proxy(renderToHtml, {
-          apply(target, that, [tag, object]) {
-            try {
-              return Reflect.apply(target, that, [tag, object]);
-            } finally {
-              if( tag === 'enter' && object.name === 'b' ) that.skipChildren(object);
-            }
-          }
-        })).traverse(deep)
-      ].join(''), '<a><b></b></a>');
+      t.is(
+        [
+          ...new Driver(
+            new Proxy(renderToHtml, {
+              apply(target, that, [tag, object]) {
+                try {
+                  return Reflect.apply(target, that, [tag, object]);
+                } finally {
+                  if (tag === 'enter' && object.name === 'b')
+                    that.skipChildren(object);
+                }
+              },
+            }),
+          ).traverse(deep),
+        ].join(''),
+        '<a><b></b></a>',
+      );
 
       t.end();
     });
@@ -465,70 +554,108 @@ export default harness(__filename, t => {
         return Element('a', props, children);
       }, 'Link');
 
-      t.is(renderToString(Link('landing page')),
-        '<a>landing page</a>');
-      t.is(renderToString(Link(null, 'landing page')),
-        '<a>landing page</a>');
-      t.is(renderToString(Link(a)),
-        '<a><a href=location>somewhere</a></a>');
-      t.is(renderToString(Link({ href: 'apparebit.com', rel: 'home' }, 'landing page')),
-        '<a href=apparebit.com rel=home>landing page</a>');
-      t.is(renderToString(Link(Link, { href: 'apparebit.com', rel: 'home' }, 'landing page')),
-        '<a href=apparebit.com rel=home>landing page</a>');
-      t.is(renderToString(Link(Link, 'landing page')),
-        '<a>landing page</a>');
+      t.is(renderToString(Link('landing page')), '<a>landing page</a>');
+      t.is(renderToString(Link(null, 'landing page')), '<a>landing page</a>');
+      t.is(renderToString(Link(a)), '<a><a href=location>somewhere</a></a>');
+      t.is(
+        renderToString(
+          Link({ href: 'apparebit.com', rel: 'home' }, 'landing page'),
+        ),
+        '<a href=apparebit.com rel=home>landing page</a>',
+      );
+      t.is(
+        renderToString(
+          Link(Link, { href: 'apparebit.com', rel: 'home' }, 'landing page'),
+        ),
+        '<a href=apparebit.com rel=home>landing page</a>',
+      );
+      t.is(renderToString(Link(Link, 'landing page')), '<a>landing page</a>');
 
       const Unlink = H(function renderLink(props, children) {
         return Element('a', props, children);
       });
 
-      t.is(renderToString(Unlink('Hello, world!')),
-        '<a>Hello, world!</a>');
-      t.is(renderToString(Unlink({ role: 'homebody' }, 'Hello, world!')),
-        '<a role=homebody>Hello, world!</a>');
+      t.is(renderToString(Unlink('Hello, world!')), '<a>Hello, world!</a>');
+      t.is(
+        renderToString(Unlink({ role: 'homebody' }, 'Hello, world!')),
+        '<a role=homebody>Hello, world!</a>',
+      );
 
       // >>> Void elements.
       t.is(renderToString(Element('hr')), '<hr>');
-      t.throws(() => renderToString(Element('hr', {}, 'but, but, but!')),
-        CODE_INVALID_ARG_VALUE);
+      t.throws(
+        () => renderToString(Element('hr', {}, 'but, but, but!')),
+        CODE_INVALID_ARG_VALUE,
+      );
 
       // >>> <html> element without and with doctype.
       t.is(renderToString(Element('html')), '<html></html>');
-      t.is(renderToString(Element('html', { doctype: 'html' })), '<!DOCTYPE html><html></html>');
+      t.is(
+        renderToString(Element('html', { doctype: 'html' })),
+        '<!DOCTYPE html><html></html>',
+      );
 
       // >>> Ignored values.
-      t.is(renderToString(Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])),
-        '<span>W00t!</span>');
+      t.is(
+        renderToString(
+          Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!']),
+        ),
+        '<span>W00t!</span>',
+      );
 
       // >>> Text with consecutive whitespace and escapable characters.
-      t.is(renderToString(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
-        '<span> &lt;BOO&gt; &amp; so on</span>');
+      t.is(
+        renderToString(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
+        '<span> &lt;BOO&gt; &amp; so on</span>',
+      );
 
       // >>> Element with raw text as content.
-      t.is(renderToString(Element('script', {}, '42 < 665 && 13 > 2')),
-        '<script>42 < 665 && 13 > 2</script>');
-      t.is(renderToString(Element('script', null, `<!-- ooh -->'<script></script>'`)),
-        `<script><\\!-- ooh -->'<\\script><\\/script>'</script>`);
-      t.is(renderToString(Element('style', null, '.danger { color: red; }')),
-        '<style>.danger { color: red; }</style>');
+      t.is(
+        renderToString(Element('script', {}, '42 < 665 && 13 > 2')),
+        '<script>42 < 665 && 13 > 2</script>',
+      );
+      t.is(
+        renderToString(
+          Element('script', null, `<!-- ooh -->'<script></script>'`),
+        ),
+        `<script><\\!-- ooh -->'<\\script><\\/script>'</script>`,
+      );
+      t.is(
+        renderToString(Element('style', null, '.danger { color: red; }')),
+        '<style>.danger { color: red; }</style>',
+      );
 
       // >>> Values other than nodes.
       t.is(renderToString(665), '665');
       t.is(renderToString([6, 6, 5].reverse()), '665');
-      t.throws(() => renderToString(Element('span', null, new TypeError())),
-        CODE_INVALID_ARG_TYPE);
-      t.throws(() => renderToString(Element('span', null, Symbol('oops'))),
-        CODE_INVALID_ARG_TYPE);
+      t.throws(
+        () => renderToString(Element('span', null, new TypeError())),
+        CODE_INVALID_ARG_TYPE,
+      );
+      t.throws(
+        () => renderToString(Element('span', null, Symbol('oops'))),
+        CODE_INVALID_ARG_TYPE,
+      );
 
       // >>> Components that render to undefined.
-      t.is(renderToString(Component.from(function ToUndefined() {
-        return void 0;
-      })()), '');
+      t.is(
+        renderToString(
+          Component.from(function ToUndefined() {
+            return void 0;
+          })(),
+        ),
+        '',
+      );
 
       // >>> Components that render to lists.
-      t.is(renderToString(Component.from(function ToMany(props, children) {
-        return [...children, ' ', ...children, ' ', ...children];
-      })({}, 'w00t!')), 'w00t! w00t! w00t!');
+      t.is(
+        renderToString(
+          Component.from(function ToMany(props, children) {
+            return [...children, ' ', ...children, ' ', ...children];
+          })({}, 'w00t!'),
+        ),
+        'w00t! w00t! w00t!',
+      );
 
       t.end();
     });

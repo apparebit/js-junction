@@ -1,6 +1,10 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
-import { FunctionNotImplemented, InvalidArgType, InvalidArgValue } from '@grr/err';
+import {
+  FunctionNotImplemented,
+  InvalidArgType,
+  InvalidArgValue,
+} from '@grr/err';
 import { constant, enumerable, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 import driver from '../driver/hook';
@@ -10,7 +14,9 @@ const { create, defineProperties } = Object;
 const { toStringTag } = Symbol;
 const NodePrototype = Node.prototype;
 
-export default function Component() { throw FunctionNotImplemented('Component()'); }
+export default function Component() {
+  throw FunctionNotImplemented('Component()');
+}
 
 function provideContext(context) {
   driver().provideContext(this, context);
@@ -23,22 +29,22 @@ function provideContext(context) {
  * while also optimizing for readability.
  */
 function from(renderFn, name = renderFn.name) {
-  if( typeof name === 'function' ) {
+  if (typeof name === 'function') {
     [renderFn, name] = [name, renderFn];
-  } else if( typeof renderFn !== 'function' ) {
+  } else if (typeof renderFn !== 'function') {
     throw InvalidArgType({ renderFn }, 'a function');
   }
 
   name = String(name);
-  if( !name ) {
+  if (!name) {
     throw InvalidArgValue({ name }, 'should not be empty');
   }
 
   function RenderFunction(...args) {
-    if( !new.target ) return new RenderFunction(...args);
+    if (!new.target) return new RenderFunction(...args);
 
     // 1st argument may be constructor itself to (redundantly) capture identity.
-    if( args[0] === RenderFunction ) args.shift();
+    if (args[0] === RenderFunction) args.shift();
 
     // Delegate processing of properties to Node.
     apply(Node, this, args);

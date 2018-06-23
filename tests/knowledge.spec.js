@@ -1,12 +1,25 @@
 /* (c) Copyright 2018 Robert Grimm */
 
 import '@grr/mark-of-dev';
-import { addPropertyValue, areEqual, forEachPropertyValue } from '@grr/knowledge/json-ld/values';
+import {
+  addPropertyValue,
+  areEqual,
+  forEachPropertyValue,
+} from '@grr/knowledge/json-ld/values';
 import { constant } from '@grr/knowledge/json-ld/util';
 import harness from './harness';
-import { inverseOf, isSchemaOrgContext } from '@grr/knowledge/semantics/schema-org';
+import {
+  inverseOf,
+  isSchemaOrgContext,
+} from '@grr/knowledge/semantics/schema-org';
 import { join } from 'path';
-import { kindOf, isInvalid, isPrimitive, isValue, kindOfObject } from '@grr/knowledge/json-ld/kind';
+import {
+  kindOf,
+  isInvalid,
+  isPrimitive,
+  isValue,
+  kindOfObject,
+} from '@grr/knowledge/json-ld/kind';
 import Knowledge from '@grr/knowledge';
 import parse from '@grr/knowledge/json-ld/parse';
 import { promisify } from 'util';
@@ -21,7 +34,7 @@ const {
   getOwnPropertyDescriptor,
   getOwnPropertySymbols,
   getPrototypeOf,
-  keys: keysOf
+  keys: keysOf,
 } = Object;
 
 const { isArray } = Array;
@@ -53,7 +66,10 @@ export default harness(__filename, t => {
       t.is(kindOfObject({ '@set': [] }), 'set');
       t.is(kindOfObject({ '@value': null }), 'value');
       t.is(kindOfObject({ '@id': 'http://apparebit.com/' }), 'reference');
-      t.is(kindOfObject({ '@id': 'http://apparebit.com/', '@type': 'WebSite' }), 'node');
+      t.is(
+        kindOfObject({ '@id': 'http://apparebit.com/', '@type': 'WebSite' }),
+        'node',
+      );
 
       t.is(kindOf(665), 'primitive');
       t.is(kindOf(void 0), 'invalid');
@@ -102,22 +118,54 @@ export default harness(__filename, t => {
 
       t.notOk(areEqual({ '@value': 665 }, {}));
       t.notOk(areEqual({}, { '@value': 665 }));
-      t.notOk(areEqual({ '@value': '665', '@type': 'string'},
-        { '@value': '665', '@type': 'number' }));
-      t.notOk(areEqual({ '@value': '665', '@type': 'string', '@language': '??' },
-        { '@value': '665', '@type': 'string', '@language': 'en' }));
-      t.ok(areEqual({ '@value': '665', '@type': 'string', '@language': 'en' },
-        { '@value': '665', '@type': 'string', '@language': 'en' }));
-      t.notOk(areEqual({}, ));
+      t.notOk(
+        areEqual(
+          { '@value': '665', '@type': 'string' },
+          { '@value': '665', '@type': 'number' },
+        ),
+      );
+      t.notOk(
+        areEqual(
+          { '@value': '665', '@type': 'string', '@language': '??' },
+          { '@value': '665', '@type': 'string', '@language': 'en' },
+        ),
+      );
+      t.ok(
+        areEqual(
+          { '@value': '665', '@type': 'string', '@language': 'en' },
+          { '@value': '665', '@type': 'string', '@language': 'en' },
+        ),
+      );
+      t.notOk(areEqual({}));
 
       t.notOk(areEqual({ '@id': 'http://example.com/n1' }, {}));
       t.notOk(areEqual({}, { '@id': 'http://example.com/n1' }));
-      t.notOk(areEqual({ '@id': 'http://example.com/n1' }, { '@id': 'http://example.com/n2' }));
-      t.ok(areEqual({ '@id': 'http://example.com/n' }, { '@id': 'http://example.com/n' }));
-      t.ok(areEqual({ '@id': 'http://example.com/n' },
-        { '@id': 'http://example.com/n', 'key': 'value' }));
+      t.notOk(
+        areEqual(
+          { '@id': 'http://example.com/n1' },
+          { '@id': 'http://example.com/n2' },
+        ),
+      );
+      t.ok(
+        areEqual(
+          { '@id': 'http://example.com/n' },
+          { '@id': 'http://example.com/n' },
+        ),
+      );
+      t.ok(
+        areEqual(
+          { '@id': 'http://example.com/n' },
+          { '@id': 'http://example.com/n', key: 'value' },
+        ),
+      );
 
-      t.throws(() => addPropertyValue({ '@id': 'http://example.com/node.js' }, 'key', 'value'));
+      t.throws(() =>
+        addPropertyValue(
+          { '@id': 'http://example.com/node.js' },
+          'key',
+          'value',
+        ),
+      );
       t.throws(() => addPropertyValue({}, 665, 'value'));
       t.throws(() => addPropertyValue({}, 'key', { '@id': 665 }));
       t.throws(() => addPropertyValue({}, 'key', { '@id': '_:blank' }));
@@ -134,7 +182,7 @@ export default harness(__filename, t => {
         prop8: 42,
       };
 
-      for( let index = 1; index <= 5; index++ ) {
+      for (let index = 1; index <= 5; index++) {
         addPropertyValue(node, `prop${index}`, 665);
       }
 
@@ -160,7 +208,7 @@ export default harness(__filename, t => {
         { key: null },
         { key: 42 },
         { key: 'προπ' },
-        { key: '@set' }
+        { key: '@set' },
       ];
 
       // State.quote(), State.asElements(), and State.asValue() are tested in `err.test.js`.
@@ -189,12 +237,17 @@ export default harness(__filename, t => {
       t.same(walk(null, { state: {} }).ancestors, []);
 
       // The state has no parent.
-      walk({ prop: 1, props: 'n' }, { handlers: {
-        node(value, state) {
-          t.is(state.ancestors.length, 1);
-          t.same(state.parent, {});
-        }
-      } });
+      walk(
+        { prop: 1, props: 'n' },
+        {
+          handlers: {
+            node(value, state) {
+              t.is(state.ancestors.length, 1);
+              t.same(state.parent, {});
+            },
+          },
+        },
+      );
 
       // The machinery for tracing handlers as they are invoked.
       const trace = [];
@@ -207,15 +260,33 @@ export default harness(__filename, t => {
           trace.push('array');
         },
 
-        graph() { trace.push('graph'); },
-        invalid() { trace.push('invalid'); },
-        list() { trace.push('list'); },
-        node() { trace.push('node'); },
-        primitive() { trace.push('primitive'); },
-        reference() { trace.push('reference'); },
-        reverse() { trace.push('reverse'); },
-        set() { trace.push('set'); },
-        value() { trace.push('value'); },
+        graph() {
+          trace.push('graph');
+        },
+        invalid() {
+          trace.push('invalid');
+        },
+        list() {
+          trace.push('list');
+        },
+        node() {
+          trace.push('node');
+        },
+        primitive() {
+          trace.push('primitive');
+        },
+        reference() {
+          trace.push('reference');
+        },
+        reverse() {
+          trace.push('reverse');
+        },
+        set() {
+          trace.push('set');
+        },
+        value() {
+          trace.push('value');
+        },
       };
       const base = (value, state) =>
         trace.push(state.ancestors[state.ancestors.length - 1].kind);
@@ -227,21 +298,38 @@ export default harness(__filename, t => {
         { '@set': [true, false] },
         { '@value': null },
         { '@id': 'http://apparebit.com/' },
-        { '@id': 'http://apparebit.com/', '@type': 'WebSite', 'sad': Symbol('boo') },
+        {
+          '@id': 'http://apparebit.com/',
+          '@type': 'WebSite',
+          sad: Symbol('boo'),
+        },
         { '@reverse': { forward: { '@id': 'http://whiplash.com/' } } },
       ];
 
       // Check that a walk() handled all the right values in the right order.
-      const checkWalk = () => t.same(trace, [
-        'primitive', 'graph',
-        'primitive', 'array', 'list',
-        'primitive', 'primitive', 'array', 'set',
-        'primitive', 'value',
-        'reference',
-        'primitive', 'primitive', 'invalid', 'node',
-        'reference', 'reverse', 'node',
-        'array',
-      ]);
+      const checkWalk = () =>
+        t.same(trace, [
+          'primitive',
+          'graph',
+          'primitive',
+          'array',
+          'list',
+          'primitive',
+          'primitive',
+          'array',
+          'set',
+          'primitive',
+          'value',
+          'reference',
+          'primitive',
+          'primitive',
+          'invalid',
+          'node',
+          'reference',
+          'reverse',
+          'node',
+          'array',
+        ]);
 
       // Walk with individual handlers.
       walk(graph, { handlers });
@@ -264,20 +352,27 @@ export default harness(__filename, t => {
       const knowledge = {
         nodes: { 'http://example.com/conflict1': {} },
 
-        has: function has(id) { return id in this.nodes; },
-        get: function get(id) { return this.nodes[id]; },
-        add: function add(node) { this.nodes[node['@id']] = node; }
+        has: function has(id) {
+          return id in this.nodes;
+        },
+        get: function get(id) {
+          return this.nodes[id];
+        },
+        add: function add(node) {
+          this.nodes[node['@id']] = node;
+        },
       };
 
       // Check validation of context and root nodes.
-      const state = parse(null, knowledge)           // Not an object, case #1: null.
-        .parse(665)                                  // Not an object, case #2: truthy value.
-        .parse([])                                   // Not an object, case #3: array.
-        .parse({                                     // Not Schema.org context but with @id.
+      const state = parse(null, knowledge) // Not an object, case #1: null.
+        .parse(665) // Not an object, case #2: truthy value.
+        .parse([]) // Not an object, case #3: array.
+        .parse({
+          // Not Schema.org context but with @id.
           '@context': 'http://xmlns.com/foaf/0.1/',
-          '@id': 'http://example.com/'
+          '@id': 'http://example.com/',
         })
-        .parse({ '@graph': [], 'key': 'value' });    // Both node object and @graph.
+        .parse({ '@graph': [], key: 'value' }); // Both node object and @graph.
 
       t.is(state.diagnostics.length, 5);
 
@@ -285,111 +380,120 @@ export default harness(__filename, t => {
         'a JSON-LD document must have a JSON object as content',
         'a JSON-LD document must have a JSON object as content',
         'a JSON-LD document must have a JSON object, not an array, as content',
-        '@grr/knowledge requires @context to be based on Schema.org,\n'
-          + 'with either @context or @vocab being "http://schema.org/"',
-        'a JSON-LD document cannot have both a root node and a @graph of nodes'
-      ].forEach((expected, index) => t.is(state.diagnostics[index].message, expected));
+        '@grr/knowledge requires @context to be based on Schema.org,\n' +
+          'with either @context or @vocab being "http://schema.org/"',
+        'a JSON-LD document cannot have both a root node and a @graph of nodes',
+      ].forEach((expected, index) =>
+        t.is(state.diagnostics[index].message, expected),
+      );
 
       state.nodes = { 'http://example.com/conflict2': {} };
       state.diagnostics.length = 0;
       state.parse({
         '@context': 'http://schema.org/',
         '@graph': [
-          {                                              // 🚫 Root node without @id.
-            invalid: Symbol('boo')                       // 🚫 Invalid property value.
+          {
+            // 🚫 Root node without @id.
+            invalid: Symbol('boo'), // 🚫 Invalid property value.
           },
           {
             '@id': 'http://example.com/node1',
-            'prop1': 'val1',
-            'prop2': 'val2',
-            'nested': {                                  // ⚠️ Preserve nested node without @id.
+            prop1: 'val1',
+            prop2: 'val2',
+            nested: {
+              // ⚠️ Preserve nested node without @id.
               prop3: 'val3',
               prop4: 'val4',
-              prop5: {                                   // ⚠️ Preserve @value with @type.
+              prop5: {
+                // ⚠️ Preserve @value with @type.
                 '@value': 665,
-                '@type': 'integer'
-              }
+                '@type': 'integer',
+              },
             },
-            'also-nested': {                             // ⚠️ Hoist nested node with @id.
+            'also-nested': {
+              // ⚠️ Hoist nested node with @id.
               '@id': 'http://example.com/nested/node1',
-              'prop6': 'val6',
-              'prop7': 'val7',
-              'prop8': {                                 // ⚠️ Desugar superfluous @value.
-                '@value': 665
-              }
+              prop6: 'val6',
+              prop7: 'val7',
+              prop8: {
+                // ⚠️ Desugar superfluous @value.
+                '@value': 665,
+              },
             },
-            'contextual': {
-              '@context': 'http://example.com/context',  // 🚫 Unsupported nested context.
-              'prop9': 'val9',
-              'prop0': 'val0',
-              'ooh': [
+            contextual: {
+              '@context': 'http://example.com/context', // 🚫 Unsupported nested context.
+              prop9: 'val9',
+              prop0: 'val0',
+              ooh: [
                 'text',
                 { zoo: 'monkey', loo: 'crocodile' },
-                { '@set': [1, 2, 3] },                   // ⚠️ Desugar superfluous @set.
-                { '@set': 665 },                         // ⚠️ Desugar superfluous @set.
-                ['I', 'am', 'bad']                       // 🚫 Array within array.
-              ]
+                { '@set': [1, 2, 3] }, // ⚠️ Desugar superfluous @set.
+                { '@set': 665 }, // ⚠️ Desugar superfluous @set.
+                ['I', 'am', 'bad'], // 🚫 Array within array.
+              ],
             },
-            'graphic': {
-              '@graph': 'data'                           // 🚫 Nested @graph.
+            graphic: {
+              '@graph': 'data', // 🚫 Nested @graph.
             },
             '@reverse': {
-              url: 'http://example.com/node42',          // ⚠️ Convert to reference.
+              url: 'http://example.com/node42', // ⚠️ Convert to reference.
               ref: {
-                '@id': 'http://example.com/node42'
+                '@id': 'http://example.com/node42',
               },
-              node: {                                    // 🚫 Node has @reverse but no @id.
-                'p1': 'v1',
-                'p2': 'v2',
-                '@reverse': 665,                         // 🚫 Invalid value for @reverse.
+              node: {
+                // 🚫 Node has @reverse but no @id.
+                p1: 'v1',
+                p2: 'v2',
+                '@reverse': 665, // 🚫 Invalid value for @reverse.
               },
-              badURL: 'node665',                         // 🚫 Bad URL for @reverse property value.
-            }
+              badURL: 'node665', // 🚫 Bad URL for @reverse property value.
+            },
           },
           {
-            '@id': 'http://example.com/conflict1',       // 🚫 @id already is in knowledge base.
-            'prop': 'val'
+            '@id': 'http://example.com/conflict1', // 🚫 @id already is in knowledge base.
+            prop: 'val',
           },
           {
-            '@id': 'http://example.com/conflict2',       // 🚫 @id already is in document.
-            'prop': 'val'
+            '@id': 'http://example.com/conflict2', // 🚫 @id already is in document.
+            prop: 'val',
           },
           {
-            '@id': 665,                                  // 🚫 Invalid @id value.
-            'prop': 'val'
+            '@id': 665, // 🚫 Invalid @id value.
+            prop: 'val',
           },
           {
-            '@id': '_:blank',                            // 🚫 Unsupported blank node identifier.
-            'prop': 'val'
+            '@id': '_:blank', // 🚫 Unsupported blank node identifier.
+            prop: 'val',
           },
           {
             '@value': 42,
-            '@reverse': 'drawrof'                        // 🚫 Invalid property for @value object.
+            '@reverse': 'drawrof', // 🚫 Invalid property for @value object.
           },
           {
             '@value': 42,
-            '@reverse': 'drawrof',                       // 🚫 Invalid property for @value object.
-            '@vocab': 'blah blah blah'                   // 🚫 Invalid property or @value object.
+            '@reverse': 'drawrof', // 🚫 Invalid property for @value object.
+            '@vocab': 'blah blah blah', // 🚫 Invalid property or @value object.
           },
           {
-            '@value': {},                                // 🚫 Invalid value for @value object.
-            '@type': 'Object'
+            '@value': {}, // 🚫 Invalid value for @value object.
+            '@type': 'Object',
           },
           {
-            '@value': 665                                // 🚫 @value object as document root.
+            '@value': 665, // 🚫 @value object as document root.
           },
-          {                                              // 🚫 @list object as document root.
-            '@list': [{ '@list': 0 }, { '@set': 0 }]     // 🚫 @list with nested @list and @set.
-          }
-        ]
+          {
+            // 🚫 @list object as document root.
+            '@list': [{ '@list': 0 }, { '@set': 0 }], // 🚫 @list with nested @list and @set.
+          },
+        ],
       });
 
-      state.parse({ '@id': 'http://example.com/node42', 'prop': 'val' });
-      state.parse({ '@list': NaN });                     // 🚫 @list object as document root.
-      state.parse({ '@set': NaN });                      // 🚫 @set object as document root.
-      state.parse({ '@value': NaN });                    // 🚫 @value object as document root.
+      state.parse({ '@id': 'http://example.com/node42', prop: 'val' });
+      state.parse({ '@list': NaN }); // 🚫 @list object as document root.
+      state.parse({ '@set': NaN }); // 🚫 @set object as document root.
+      state.parse({ '@value': NaN }); // 🚫 @value object as document root.
 
-      t.is(state.diagnostics.length, 24);  // The number of errors above.
+      t.is(state.diagnostics.length, 24); // The number of errors above.
       t.is(keysOf(state.nodes).length, 6); // The number of nodes in primary index.
 
       // >>> Positive reinforcement: Check node properties.
@@ -400,7 +504,9 @@ export default harness(__filename, t => {
       t.same(node1.nested.prop5, { '@value': 665, '@type': 'integer' });
 
       // Nested node with @id is hoisted and superfluous @value is desugared.
-      t.same(node1['also-nested'], { '@id': 'http://example.com/nested/node1' });
+      t.same(node1['also-nested'], {
+        '@id': 'http://example.com/nested/node1',
+      });
       t.is(state.nodes['http://example.com/nested/node1'].prop8, 665);
 
       // Superfluous @set is desugared.
@@ -414,7 +520,7 @@ export default harness(__filename, t => {
         2,
         3,
         665,
-        ['I', 'am', 'bad']  // See 3rd error message below.
+        ['I', 'am', 'bad'], // See 3rd error message below.
       ]);
 
       // Plain text URL has been replaced with equivalent reference.
@@ -422,46 +528,48 @@ export default harness(__filename, t => {
 
       // >>> Negative reinforcement: Check error messages.
       [
-        `JSON-LD data at path "['@graph'][0]['invalid']" has value "Symbol(boo)", `
-          + `which is not supported by JSON-LD`,
+        `JSON-LD data at path "['@graph'][0]['invalid']" has value "Symbol(boo)", ` +
+          `which is not supported by JSON-LD`,
         `JSON-LD data at path "['@graph'][0]" is a root node without @id`,
-        `JSON-LD data at path "['@graph'][1]['contextual']['ooh']" is array with invalid value `
-          + `"[ 'I', 'am', 'bad' ]",\nwhich should be null, a boolean, number, string, `
-          + `@value, @set, @list, reference, or node`,
-        `JSON-LD data at path "['@graph'][1]['contextual']" includes nested @context `
-          + `unsupported by @grr/knowledge`,
-        `JSON-LD data at path "['@graph'][1]['graphic']" includes nested @graph `
-          + `unsupported by @grr/knowledge`,
-        `JSON-LD data at path "['@graph'][1]['@reverse']['node']['@reverse']" `
-          + `is the @reverse property of a node without @id`,
-        `JSON-LD data at path "['@graph'][1]['@reverse']['node']['@reverse']" `
-          + `is a value other than an object`,
-        `JSON-LD data at path "['@graph'][1]['@reverse']['badURL']" `
-          + `is @reverse property value "'node665'" but should be a node, reference, or URL`,
-        `JSON-LD data at path "['@graph'][2]" is duplicate of node with `
-          + `@id "http://example.com/conflict1" in knowledge base`,
-        `JSON-LD data at path "['@graph'][3]" is duplicate of node with `
-          + `@id "http://example.com/conflict2" in same document`,
+        `JSON-LD data at path "['@graph'][1]['contextual']['ooh']" is array with invalid value ` +
+          `"[ 'I', 'am', 'bad' ]",\nwhich should be null, a boolean, number, string, ` +
+          `@value, @set, @list, reference, or node`,
+        `JSON-LD data at path "['@graph'][1]['contextual']" includes nested @context ` +
+          `unsupported by @grr/knowledge`,
+        `JSON-LD data at path "['@graph'][1]['graphic']" includes nested @graph ` +
+          `unsupported by @grr/knowledge`,
+        `JSON-LD data at path "['@graph'][1]['@reverse']['node']['@reverse']" ` +
+          `is the @reverse property of a node without @id`,
+        `JSON-LD data at path "['@graph'][1]['@reverse']['node']['@reverse']" ` +
+          `is a value other than an object`,
+        `JSON-LD data at path "['@graph'][1]['@reverse']['badURL']" ` +
+          `is @reverse property value "'node665'" but should be a node, reference, or URL`,
+        `JSON-LD data at path "['@graph'][2]" is duplicate of node with ` +
+          `@id "http://example.com/conflict1" in knowledge base`,
+        `JSON-LD data at path "['@graph'][3]" is duplicate of node with ` +
+          `@id "http://example.com/conflict2" in same document`,
         `JSON-LD data at path "['@graph'][4]" has @id "665", which is not an IRI`,
-        `JSON-LD data at path "['@graph'][5]" has blank node identifier "_:blank" `
-          + `unsupported by @grr/knowledge`,
-        `JSON-LD data at path "['@graph'][6]" is a @value object with superfluous `
-          + `key "@reverse"`,
+        `JSON-LD data at path "['@graph'][5]" has blank node identifier "_:blank" ` +
+          `unsupported by @grr/knowledge`,
+        `JSON-LD data at path "['@graph'][6]" is a @value object with superfluous ` +
+          `key "@reverse"`,
         `JSON-LD data at path "['@graph'][6]" places @value at root`,
-        `JSON-LD data at path "['@graph'][7]" is a @value object with superfluous keys `
-          + `"@reverse" and "@vocab"`,
+        `JSON-LD data at path "['@graph'][7]" is a @value object with superfluous keys ` +
+          `"@reverse" and "@vocab"`,
         `JSON-LD data at path "['@graph'][7]" places @value at root`,
-        `JSON-LD data at path "['@graph'][8]" is invalid @value "{}", which is neither null, `
-          + `a boolean, a number, or a string`,
+        `JSON-LD data at path "['@graph'][8]" is invalid @value "{}", which is neither null, ` +
+          `a boolean, a number, or a string`,
         `JSON-LD data at path "['@graph'][8]" places @value at root`,
         `JSON-LD data at path "['@graph'][9]" places @value at root`,
-        `JSON-LD data at path "['@graph'][10]" is @list with invalid value "{ '@list': 0 }",\n`
-          + `which should be null, a boolean, number, string, @value, reference, or node`,
+        `JSON-LD data at path "['@graph'][10]" is @list with invalid value "{ '@list': 0 }",\n` +
+          `which should be null, a boolean, number, string, @value, reference, or node`,
         `JSON-LD data at path "['@graph'][10]" places @list at root`,
         `JSON-LD document places @list at root`,
         `JSON-LD document places @set at root`,
-        `JSON-LD document places @value at root`
-      ].forEach((expected, index) => t.is(state.diagnostics[index].message, expected));
+        `JSON-LD document places @value at root`,
+      ].forEach((expected, index) =>
+        t.is(state.diagnostics[index].message, expected),
+      );
 
       t.throws(() => state.throwOnFailure());
       t.is(keysOf(knowledge.nodes).length, 1);
@@ -504,22 +612,39 @@ export default harness(__filename, t => {
 
       t.is(toSiteAndAccount('https://www.myspace.com/apparebit'), null); // Oops!
 
-      t.same(toSiteAndAccount('https://www.facebook.com/apparebit'),
-        { site: 'facebook', account: 'apparebit' });
-      t.same(toSiteAndAccount('https://www.facebook.com/apparebit/'),
-        { site: 'facebook', account: 'apparebit' });
+      t.same(toSiteAndAccount('https://www.facebook.com/apparebit'), {
+        site: 'facebook',
+        account: 'apparebit',
+      });
+      t.same(toSiteAndAccount('https://www.facebook.com/apparebit/'), {
+        site: 'facebook',
+        account: 'apparebit',
+      });
 
-      t.same(toSiteAndAccount('https://developers.facebook.com/apps/12345678'),
-        { site: 'fbAppId', account: '12345678' });
-      t.same(toSiteAndAccount('https://github.com/apparebit'),
-        { site: 'github', account: 'apparebit' });
-      t.same(toSiteAndAccount('https://www.linkedin.com/in/apparebit'),
-        { site: 'linkedin', account: 'apparebit' });
-      t.same(toSiteAndAccount('https://www.npmjs.com/~grr'),
-        { site: 'npm', account: 'grr'});
-      t.same(toSiteAndAccount('https://twitter.com/apparebit'),
-        { site: 'twitter', account: 'apparebit' });
-      t.is(toUserUrl('facebook', 'apparebit'), 'https://www.facebook.com/apparebit');
+      t.same(
+        toSiteAndAccount('https://developers.facebook.com/apps/12345678'),
+        { site: 'fbAppId', account: '12345678' },
+      );
+      t.same(toSiteAndAccount('https://github.com/apparebit'), {
+        site: 'github',
+        account: 'apparebit',
+      });
+      t.same(toSiteAndAccount('https://www.linkedin.com/in/apparebit'), {
+        site: 'linkedin',
+        account: 'apparebit',
+      });
+      t.same(toSiteAndAccount('https://www.npmjs.com/~grr'), {
+        site: 'npm',
+        account: 'grr',
+      });
+      t.same(toSiteAndAccount('https://twitter.com/apparebit'), {
+        site: 'twitter',
+        account: 'apparebit',
+      });
+      t.is(
+        toUserUrl('facebook', 'apparebit'),
+        'https://www.facebook.com/apparebit',
+      );
 
       t.end();
     });
@@ -550,7 +675,9 @@ export default harness(__filename, t => {
     // >>> Check adding nodes and properties.
     t.throws(() => corpus.add({ '@set': 665 }));
     t.throws(() => corpus.add({ prop1: 'val1', prop2: 'val2' }));
-    t.throws(() => corpus.add({ '@id': 'https://apparebit.com', 'prop1': 'val1' }));
+    t.throws(() =>
+      corpus.add({ '@id': 'https://apparebit.com', prop1: 'val1' }),
+    );
 
     t.notOk(corpus.has('https://apparebit.com/library/form.css'));
     corpus.add({
@@ -568,16 +695,16 @@ export default harness(__filename, t => {
     const iter1 = corpus.values();
     const iter2 = corpus[iterator]();
 
-    while( true ) {
+    while (true) {
       const { value: v1, done: done1 } = iter1.next();
       const { value: v2, done: done2 } = iter2.next();
 
       t.is(v1, v2);
       t.is(done1, done2);
-      if( done1 || done2 ) break;
+      if (done1 || done2) break;
     }
 
-    for( const [id, node] of corpus.entries() ) {
+    for (const [id, node] of corpus.entries()) {
       t.is(node['@id'], id);
     }
 
@@ -598,26 +725,27 @@ export default harness(__filename, t => {
     // >>> Check linking of reverse and inverse properties.
     t.is(ubu.mainEntity.mainEntityOfPage, void 0);
     corpus.link();
-    t.same(ubu.mainEntity.mainEntityOfPage,
-      { '@id': 'https://apparebit.com/project/ubu-trump' });
+    t.same(ubu.mainEntity.mainEntityOfPage, {
+      '@id': 'https://apparebit.com/project/ubu-trump',
+    });
 
     // Clearly, `center` is a regular reference, not a wrapped version.
     const center = {
       '@id': 'http://example.com/center',
-      'payload': 42,
-      'nested': {
-        'journey': {
+      payload: 42,
+      nested: {
+        journey: {
           to: {
             the: {
               center: {
                 '@id': 'http://example.com/center',
-              }
-            }
-          }
+              },
+            },
+          },
         },
         '@reverse': {
           porp: { '@id': 'http://example.com/offchart' },
-        }
+        },
       },
       '@reverse': {
         one: {
@@ -629,10 +757,10 @@ export default harness(__filename, t => {
           },
           {
             payload: 484,
-          }
+          },
         ],
         three: { '@id': 'http://example.com/offchart' },
-      }
+      },
     };
 
     // Still, we are only dealing in conventional data records.
@@ -647,15 +775,21 @@ export default harness(__filename, t => {
     const value = { number: 42 };
     const original = {
       key: { value },
-      toString() { return { '@id': 'http://raven.com/nevermore' }; }
+      toString() {
+        return { '@id': 'http://raven.com/nevermore' };
+      },
     };
     t.notOk(Knowledge.isGraphView(original));
 
     const wrapped = kb.wrap(original);
     t.ok(Knowledge.isGraphView(wrapped));
     t.is(kb.wrap(wrapped), wrapped); // No double wraping, please!
-    t.throws(() => { wrapped.key = 665; },  // No updates, please!
-      `@grr/knowledge's graph view is read-only and prevents modification`);
+    t.throws(
+      () => {
+        wrapped.key = 665;
+      }, // No updates, please!
+      `@grr/knowledge's graph view is read-only and prevents modification`,
+    );
 
     const result = wrapped.toString();
     t.ok(Knowledge.isGraphView(result));
@@ -669,24 +803,34 @@ export default harness(__filename, t => {
     t.ok(Knowledge.isGraphView(wrapped.key.value));
     t.notOk(Knowledge.isGraphView(wrapped.key.value.number));
 
-    const subject = kb.wrap(create(null, {
-      special: {
-        configurable: true,
-        enumerable: true,
-        get() { return this.number; },
-        set(v) { this.number = v; }
-      },
-      readonly: {
-        configurable: true,
-        enumerable: true,
-        get() { return this.number; }
-      },
-      nevermore: {
-        configurable: true,
-        enumerable: true,
-        set(number) { this.number = number; }
-      }
-    }));
+    const subject = kb.wrap(
+      create(null, {
+        special: {
+          configurable: true,
+          enumerable: true,
+          get() {
+            return this.number;
+          },
+          set(v) {
+            this.number = v;
+          },
+        },
+        readonly: {
+          configurable: true,
+          enumerable: true,
+          get() {
+            return this.number;
+          },
+        },
+        nevermore: {
+          configurable: true,
+          enumerable: true,
+          set(number) {
+            this.number = number;
+          },
+        },
+      }),
+    );
 
     // The descriptor for a non-existent property must be `undefined`.
     t.is(getOwnPropertyDescriptor(subject, 'whatever'), void 0);

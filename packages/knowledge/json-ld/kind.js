@@ -15,7 +15,12 @@ const { isArray } = Array;
  * @returns {boolean}
  */
 export function isPrimitive(entity, type = typeof entity) {
-  return entity === null || type === 'boolean' || type === 'number' || type === 'string';
+  return (
+    entity === null ||
+    type === 'boolean' ||
+    type === 'number' ||
+    type === 'string'
+  );
 }
 
 /**
@@ -52,17 +57,17 @@ export function isValue(entity) {
  * @returns {string} The kind.
  */
 export function kindOfObject(entity) {
-  if( isArray(entity) ) {
+  if (isArray(entity)) {
     return 'array';
-  } else if( '@graph' in entity ) {
+  } else if ('@graph' in entity) {
     return 'graph';
-  } else if( '@list' in entity ) {
+  } else if ('@list' in entity) {
     return 'list';
-  } else if( '@set' in entity ) {
+  } else if ('@set' in entity) {
     return 'set';
-  } else if( isValue(entity) ) {
+  } else if (isValue(entity)) {
     return 'value';
-  } else if( '@id' in entity && keysOf(entity).length === 1 ) {
+  } else if ('@id' in entity && keysOf(entity).length === 1) {
     return 'reference';
   } else {
     return 'node';
@@ -86,11 +91,11 @@ const KIND = Symbol('@kind');
 export function kindOf(entity, forced = false) {
   const type = typeof entity;
 
-  if( isPrimitive(entity, type) ) {
+  if (isPrimitive(entity, type)) {
     return 'primitive';
-  } else if( isInvalid(entity, type) ) {
+  } else if (isInvalid(entity, type)) {
     return 'invalid';
-  } else if( !forced && typeof entity[KIND] === 'string' ) {
+  } else if (!forced && typeof entity[KIND] === 'string') {
     return entity[KIND];
   } else {
     const kind = kindOfObject(entity);

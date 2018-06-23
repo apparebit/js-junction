@@ -11,9 +11,9 @@ const { stringify } = JSON;
 function asPath({ ancestors }) {
   const path = [];
 
-  for( const { key } of ancestors ) {
-    if( key != null) {
-      if( typeof key === 'number' ) {
+  for (const { key } of ancestors) {
+    if (key != null) {
+      if (typeof key === 'number') {
         path.push(`[${key}]`);
       } else {
         path.push(`['${stringify(key).slice(1, -1)}']`);
@@ -45,7 +45,7 @@ export default class State {
 
     // Any entity is at the document's root if there are (1) no other ancestors
     // or (2) only one ancestor that is an array.
-    switch( visiting.length ) {
+    switch (visiting.length) {
       case 1:
         return true;
       case 2:
@@ -56,7 +56,7 @@ export default class State {
   }
 
   hasDiagnostics(count) {
-    if( typeof count === 'undefined' ) {
+    if (typeof count === 'undefined') {
       return this.diagnostics.length > 0;
     } else {
       return this.diagnostics.length === count;
@@ -68,15 +68,19 @@ export default class State {
   }
 
   emitBadRoot() {
-    if( this.ancestors.length < 2 ) {
-      this.emitBadDocument(`JSON-LD document places @${this.current.kind} at root`);
+    if (this.ancestors.length < 2) {
+      this.emitBadDocument(
+        `JSON-LD document places @${this.current.kind} at root`,
+      );
     } else {
       this.emitBadValue(`places @${this.current.kind} at root`);
     }
   }
 
   emitBadValue(spec) {
-    this.diagnostics.push(MalstructuredData(`JSON-LD data at path "${asPath(this)}" ${spec}`));
+    this.diagnostics.push(
+      MalstructuredData(`JSON-LD data at path "${asPath(this)}" ${spec}`),
+    );
   }
 }
 

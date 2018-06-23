@@ -9,9 +9,9 @@ const SIGNAL = Symbol('signal');
 function formatChildProcessExited(pid, code, signal) {
   const prefix = `child process ${pid} exited`;
 
-  if( code === 0 ) {
+  if (code === 0) {
     return `${prefix} normally with code "0"`;
-  } else if( code != null ) {
+  } else if (code != null) {
     return `${prefix} abnormally with code "${code}"`;
   } else {
     return `${prefix} abnormally with signal "${signal}"`;
@@ -26,23 +26,35 @@ class ChildProcessErrorType extends CodedError {
     this[SIGNAL] = signal;
   }
 
-  get pid() { return this[PID]; }
-  get exitCode() { return this[EXIT_CODE]; }
-  get signal() { return this[SIGNAL]; }
+  get pid() {
+    return this[PID];
+  }
+  get exitCode() {
+    return this[EXIT_CODE];
+  }
+  get signal() {
+    return this[SIGNAL];
+  }
 }
 
 export function ChildProcessExited(pid, code, signal) {
   return new ChildProcessErrorType(
-    'ERR_CHILD_PROCESS_EXITED', pid,
+    'ERR_CHILD_PROCESS_EXITED',
+    pid,
     formatChildProcessExited(pid, code, signal),
-    code, signal, ChildProcessExited
+    code,
+    signal,
+    ChildProcessExited,
   );
 }
 
 export function ChildProcessError(pid, err) {
   return new ChildProcessErrorType(
-    'ERR_CHILD_PROCESS_ERR', pid,
+    'ERR_CHILD_PROCESS_ERR',
+    pid,
     `child process ${pid} raised error: ${err.message}`,
-    null, null, ChildProcessError
+    null,
+    null,
+    ChildProcessError,
   ).causedBy(err);
 }

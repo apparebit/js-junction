@@ -4,16 +4,19 @@ import { ChildProcessError, ChildProcessExited } from '@grr/err';
 
 const { execArgv } = process;
 
-const WITH_INSPECTOR = new RegExp(`^(${['', '-brk', '-port']
-  .map(suffix => [`--inspect${suffix}`, `--debug${suffix}`])
-  .reduce((flags, pair) => [...flags, ...pair])
-  .join('|')})(?:=(\\d+))?$`, 'u');
+const WITH_INSPECTOR = new RegExp(
+  `^(${['', '-brk', '-port']
+    .map(suffix => [`--inspect${suffix}`, `--debug${suffix}`])
+    .reduce((flags, pair) => [...flags, ...pair])
+    .join('|')})(?:=(\\d+))?$`,
+  'u',
+);
 
 export function withoutInspector(args = execArgv) {
   const result = [];
 
-  for( const arg of args ) {
-    if( !arg.match(WITH_INSPECTOR) ) {
+  for (const arg of args) {
+    if (!arg.match(WITH_INSPECTOR)) {
       result.push(arg);
     }
   }
@@ -27,7 +30,7 @@ export function onExit(child) {
       reject(ChildProcessError(child.pid, err));
     });
     child.once('exit', (code, signal) => {
-      if( code === 0 ) {
+      if (code === 0) {
         resolve();
       } else {
         reject(ChildProcessExited(child.pid, code, signal));
