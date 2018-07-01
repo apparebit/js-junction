@@ -1,11 +1,12 @@
 {
-  "name": "faux-repo",
+  "name": "das-paket",
   "private": true,
+  "description": "ooh",
   "version": "2.0.0",
-  "devDependencies": {
+  "dependencies": {
     "my-precious": "0.4.2"
   },
   "workspaces": [
-    "packages/*"
+    "imaginary/*"
   ]
 }
