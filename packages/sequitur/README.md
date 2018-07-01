@@ -1,15 +1,14 @@
 # @grr/sequitur
 
-> Refined iterators, iterables, and generator functions.
+> Fluent and lazy combinators for iterators and generators
 
-This package builds on ECMAScript's iterators, iterables, and generator
-functions, provides handy tests for detecting them and constants to more easily
-access them, and defines several functional combinators operating on arbitrary
-iteration sequences. While many of the combinator names are familiar, this
-package's versions differ by being (1) lazy, i.e., they only access an element
-if strictly necessary, (2) fluent, i.e., they are implemented as methods to be
-mixed into some iterable object and (3) reusable, i.e., the same chain of
-combinators can be reused for more than one computation.
+This package provides fluent combinators for iterators and generators in form of
+a lightweight wrapper, the sequence abstraction `Sq`. That wrapper accepts
+generator functions, iterables, generators, iterators, as well as explicit
+values as the source iteration. It converts each into an iterator factory, which
+appears to be the common core of all iteration abstractions in JavaScript.
+Nonterminal combinators are lazy, consuming upstream elements only when there is
+a downstream need. For now, sequences cannot include asynchronous operations.
 
 ## ECMAScript Only
 

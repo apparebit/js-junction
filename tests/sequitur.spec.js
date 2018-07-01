@@ -6,17 +6,13 @@ import {
   isIterable,
   isIterator,
   IteratorPrototype,
-  toIterable,
-  toIterator,
   toIteratorFactory,
-  toReplayable,
 } from '@grr/sequitur/iterations';
 
 import harness from './harness';
 
 const { create, getOwnPropertyDescriptors, getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
-const NUMBERS = [42, 665, 13];
 
 export default harness(__filename, t => {
   t.test('iterations', t => {
@@ -125,33 +121,6 @@ export default harness(__filename, t => {
       t.end();
     });
 
-    function createStepFunction() {
-      let index = 0;
-
-      return () => {
-        if (index < NUMBERS.length) {
-          // Please do note that yielded values are objects.
-          return { value: { value: NUMBERS[index++] } };
-        } else {
-          return { done: true };
-        }
-      };
-    }
-
-    t.test('toIterator()', t => {
-      const iter = toIterator(createStepFunction());
-      t.is(iter.next().value.value, 42);
-      t.is(iter.next().value.value, 665);
-      t.is(iter.next().value.value, 13);
-      t.is(iter.next().value, void 0);
-      t.end();
-    });
-
-    t.test('toIterable', t => {
-      t.same([...toIterable(NUMBERS[iterator]())], NUMBERS);
-      t.end();
-    });
-
     t.test('EmptyIterator', t => {
       t.ok(isIterable(EmptyIterator));
       t.ok(isIterator(EmptyIterator));
@@ -171,30 +140,20 @@ export default harness(__filename, t => {
       t.end();
     });
 
-    t.test('toReplayable()', t => {
-      const iter = toReplayable(toIterator(createStepFunction()));
-
-      const a1 = [...iter()];
-      const a2 = [...iter()];
-
-      t.is(a1.length, 3);
-      t.is(a2.length, 3);
-      t.is(a1[0], a2[0]);
-      t.is(a1[1], a2[1]);
-      t.is(a1[2], a2[2]);
-
-      t.end();
-    });
-
     t.test('toIteratorFactory()', t => {
+      const NUMBERS = [42, 665, 13];
+
+      // (if-else clause 1) No argument.
       let fact = toIteratorFactory();
       t.same([...fact()], []);
       t.same([...fact()], []);
 
+      // (if-else clause 2) An iterator that nominally also is an iterable.
       fact = toIteratorFactory(NUMBERS[iterator]());
       t.same([...fact()], NUMBERS);
-      t.same([...fact()], NUMBERS);
+      t.same([...fact()], []);
 
+      // (if-else clause 2) An iterator that is not iterable.
       const iter = NUMBERS[iterator]();
       fact = toIteratorFactory({
         next() {
@@ -202,16 +161,28 @@ export default harness(__filename, t => {
         },
       });
       t.same([...fact()], NUMBERS);
-      t.same([...fact()], NUMBERS);
+      t.same([...fact()], []);
 
+      // (if-else clause 3) A true iterable.
       fact = toIteratorFactory(NUMBERS);
       t.same([...fact()], NUMBERS);
       t.same([...fact()], NUMBERS);
 
-      fact = toIteratorFactory(() => NUMBERS);
+      // (if-else clause 4) An iterator factory.
+      fact = toIteratorFactory(() => NUMBERS[iterator]());
       t.same([...fact()], NUMBERS);
       t.same([...fact()], NUMBERS);
 
+      // (if-else clause 4) A generator.
+      fact = toIteratorFactory(function* gen() {
+        yield 42;
+        yield 665;
+        yield 13;
+      });
+      t.same([...fact()], NUMBERS);
+      t.same([...fact()], NUMBERS);
+
+      // (if-else clause 5) Some other arbitrary value.
       fact = toIteratorFactory(665);
       t.same([...fact()], [665]);
       t.same([...fact()], [665]);

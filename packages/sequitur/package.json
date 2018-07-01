@@ -1,6 +1,6 @@
 {
   "name": "@grr/sequitur",
-  "description": "Refined iterators, iterables, and generator functions",
+  "description": "Fluent and lazy combinators for iterators and generators",
   "keywords": [
     "iterable",
     "iterator",
