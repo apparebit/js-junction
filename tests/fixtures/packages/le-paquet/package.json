@@ -5,5 +5,7 @@
   "version": "2.0.0",
   "peerDependencies": {
     "my-precious": "0.4.2"
-  }
+  },
+  "author": "Robert Grimm",
+  "license": "MIT"
 }

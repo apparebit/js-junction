@@ -8,5 +8,7 @@
   },
   "workspaces": [
     "imaginary/*"
-  ]
+  ],
+  "author": "Robert Grimm",
+  "license": "MIT"
 }
