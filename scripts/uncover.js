@@ -3,21 +3,16 @@
 import chalk from 'chalk';
 import { dirname, relative, resolve } from 'path';
 import { EOL } from 'os';
-import { originalToInstrumented } from '@grr/inventory';
-import { promisify } from 'util';
-import { readdir as doReadDirectory, readFile as doReadFile } from 'fs';
+import { findInstrumentedModules, findCoveredModules } from '@grr/inventory';
 
 const { keys: keysOf } = Object;
-const { parse } = JSON;
-const readDirectory = promisify(doReadDirectory);
-const readFile = promisify(doReadFile);
 
 // N.B.: Print to stderr instead of stdout, since node-tap uses the latter.
 
 (async function run() {
   const root = resolve(__dirname, '..');
   const pkgs = resolve(root, 'packages');
-  const mapping = await originalToInstrumented(root);
+  const mapping = await findInstrumentedModules(root);
   const originals = keysOf(mapping).sort();
 
   // *** Print original module name for each instrumented module ***
@@ -41,35 +36,11 @@ const readFile = promisify(doReadFile);
   }
 
   // *** Print original module name for each module with saved coverage ***
-  const nycOutput = resolve(root, '.nyc_output');
-
-  let files;
-  try {
-    files = (await readDirectory(nycOutput)).filter(
-      name => name[0] !== '.' && name.endsWith('.json'),
-    );
-  } catch (x) {
-    if (x.code === 'ENOENT') {
-      files = [];
-    } else {
-      throw x;
-    }
-  }
-
-  const coverset = new Set();
-  for (const file of files) {
-    const path = resolve(nycOutput, file);
-    const text = await readFile(path, 'utf8');
-    for (const key of keysOf(parse(text))) {
-      coverset.add(key);
-    }
-  }
-
-  const covered = [...coverset].sort();
+  const covered = findCoveredModules();
   if (covered.length) {
     console.error(chalk.bold.black(`${EOL}Modules Covered by NYC${EOL}`));
 
-    for (const path of [...covered].sort()) {
+    for (const path of covered.sort()) {
       console.error(chalk.black(path));
     }
   }

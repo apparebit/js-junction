@@ -13,8 +13,9 @@ const tests = resolve(__dirname, '..', 'tests');
 
 const args = parseArguments(process.argv.slice(2), {
   default: {
-    trace: false,
+    only: '',
     tap: true,
+    verbose: false,
   },
 });
 
@@ -23,15 +24,20 @@ const args = parseArguments(process.argv.slice(2), {
   if (process.env.TAP_COLORS === '1') process.env.FORCE_COLOR = '1';
   const colorize = (await load('chalk')).default.blue;
   const highlight = message => {
-    if (args.trace) console.error(colorize(message));
+    if (args.verbose) console.error(colorize(message));
   };
 
   // Mute regular tap output if so requested.
   if (!args.tap) muteWritable(process.stdout);
 
-  // Determine test module names.
-  const modules = (await readDirectory(tests)).filter(name =>
-    name.endsWith('.spec.js'),
+  // Determine the test modules to run.
+  const only = args.only !== '' ? `${args.only}.spec.js` : null;
+  const modules = (await readDirectory(tests)).filter(
+    name =>
+      // The module must be a properly named test.
+      name.endsWith('.spec.js') &&
+      // Either all tests should run or the module is the only test to run.
+      (only == null || only === name),
   );
   highlight(`# found ${modules.map(el => `"${el}"`).join(', ')}.`);
 
@@ -43,7 +49,7 @@ const args = parseArguments(process.argv.slice(2), {
     const module = await load(path);
     await module.default();
 
-    if (args.trace) {
+    if (args.verbose) {
       const cover = global.__coverage__;
       if (cover) {
         for (const key of keysOf(cover)) {

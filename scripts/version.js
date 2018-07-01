@@ -38,5 +38,6 @@ if (!/^\d+\.\d+.\d+$/u.test(version)) {
     count = await updateDependency(name, version);
   }
 
-  if (count) console.error(chalk.green(`Updated ${count} manifest(s)`));
+  const color = count ? chalk.green : chalk.grey;
+  console.error(color(`Updated ${count} manifest(s)`));
 })();
