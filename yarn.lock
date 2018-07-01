@@ -89,6 +89,10 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
+"@nodelib/fs.stat@^1.0.1":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.0.tgz#50c1e2260ac0ed9439a181de3725a0168d59c48a"
+
 acorn-jsx@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-4.1.1.tgz#e8e41e48ea2fe0c896740610ab6a4ffd8add225e"
@@ -799,13 +803,13 @@ eslint@5.0.0:
     table "^4.0.3"
     text-table "^0.2.0"
 
-esm@3.0.31:
-  version "3.0.31"
-  resolved "https://registry.yarnpkg.com/esm/-/esm-3.0.31.tgz#1ce604829b202f8847046cc268158ad9012f250f"
-
 esm@3.0.52:
   version "3.0.52"
   resolved "https://registry.yarnpkg.com/esm/-/esm-3.0.52.tgz#a3ada5b2811548a5824f448d372c5b35388cf771"
+
+esm@3.0.54:
+  version "3.0.54"
+  resolved "https://registry.yarnpkg.com/esm/-/esm-3.0.54.tgz#df44b0815008b204fa7105251d4fc8690816c61f"
 
 espree@^4.0.0:
   version "4.0.0"
@@ -924,11 +928,12 @@ fast-diff@^1.1.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/fast-diff/-/fast-diff-1.1.2.tgz#4b62c42b8e03de3f848460b639079920695d0154"
 
-fast-glob@2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-2.2.1.tgz#686c2345be88f3741e174add0be6f2e5b6078889"
+fast-glob@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-2.2.2.tgz#71723338ac9b4e0e2fff1d6748a2a13d5ed352bf"
   dependencies:
     "@mrmlnc/readdir-enhanced" "^2.2.1"
+    "@nodelib/fs.stat" "^1.0.1"
     glob-parent "^3.1.0"
     is-glob "^4.0.0"
     merge2 "^1.2.1"
