@@ -1,16 +1,18 @@
 /* (c) Copyright 2018 Robert Grimm */
 
 import {
-  manifest,
-  originalToInstrumented,
-  packages,
+  findPackage,
+  findAllPackages,
+  findInstrumentedModules,
+  readPackageFrom,
+  toPackageEssentials,
   updateDependency,
 } from '@grr/inventory';
 
 import { EOL } from 'os';
 import harness from './harness';
 import { promisify } from 'util';
-import { resolve } from 'path';
+import { dirname, resolve } from 'path';
 import { readdir as doReadDirectory, readFile as doReadFile } from 'fs';
 
 const { isArray } = Array;
@@ -18,51 +20,87 @@ const { keys: keysOf } = Object;
 const readDirectory = promisify(doReadDirectory);
 const readFile = promisify(doReadFile);
 
-export default harness(__filename, t => {
-  const root = resolve(__dirname, '..');
-  const pkgdir = resolve(root, 'packages');
+const REPO_ROOT = dirname(__dirname);
+const PKG_DIR = resolve(REPO_ROOT, 'packages');
 
-  function checkMainManifest(t, path, text, data) {
-    t.is(path, root);
-    t.ok(text.startsWith('{\n  "name": "js-junction",\n  "private": true,\n'));
-    t.is(data.name, 'js-junction');
+export default harness(__filename, t => {
+  function checkTopLevelPackage(t, directory, data) {
+    t.is(directory, REPO_ROOT);
+
     t.is(data.author, 'Robert Grimm');
+    t.is(data.description, `@grr's monorepo for all things JavaScript`);
+    t.is(data.license, 'MIT');
+    t.is(data.name, 'js-junction');
+    t.is(data.version, '6.6.5');
   }
 
-  t.test('manifest()', async function test(t) {
-    await t.rejects(manifest({ start: resolve(root, '..') }), {
-      code: 'ERR_RESOURCE_NOT_FOUND',
-    });
+  t.test('readPackage()', async function test(t) {
+    const { directory, text, data } = await readPackageFrom(REPO_ROOT);
 
-    const { path, text, data } = await manifest();
-    checkMainManifest(t, path, text, data);
+    t.is(directory, REPO_ROOT);
+    checkTopLevelPackage(t, directory, data);
+    t.ok(text.startsWith('{\n  "name": "js-junction",\n  "private": true,\n'));
     t.end();
   });
 
-  t.test('packages()', async function test(t) {
-    {
-      const { path, text, data, pkgs } = await packages();
+  t.test('findPackage()', async function test(t) {
+    await t.rejects(findPackage({ start: dirname(REPO_ROOT) }), {
+      code: 'ERR_RESOURCE_NOT_FOUND',
+    });
 
-      checkMainManifest(t, path, text, data);
-      const pkgNames = (await readDirectory(pkgdir)).filter(
-        entry => entry[0] !== '.',
+    const { directory, text, data } = await findPackage();
+    checkTopLevelPackage(t, directory, data);
+    t.ok(text.startsWith('{\n  "name": "js-junction",\n  "private": true,\n'));
+    t.end();
+  });
+
+  t.test('toPackageEssentials()', async function test(t) {
+    const { data } = await readPackageFrom(REPO_ROOT);
+    const essentials = toPackageEssentials(data);
+
+    t.is(keysOf(essentials).length, 5);
+    t.is(essentials.name, 'js-junction');
+    t.is(essentials.version, '6.6.5');
+    t.is(essentials.description, `@grr's monorepo for all things JavaScript`);
+
+    t.end();
+  });
+
+  t.test('findAllPackages()', async function test(t) {
+    {
+      const directoryNames = (await readDirectory(PKG_DIR)).filter(
+        name => name[0] !== '.',
       );
-      t.is(pkgs.length, pkgNames.length);
-      t.ok(pkgs.includes(resolve(pkgdir, 'err')));
-      t.ok(pkgs.includes(resolve(pkgdir, 'inventory')));
-      t.ok(pkgs.includes(resolve(pkgdir, 'knowledge')));
-      t.ok(pkgs.includes(resolve(pkgdir, 'mark-of-dev')));
-      t.ok(pkgs.includes(resolve(pkgdir, 'oddjob')));
-      t.ok(pkgs.includes(resolve(pkgdir, 'proact')));
-      t.ok(pkgs.includes(resolve(pkgdir, 'sequitur')));
+
+      const { root, name, data, packages } = await findAllPackages();
+      t.is(root, REPO_ROOT);
+      t.is(name, 'js-junction');
+      checkTopLevelPackage(t, root, data);
+
+      console.dir(directoryNames);
+      console.dir(packages);
+
+      t.is(keysOf(packages).length, directoryNames.length);
+      for (const directory of directoryNames) {
+        const name = `@grr/${directory}`;
+        const entry = packages[name];
+
+        t.ok(entry != null);
+        t.is(entry.name, name);
+        t.is(entry.directory, resolve(PKG_DIR, directory));
+        t.is(entry.data.name, name);
+        t.is(entry.data.author, 'Robert Grimm');
+        t.is(entry.data.license, 'MIT');
+      }
     }
 
     {
-      const { path, text, data, pkgs } = await packages({
-        start: resolve(pkgdir, 'proact', 'html'),
+      const { root, text, data, packages } = await findAllPackages({
+        start: resolve(PKG_DIR, 'proact'),
+        withText: true,
       });
 
-      t.is(path, resolve(pkgdir, 'proact'));
+      t.is(root, resolve(PKG_DIR, 'proact'));
       t.ok(
         text.startsWith(
           '{\n  "name": "@grr/proact",\n  ' +
@@ -71,37 +109,31 @@ export default harness(__filename, t => {
       );
       t.is(data.name, '@grr/proact');
       t.is(data.description, 'Making server-side rendering great again!');
-      t.is(pkgs, void 0);
+      t.is(packages, void 0);
     }
 
     t.end();
   });
 
-  const fixtures = resolve(__dirname, 'fixtures');
-  const gear = resolve(fixtures, 'package.json');
-  const cog = resolve(fixtures, 'packages', 'cog', 'package.json');
-  const CLICKETY = 'clickety-clack';
+  const FIXTURES = resolve(__dirname, 'fixtures');
+  const FAUX_REPO = resolve(FIXTURES, 'package.json');
+  const FAUX_PAKET = resolve(FIXTURES, 'packages', 'das-paket', 'package.json');
+  const FAUX_PAQUET_DIR = resolve(FIXTURES, 'packages', 'le-paquet');
+  const FAUX_PAQUET = resolve(FAUX_PAQUET_DIR, 'package.json');
+  const MY_PRECIOUS = 'my-precious';
+  const DRECK = 'dreck';
 
   t.test('updateDependency()', async function test(t) {
-    // Check that updateDependency() works with default options.
-    const path = resolve(root, 'package.json');
-    const text = await readFile(path, 'utf8');
-
-    t.is(await updateDependency('@grr/utterly-unknown-package', '13.13.13'), 0);
-    t.is(await readFile(path, 'utf8'), text);
-
-    async function checkManifests(version = '0.4.2') {
+    async function checkManifests({ version = '0.4.2' }) {
       t.is(
-        await readFile(gear, 'utf8'),
+        await readFile(FAUX_REPO, 'utf8'),
         [
           '{',
-          '  "name": "gear",',
+          '  "name": "faux-repo",',
           '  "private": true,',
-          '  "peerDependencies": {',
-          `    "clickety-clack": "${version}"`,
-          '  },',
+          '  "version": "2.0.0"',
           '  "devDependencies": {',
-          `    "clickety-clack": "${version}"`,
+          `    "my-precious": "${version}"`,
           '  },',
           '  "workspaces": [',
           '    "packages/*"',
@@ -112,13 +144,34 @@ export default harness(__filename, t => {
       );
 
       t.is(
-        await readFile(cog, 'utf8'),
+        await readFile(FAUX_PAKET, 'utf8'),
         [
           '{',
-          '  "name": "cog",',
+          '  "name": "das-paket",',
           '  "private": true,',
+          '  "description": "ooh"',
+          '  "version": "2.0.0"',
           '  "dependencies": {',
-          `    "clickety-clack": "${version}"`,
+          `    "my-precious": "${version}"`,
+          '  },',
+          '  "workspaces": [',
+          '    "imaginary/*"',
+          '  ]',
+          '}',
+          '', // Force trailing EOL.
+        ].join(EOL),
+      );
+
+      t.is(
+        await readFile(FAUX_PAQUET, 'utf8'),
+        [
+          '{',
+          '  "name": "le-paquet",',
+          '  "private": true,',
+          '  "description": "ooh la la"',
+          '  "version": "2.0.0"',
+          '  "peerDependencies": {',
+          `    "my-precious": "${version}"`,
           '  }',
           '}',
           '', // Force trailing EOL.
@@ -127,49 +180,43 @@ export default harness(__filename, t => {
     }
 
     // Check that manifests have expected content.
-    await checkManifests();
-
-    // Check that updateDependency() fails for conventional repositories.
-    await t.rejects(updateDependency(CLICKETY, '13.13.13', { start: cog }));
-    await checkManifests();
+    await checkManifests({ version: '0.4.2' });
 
     // Check that updateDependency() has no effect for unknown package.
-    t.is(await updateDependency('clap-clap', '4.2.0', { start: gear }), 0);
-    await checkManifests();
+    t.is(await updateDependency(DRECK, '13.13.13', { start: FIXTURES }), 0);
+    await checkManifests({ version: '0.4.2' });
 
     // Check that updateDependency() has expected effect for known package.
-    t.is(await updateDependency(CLICKETY, '6.6.5', { start: gear }), 2);
-    await checkManifests('6.6.5');
+    t.is(await updateDependency(MY_PRECIOUS, '6.6.5', { start: FIXTURES }), 3);
+    await checkManifests({ version: '6.6.5' });
 
     // Restore original state.
-    t.is(await updateDependency(CLICKETY, '0.4.2', { start: gear }), 2);
-    await checkManifests();
+    t.is(await updateDependency(MY_PRECIOUS, '0.4.2', { start: FIXTURES }), 3);
+    await checkManifests({ version: '0.4.2' });
 
     t.end();
   });
 
-  t.test('originalToInstrumented()', async function test(t) {
+  t.test('findInstrumentedModules()', async function test(t) {
     {
       // Ensure coverage for default parameters.
-      const mappings = await originalToInstrumented();
+      const mappings = await findInstrumentedModules();
       t.ok(mappings);
       t.is(typeof mappings, 'object');
     }
 
     {
-      // Manifest in closest ancestor does not have workspaces; its directory does
-      // not contain node_modules. Hence, there are no files cached by nyc.
-      const mapping = await originalToInstrumented({ start: cog });
+      // Manifest does not specify workspaces and directory does not contain
+      // node_modules. Hence, there are no files cached by nyc.
+      const mapping = await findInstrumentedModules({ start: FAUX_PAQUET_DIR });
       const originals = keysOf(mapping);
       t.is(originals.length, 0);
     }
 
     {
-      // Manifest in closest ancestor does have workspaces; its directory does
-      // have node_modules, with three instrumented files.
-      const mapping = await originalToInstrumented({
-        start: resolve(fixtures, 'extra'),
-      });
+      // Manifest does have workspaces and directory does have node_modules,
+      // with three instrumented files.
+      const mapping = await findInstrumentedModules({ start: FIXTURES });
       const originals = keysOf(mapping);
       t.is(originals.length, 1);
       t.is(originals[0], '/dev/js-junction/packages/oddjob/index.js');
@@ -179,7 +226,7 @@ export default harness(__filename, t => {
       t.is(instrumented.length, 3);
 
       const path = resolve(
-        fixtures,
+        FIXTURES,
         'node_modules',
         '.cache',
         'nyc',
