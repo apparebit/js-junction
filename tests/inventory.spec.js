@@ -4,14 +4,16 @@ import {
   findPackage,
   findAllPackages,
   findInstrumentedModules,
+  getDependencyVersions,
   readPackageFrom,
   toPackageEssentials,
   updateDependency,
 } from '@grr/inventory';
 
+import chalk from 'chalk';
 import { EOL } from 'os';
+import { format, promisify } from 'util';
 import harness from './harness';
-import { promisify } from 'util';
 import { dirname, resolve } from 'path';
 import { readdir as doReadDirectory, readFile as doReadFile } from 'fs';
 
@@ -22,6 +24,13 @@ const readFile = promisify(doReadFile);
 
 const REPO_ROOT = dirname(__dirname);
 const PKG_DIR = resolve(REPO_ROOT, 'packages');
+
+const DRECK = 'Dreck';
+
+const DEBUG = false;
+const logger = DEBUG
+  ? (...args) => console.error(chalk.cyan(format(...args)))
+  : () => {};
 
 export default harness(__filename, t => {
   function checkTopLevelPackage(t, directory, data) {
@@ -69,16 +78,13 @@ export default harness(__filename, t => {
   t.test('findAllPackages()', async function test(t) {
     {
       const directoryNames = (await readDirectory(PKG_DIR)).filter(
-        name => name[0] !== '.',
+        name => name[0] !== '.'
       );
 
       const { root, name, data, packages } = await findAllPackages();
       t.is(root, REPO_ROOT);
       t.is(name, 'js-junction');
       checkTopLevelPackage(t, root, data);
-
-      console.dir(directoryNames);
-      console.dir(packages);
 
       t.is(keysOf(packages).length, directoryNames.length);
       for (const directory of directoryNames) {
@@ -104,13 +110,38 @@ export default harness(__filename, t => {
       t.ok(
         text.startsWith(
           '{\n  "name": "@grr/proact",\n  ' +
-            '"description": "Making server-side rendering great again!",',
-        ),
+            '"description": "Making server-side rendering great again!",'
+        )
       );
       t.is(data.name, '@grr/proact');
       t.is(data.description, 'Making server-side rendering great again!');
-      t.is(packages, void 0);
+      t.is(keysOf(packages).length, 0);
     }
+
+    t.end();
+  });
+
+  const MANIFEST = {
+    dependencies: {
+      'das-packet': '1.6.9',
+      'le-paquet': '2.0.0',
+    },
+    devDependencies: {
+      'le-paquet': '1.0.0',
+    },
+  };
+
+  t.test('getDependencyVersions()', t => {
+    t.same(getDependencyVersions(MANIFEST, DRECK), null);
+
+    t.same(getDependencyVersions(MANIFEST, 'das-packet'), {
+      dependencies: '1.6.9',
+    });
+
+    t.same(getDependencyVersions(MANIFEST, 'le-paquet'), {
+      dependencies: '2.0.0',
+      devDependencies: '1.0.0',
+    });
 
     t.end();
   });
@@ -121,7 +152,6 @@ export default harness(__filename, t => {
   const FAUX_PAQUET_DIR = resolve(FIXTURES, 'packages', 'le-paquet');
   const FAUX_PAQUET = resolve(FAUX_PAQUET_DIR, 'package.json');
   const MY_PRECIOUS = 'my-precious';
-  const DRECK = 'dreck';
 
   t.test('updateDependency()', async function test(t) {
     async function checkManifests({ version = '0.4.2' }) {
@@ -131,16 +161,18 @@ export default harness(__filename, t => {
           '{',
           '  "name": "faux-repo",',
           '  "private": true,',
-          '  "version": "2.0.0"',
+          '  "version": "2.0.0",',
           '  "devDependencies": {',
           `    "my-precious": "${version}"`,
           '  },',
           '  "workspaces": [',
           '    "packages/*"',
-          '  ]',
+          '  ],',
+          '  "author": "Robert Grimm",',
+          '  "license": "MIT"',
           '}',
           '', // Force trailing EOL.
-        ].join(EOL),
+        ].join(EOL)
       );
 
       t.is(
@@ -149,17 +181,19 @@ export default harness(__filename, t => {
           '{',
           '  "name": "das-paket",',
           '  "private": true,',
-          '  "description": "ooh"',
-          '  "version": "2.0.0"',
+          '  "description": "ooh",',
+          '  "version": "2.0.0",',
           '  "dependencies": {',
           `    "my-precious": "${version}"`,
           '  },',
           '  "workspaces": [',
           '    "imaginary/*"',
-          '  ]',
+          '  ],',
+          '  "author": "Robert Grimm",',
+          '  "license": "MIT"',
           '}',
           '', // Force trailing EOL.
-        ].join(EOL),
+        ].join(EOL)
       );
 
       t.is(
@@ -168,14 +202,16 @@ export default harness(__filename, t => {
           '{',
           '  "name": "le-paquet",',
           '  "private": true,',
-          '  "description": "ooh la la"',
-          '  "version": "2.0.0"',
+          '  "description": "ooh la la",',
+          '  "version": "2.0.0",',
           '  "peerDependencies": {',
           `    "my-precious": "${version}"`,
-          '  }',
+          '  },',
+          '  "author": "Robert Grimm",',
+          '  "license": "MIT"',
           '}',
           '', // Force trailing EOL.
-        ].join(EOL),
+        ].join(EOL)
       );
     }
 
@@ -183,17 +219,37 @@ export default harness(__filename, t => {
     await checkManifests({ version: '0.4.2' });
 
     // Check that updateDependency() has no effect for unknown package.
-    t.is(await updateDependency(DRECK, '13.13.13', { start: FIXTURES }), 0);
+    t.is(
+      await updateDependency(DRECK, '13.13.13', {
+        logger,
+        start: FIXTURES,
+      }),
+      0
+    );
+
     await checkManifests({ version: '0.4.2' });
 
     // Check that updateDependency() has expected effect for known package.
-    t.is(await updateDependency(MY_PRECIOUS, '6.6.5', { start: FIXTURES }), 3);
+    t.is(
+      await updateDependency(MY_PRECIOUS, '6.6.5', {
+        logger,
+        start: FIXTURES,
+      }),
+      3
+    );
+
     await checkManifests({ version: '6.6.5' });
 
     // Restore original state.
-    t.is(await updateDependency(MY_PRECIOUS, '0.4.2', { start: FIXTURES }), 3);
-    await checkManifests({ version: '0.4.2' });
+    t.is(
+      await updateDependency(MY_PRECIOUS, '0.4.2', {
+        logger,
+        start: FIXTURES,
+      }),
+      3
+    );
 
+    await checkManifests({ version: '0.4.2' });
     t.end();
   });
 
@@ -208,7 +264,11 @@ export default harness(__filename, t => {
     {
       // Manifest does not specify workspaces and directory does not contain
       // node_modules. Hence, there are no files cached by nyc.
-      const mapping = await findInstrumentedModules({ start: FAUX_PAQUET_DIR });
+      const mapping = await findInstrumentedModules({
+        logger,
+        start: FAUX_PAQUET_DIR,
+      });
+
       const originals = keysOf(mapping);
       t.is(originals.length, 0);
     }
@@ -216,7 +276,11 @@ export default harness(__filename, t => {
     {
       // Manifest does have workspaces and directory does have node_modules,
       // with three instrumented files.
-      const mapping = await findInstrumentedModules({ start: FIXTURES });
+      const mapping = await findInstrumentedModules({
+        logger,
+        start: FIXTURES,
+      });
+
       const originals = keysOf(mapping);
       t.is(originals.length, 1);
       t.is(originals[0], '/dev/js-junction/packages/oddjob/index.js');
@@ -230,7 +294,7 @@ export default harness(__filename, t => {
         'node_modules',
         '.cache',
         'nyc',
-        'instrumented.',
+        'instrumented.'
       );
       t.ok(instrumented.includes(`${path}1.js`));
       t.ok(instrumented.includes(`${path}2.js`));

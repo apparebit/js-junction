@@ -18,17 +18,6 @@ const readDirectory = promisify(doReadDirectory);
 const readFile = promisify(doReadFile);
 const writeFile = promisify(doWriteFile);
 
-function glob(patterns, cwd) {
-  return doGlob(patterns, {
-    absolute: true,
-    cwd,
-    //dot: true,
-    onlyDirectories: true,
-    onlyFiles: false,
-    unique: true,
-  });
-}
-
 /**
  * Read the package manifest from the given directory. This function returns
  * the empty object if no such manifest exists.
@@ -78,6 +67,17 @@ export function toPackageEssentials({
   return { author, description, license, name, version };
 }
 
+function glob(patterns, cwd, { onlyFiles = false } = {}) {
+  return doGlob(patterns, {
+    absolute: true,
+    cwd,
+    dot: true, // We glob for cached files, which are stored in ".cache"!
+    onlyDirectories: !onlyFiles,
+    onlyFiles,
+    unique: true,
+  });
+}
+
 /**
  * Find all packages in a given repository. This function assumes that the
  * repo's top-level package manifest has a `workspaces` declaration specifying
@@ -116,8 +116,26 @@ export async function findAllPackages({
   return result;
 }
 
-const DEPENDENCIES = ['dependencies', 'devDependencies', 'peerDependencies'];
+const GROUPINGS = ['dependencies', 'devDependencies', 'peerDependencies'];
 
+/**
+ * For the given manifest and the named package dependency, retrieve all
+ * version identifiers.
+ */
+export function getDependencyVersions(manifest, name) {
+  let versions;
+
+  for (const grouping of GROUPINGS) {
+    if (has(manifest, grouping) && has(manifest[grouping], name)) {
+      if (versions == null) versions = create(null);
+      versions[grouping] = manifest[grouping][name];
+    }
+  }
+
+  return versions;
+}
+
+/** Update the named dependency to the given version across all packages. */
 export async function updateDependency(
   name,
   version,
@@ -132,8 +150,6 @@ export async function updateDependency(
 
   // Prepare the update instruments.
   const pattern = new RegExp(`"${name}"\\s*:\\s*"\\d+\\.\\d+\\.\\d+"`, 'gu');
-  const contains = (data, rel) => has(data, rel) && has(data[rel], name);
-  const appearsIn = data => DEPENDENCIES.some(deps => contains(data, deps));
   const update = (path, text) => {
     logger('  -> updating "%s" to "%s"', name, version);
     const revised = text.replace(pattern, `"${name}": "${version}"`);
@@ -145,17 +161,17 @@ export async function updateDependency(
 
   const path = resolve(root, 'package.json');
   logger('checking root manifest "%s"', path);
-  if (appearsIn(data)) {
+  if (getDependencyVersions(data, name)) {
     await update(path, text);
     count++;
   }
 
-  for (const pkg of keysOf(packages)) {
-    const { directory, text, data } = packages[pkg];
+  for (const packageName of keysOf(packages)) {
+    const { directory, text, data } = packages[packageName];
     const path = resolve(directory, 'package.json');
 
     logger('checking package manifest "%s"', path);
-    if (appearsIn(data)) {
+    if (getDependencyVersions(data, name)) {
       await update(path, text);
       count++;
     }
@@ -177,16 +193,17 @@ export async function findInstrumentedModules({
   start = parentDirectory,
 } = {}) {
   const { root, packages } = await findAllPackages({ start });
+  const packageNames = keysOf(packages);
 
   const patterns = [];
   patterns.push(resolve(root, 'node_modules/.cache/nyc/*.js'));
-  if (packages != null) {
-    for (const pkg of packages) {
-      patterns.push(resolve(pkg, 'node_modules/.cache/nyc/*.js'));
-    }
+  for (const name of packageNames) {
+    patterns.push(
+      resolve(packages[name].directory, 'node_modules/.cache/nyc/*.js'),
+    );
   }
 
-  const paths = await glob(patterns, root);
+  const paths = await glob(patterns, root, { onlyFiles: true });
   const mapping = create(null);
 
   for (const instrumented of paths) {
