@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@grr/err": "0.1.0",
-    "esm": "3.0.52"
+    "esm": "3.0.61"
   },
   "main": "index.js",
   "repository": "https://github.com/apparebit/js-junction/tree/master/packages/knowledge"
