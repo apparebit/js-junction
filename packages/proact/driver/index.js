@@ -77,7 +77,7 @@ function exit(driver) {
   assert(
     node != null &&
       (node.isViewElement || node.isViewComponent) &&
-      node === driver[PARENT],
+      node === driver[PARENT]
   );
 
   driver[PARENT] = op.parent;

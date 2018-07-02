@@ -44,7 +44,7 @@ export function ChildProcessExited(pid, code, signal) {
     formatChildProcessExited(pid, code, signal),
     code,
     signal,
-    ChildProcessExited,
+    ChildProcessExited
   );
 }
 
@@ -55,6 +55,6 @@ export function ChildProcessError(pid, err) {
     `child process ${pid} raised error: ${err.message}`,
     null,
     null,
-    ChildProcessError,
+    ChildProcessError
   ).causedBy(err);
 }

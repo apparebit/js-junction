@@ -15,7 +15,7 @@ function isGraphView(entity) {
 
 function unsupported() {
   throw UnsupportedOperation(
-    `${PACKAGE}'s graph view is read-only and prevents modification`,
+    `${PACKAGE}'s graph view is read-only and prevents modification`
   );
 }
 
@@ -97,7 +97,7 @@ export default function addGraphView(corpus) {
     'graph',
     nonenumerable(function graph(id) {
       return this.has(id) ? wrap(this.get(id)) : null;
-    }),
+    })
   );
 
   /* istanbul ignore else since we don't test in production. */

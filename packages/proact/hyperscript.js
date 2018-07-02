@@ -27,7 +27,7 @@ function h(type, ...args) {
   } else {
     throw InvalidArgValue(
       { type },
-      'should be an element name or component constructor',
+      'should be an element name or component constructor'
     );
   }
 }

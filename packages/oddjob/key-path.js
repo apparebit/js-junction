@@ -44,7 +44,7 @@ function doWithKeyPath(existingOnly, root, path, task) {
         throw InvalidArgType(
           `root.${keys.slice(0, index + 1).join('.')}`,
           enclosing,
-          'an object',
+          'an object'
         );
       }
     }

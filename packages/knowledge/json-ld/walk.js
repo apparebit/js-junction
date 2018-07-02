@@ -69,7 +69,7 @@ export default function walk(
     skipped = null,
     state = new State(),
     visitors = VISITORS,
-  } = {},
+  } = {}
 ) {
   const dispatch = (state, parent, key, value = parent[key]) => {
     const kind = key === '@reverse' ? 'reverse' : kindOf(value);

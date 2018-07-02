@@ -152,24 +152,24 @@ export default harness(__filename, t => {
 
       t.match(
         format(Element('span')),
-        pattern(`{ name: 'span', properties: {}, children: \\[\\] }`),
+        pattern(`{ name: 'span', properties: {}, children: \\[\\] }`)
       );
       // The null as 2nd argument is important, since it should *not* be treated as a child.
       t.match(
         format(Element('span', null, 'hello!')),
-        pattern(`{ name: 'span', properties: {}, children: \\[ 'hello!' \\] }`),
+        pattern(`{ name: 'span', properties: {}, children: \\[ 'hello!' \\] }`)
       );
       t.match(
         format(Element('span', null, Symbol('ooh special'))),
         pattern(
-          `{ name: 'span', properties: {}, children: \\[ Symbol\\(ooh special\\) \\] }`,
-        ),
+          `{ name: 'span', properties: {}, children: \\[ Symbol\\(ooh special\\) \\] }`
+        )
       );
       t.match(
         format(Element('span', { class: ['x', 42] })),
         pattern(
-          `{ name: 'span', properties: { class: \\[ 'x', 42 \\] }, children: \\[\\] }`,
-        ),
+          `{ name: 'span', properties: { class: \\[ 'x', 42 \\] }, children: \\[\\] }`
+        )
       );
       t.match(
         format(
@@ -177,13 +177,13 @@ export default harness(__filename, t => {
             'span',
             { class: 'greeting', lang: 'en', tabindex: -1 },
             'yo',
-            42,
-          ),
+            42
+          )
         ),
         pattern(
           `{ name: 'span', properties: { class: 'greeting', lang: 'en', tabindex: -1 }, ` +
-            `children: \\[ 'yo42' \\] }`,
-        ),
+            `children: \\[ 'yo42' \\] }`
+        )
       );
       t.end();
     });
@@ -208,7 +208,7 @@ export default harness(__filename, t => {
       // traversal.
       t.same(
         Element('much-ado', {}, void 0, null, '', [], [[true, false]]).children,
-        [],
+        []
       );
       t.end();
     });
@@ -225,16 +225,16 @@ export default harness(__filename, t => {
       t.is(Component.from(function fn() {}).prototype.name, 'fn');
       t.is(
         Component.from(function fn() {}, 'SomeComponent').prototype.name,
-        'SomeComponent',
+        'SomeComponent'
       );
       t.is(Component.from(function fn() {}, 665).prototype.name, '665');
       t.is(
         Component.from(() => {}, 'AnotherComponent').prototype.name,
-        'AnotherComponent',
+        'AnotherComponent'
       );
       t.is(
         Component.from('YetAnotherComponent', () => {}).prototype.name,
-        'YetAnotherComponent',
+        'YetAnotherComponent'
       );
       t.is(Component.from(665, () => {}).prototype.name, '665');
 
@@ -243,13 +243,13 @@ export default harness(__filename, t => {
       t.is(H(function fn() {}).prototype.name, 'fn');
       t.is(
         H(function fn() {}, 'SomeComponent').prototype.name,
-        'SomeComponent',
+        'SomeComponent'
       );
       t.is(H(function fn() {}, 665).prototype.name, '665');
       t.is(H(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
       t.is(
         H('YetAnotherComponent', () => {}).prototype.name,
-        'YetAnotherComponent',
+        'YetAnotherComponent'
       );
       t.is(H(665, () => {}).prototype.name, '665');
 
@@ -369,7 +369,7 @@ export default harness(__filename, t => {
       const ContextConsumer = Component.from(function ContextConsumer(
         _,
         __,
-        context,
+        context
       ) {
         t.same(context, { answer: 42 });
         return Element('span');
@@ -378,7 +378,7 @@ export default harness(__filename, t => {
       const ContextProvider = Component.from(function ContextProvider(
         _,
         __,
-        context,
+        context
       ) {
         t.same(context, {});
         this.provideContext({ answer: 42 });
@@ -407,11 +407,11 @@ export default harness(__filename, t => {
       // Test late binding between driver and handler through handler option.
       t.is(
         [...nullDriver.traverse(a, { handler: renderToHtml })].join(''),
-        '<a href=location>somewhere</a>',
+        '<a href=location>somewhere</a>'
       );
       t.is(
         [...nullDriver.traverse(container, { handler: renderToHtml })].join(''),
-        '<div class=custom-container>some text</div>',
+        '<div class=custom-container>some text</div>'
       );
 
       // Test driver control pane.
@@ -429,22 +429,22 @@ export default harness(__filename, t => {
           t.is(this.replaceChildren(object, 665), this);
           t.throws(
             () => this.replaceChildren(void 0, 665),
-            CODE_INVALID_ARG_VALUE,
+            CODE_INVALID_ARG_VALUE
           );
           t.throws(
             () => this.replaceChildren(container, 665),
-            CODE_INVALID_ARG_VALUE,
+            CODE_INVALID_ARG_VALUE
           );
           t.throws(() => this.replaceChildren(object), CODE_INVALID_ARG_TYPE);
 
           t.is(this.provideContext(object, {}), this);
           t.throws(
             () => this.provideContext(void 0, {}),
-            CODE_INVALID_ARG_VALUE,
+            CODE_INVALID_ARG_VALUE
           );
           t.throws(
             () => this.provideContext(container, {}),
-            CODE_INVALID_ARG_VALUE,
+            CODE_INVALID_ARG_VALUE
           );
           t.throws(() => this.provideContext(a, 665), CODE_INVALID_ARG_TYPE);
         }
@@ -467,7 +467,7 @@ export default harness(__filename, t => {
   const deep = Element(
     'a',
     null,
-    Element('b', null, Element('i', null, 'nested')),
+    Element('b', null, Element('i', null, 'nested'))
   );
 
   t.test('html', t => {
@@ -532,10 +532,10 @@ export default harness(__filename, t => {
                     that.skipChildren(object);
                 }
               },
-            }),
+            })
           ).traverse(deep),
         ].join(''),
-        '<a><b></b></a>',
+        '<a><b></b></a>'
       );
 
       t.end();
@@ -559,15 +559,15 @@ export default harness(__filename, t => {
       t.is(renderToString(Link(a)), '<a><a href=location>somewhere</a></a>');
       t.is(
         renderToString(
-          Link({ href: 'apparebit.com', rel: 'home' }, 'landing page'),
+          Link({ href: 'apparebit.com', rel: 'home' }, 'landing page')
         ),
-        '<a href=apparebit.com rel=home>landing page</a>',
+        '<a href=apparebit.com rel=home>landing page</a>'
       );
       t.is(
         renderToString(
-          Link(Link, { href: 'apparebit.com', rel: 'home' }, 'landing page'),
+          Link(Link, { href: 'apparebit.com', rel: 'home' }, 'landing page')
         ),
-        '<a href=apparebit.com rel=home>landing page</a>',
+        '<a href=apparebit.com rel=home>landing page</a>'
       );
       t.is(renderToString(Link(Link, 'landing page')), '<a>landing page</a>');
 
@@ -578,51 +578,51 @@ export default harness(__filename, t => {
       t.is(renderToString(Unlink('Hello, world!')), '<a>Hello, world!</a>');
       t.is(
         renderToString(Unlink({ role: 'homebody' }, 'Hello, world!')),
-        '<a role=homebody>Hello, world!</a>',
+        '<a role=homebody>Hello, world!</a>'
       );
 
       // >>> Void elements.
       t.is(renderToString(Element('hr')), '<hr>');
       t.throws(
         () => renderToString(Element('hr', {}, 'but, but, but!')),
-        CODE_INVALID_ARG_VALUE,
+        CODE_INVALID_ARG_VALUE
       );
 
       // >>> <html> element without and with doctype.
       t.is(renderToString(Element('html')), '<html></html>');
       t.is(
         renderToString(Element('html', { doctype: 'html' })),
-        '<!DOCTYPE html><html></html>',
+        '<!DOCTYPE html><html></html>'
       );
 
       // >>> Ignored values.
       t.is(
         renderToString(
-          Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!']),
+          Element('span', {}, void 0, null, '', true, false, ['W', 0, 0, 't!'])
         ),
-        '<span>W00t!</span>',
+        '<span>W00t!</span>'
       );
 
       // >>> Text with consecutive whitespace and escapable characters.
       t.is(
         renderToString(Element('span', null, '\t\t\n  <BOO>    &\n\nso\non')),
-        '<span> &lt;BOO&gt; &amp; so on</span>',
+        '<span> &lt;BOO&gt; &amp; so on</span>'
       );
 
       // >>> Element with raw text as content.
       t.is(
         renderToString(Element('script', {}, '42 < 665 && 13 > 2')),
-        '<script>42 < 665 && 13 > 2</script>',
+        '<script>42 < 665 && 13 > 2</script>'
       );
       t.is(
         renderToString(
-          Element('script', null, `<!-- ooh -->'<script></script>'`),
+          Element('script', null, `<!-- ooh -->'<script></script>'`)
         ),
-        `<script><\\!-- ooh -->'<\\script><\\/script>'</script>`,
+        `<script><\\!-- ooh -->'<\\script><\\/script>'</script>`
       );
       t.is(
         renderToString(Element('style', null, '.danger { color: red; }')),
-        '<style>.danger { color: red; }</style>',
+        '<style>.danger { color: red; }</style>'
       );
 
       // >>> Values other than nodes.
@@ -630,11 +630,11 @@ export default harness(__filename, t => {
       t.is(renderToString([6, 6, 5].reverse()), '665');
       t.throws(
         () => renderToString(Element('span', null, new TypeError())),
-        CODE_INVALID_ARG_TYPE,
+        CODE_INVALID_ARG_TYPE
       );
       t.throws(
         () => renderToString(Element('span', null, Symbol('oops'))),
-        CODE_INVALID_ARG_TYPE,
+        CODE_INVALID_ARG_TYPE
       );
 
       // >>> Components that render to undefined.
@@ -642,9 +642,9 @@ export default harness(__filename, t => {
         renderToString(
           Component.from(function ToUndefined() {
             return void 0;
-          })(),
+          })()
         ),
-        '',
+        ''
       );
 
       // >>> Components that render to lists.
@@ -652,9 +652,9 @@ export default harness(__filename, t => {
         renderToString(
           Component.from(function ToMany(props, children) {
             return [...children, ' ', ...children, ' ', ...children];
-          })({}, 'w00t!'),
+          })({}, 'w00t!')
         ),
-        'w00t! w00t! w00t!',
+        'w00t! w00t! w00t!'
       );
 
       t.end();

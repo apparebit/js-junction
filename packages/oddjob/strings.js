@@ -12,7 +12,7 @@ export function normalizeWhitespace(text) {
 const DEHYPHENATABLE = /(-[a-z])/g;
 export function dehyphenate(name) {
   return String(name).replace(DEHYPHENATABLE, fragment =>
-    fragment.charAt(1).toUpperCase(),
+    fragment.charAt(1).toUpperCase()
   );
 }
 
@@ -54,7 +54,7 @@ const ATTRIBUTE_ESCAPES = {
 };
 const ATTRIBUTE_ESCAPABLE = new RegExp(
   `[${keysOf(ATTRIBUTE_ESCAPES).join('')}]`,
-  'g',
+  'g'
 );
 export function escapeAttribute(text) {
   return String(text).replace(ATTRIBUTE_ESCAPABLE, c => ATTRIBUTE_ESCAPES[c]);

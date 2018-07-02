@@ -82,11 +82,11 @@ setType(YesNo)('translate');
 ].forEach(setType(TrueFalse));
 
 ['aria-expanded', 'aria-grabbed', 'aria-hidden', 'aria-selected'].forEach(
-  setType(TrueFalseUndefined),
+  setType(TrueFalseUndefined)
 );
 
 ['accept', 'coords', 'media', 'sizes', 'srcset'].forEach(
-  setType(CommaSeparated),
+  setType(CommaSeparated)
 );
 
 export default function typeAttribute(name) {

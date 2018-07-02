@@ -13,14 +13,14 @@ export const renderToHtml = doRenderToHtml;
 
 export function renderToString(
   node,
-  { context = {}, driver = defaultDriver, handler = renderToHtml } = {},
+  { context = {}, driver = defaultDriver, handler = renderToHtml } = {}
 ) {
   return [...driver.traverse(node, { context, handler })].join('');
 }
 
 export function renderToStream(
   node,
-  { context = {}, driver = defaultDriver, handler = renderToHtml } = {},
+  { context = {}, driver = defaultDriver, handler = renderToHtml } = {}
 ) {
   const renderer = driver.traverse(node, { context, handler });
 

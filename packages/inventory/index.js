@@ -139,7 +139,7 @@ export function getDependencyVersions(manifest, name) {
 export async function updateDependency(
   name,
   version,
-  { logger = () => {}, start = parentDirectory } = {},
+  { logger = () => {}, start = parentDirectory } = {}
 ) {
   // Read in the repo's package manifests.
   const { root, text, data, packages } = await findAllPackages({
@@ -199,7 +199,7 @@ export async function findInstrumentedModules({
   patterns.push(resolve(root, 'node_modules/.cache/nyc/*.js'));
   for (const name of packageNames) {
     patterns.push(
-      resolve(packages[name].directory, 'node_modules/.cache/nyc/*.js'),
+      resolve(packages[name].directory, 'node_modules/.cache/nyc/*.js')
     );
   }
 
@@ -240,7 +240,7 @@ export async function findCoveredModules({
   let files;
   try {
     files = (await readDirectory(coverageDirectory)).filter(name =>
-      name.endsWith('.json'),
+      name.endsWith('.json')
     );
   } catch (x) {
     if (x.code !== 'ENOENT') throw x;

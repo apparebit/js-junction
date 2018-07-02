@@ -90,19 +90,19 @@ export function addPropertyValue(node, key, value) {
     if (typeof id !== 'string') {
       throw InvalidArgValue(
         { value },
-        'is a reference with non-string identifier',
+        'is a reference with non-string identifier'
       );
     } else if (id.startsWith('_:')) {
       throw InvalidArgValue(
         { value },
-        'is a reference with unsupported blank identifier',
+        'is a reference with unsupported blank identifier'
       );
     }
   } else if (kind === 'value') {
     if (kindOf(value['@value']) !== 'primitive') {
       throw InvalidArgValue(
         { value },
-        'is an invalid @value due not having null, a boolean, a number, or a string as value',
+        'is an invalid @value due not having null, a boolean, a number, or a string as value'
       );
     } else if (keysOf(value).length === 1) {
       value = value['@value'];
@@ -110,7 +110,7 @@ export function addPropertyValue(node, key, value) {
   } else {
     throw InvalidArgValue(
       { value },
-      'should be a null, a boolean, a number, a string, a @value, or a node reference',
+      'should be a null, a boolean, a number, a string, a @value, or a node reference'
     );
   }
 

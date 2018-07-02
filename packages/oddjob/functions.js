@@ -40,7 +40,7 @@ export function deobjectify(args) {
 
 export function memoize(
   fn,
-  { store = new Map(), serialize = deobjectify } = {},
+  { store = new Map(), serialize = deobjectify } = {}
 ) {
   if (typeof fn !== 'function') {
     throw InvalidArgType('fn', fn, 'a function');

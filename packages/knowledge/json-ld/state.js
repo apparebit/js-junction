@@ -70,7 +70,7 @@ export default class State {
   emitBadRoot() {
     if (this.ancestors.length < 2) {
       this.emitBadDocument(
-        `JSON-LD document places @${this.current.kind} at root`,
+        `JSON-LD document places @${this.current.kind} at root`
       );
     } else {
       this.emitBadValue(`places @${this.current.kind} at root`);
@@ -79,7 +79,7 @@ export default class State {
 
   emitBadValue(spec) {
     this.diagnostics.push(
-      MalstructuredData(`JSON-LD data at path "${asPath(this)}" ${spec}`),
+      MalstructuredData(`JSON-LD data at path "${asPath(this)}" ${spec}`)
     );
   }
 }

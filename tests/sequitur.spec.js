@@ -53,7 +53,7 @@ export default harness(__filename, t => {
               },
             };
           },
-        }),
+        })
       );
 
       t.ok(
@@ -64,7 +64,7 @@ export default harness(__filename, t => {
           next() {
             return { done: true };
           },
-        }),
+        })
       );
 
       t.end();
@@ -92,8 +92,8 @@ export default harness(__filename, t => {
                 },
               };
             },
-          }[iterator](),
-        ),
+          }[iterator]()
+        )
       );
 
       t.ok(
@@ -104,7 +104,7 @@ export default harness(__filename, t => {
           next() {
             return { done: true };
           },
-        }),
+        })
       );
 
       t.end();
@@ -129,8 +129,8 @@ export default harness(__filename, t => {
       const descriptors = getOwnPropertyDescriptors(EmptyIterator);
       ['next', toStringTag].forEach(name =>
         ['configurable', 'enumerable', 'writable'].forEach(prop =>
-          t.notOk(descriptors[name][prop]),
-        ),
+          t.notOk(descriptors[name][prop])
+        )
       );
 
       const { value, done } = EmptyIterator.next();

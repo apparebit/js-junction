@@ -1,13 +1,6 @@
 module.exports = {
   root: true,
-  extends: [
-    'eslint:recommended',
-
-    // Prettier's configuration comes last, so that it can properly override
-    // rules. It also enables eslint-plugin-prettier and sets the
-    // 'prettier/prettier' rule to error.
-    'plugin:prettier/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:prettier/recommended'],
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -207,15 +200,7 @@ module.exports = {
     'prefer-rest-params': 'error',
     'prefer-spread': 'error',
     'prefer-template': 'error',
-    quotes: [
-      'error',
-      'single',
-      {
-        // Keep consistent with prettier configuration!
-        avoidEscape: true,
-        allowTemplateLiterals: true,
-      },
-    ],
+    quotes: 'off',
     radix: 'error',
     'require-await': 'error',
     'require-jsdoc': 'off',

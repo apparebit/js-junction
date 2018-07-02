@@ -37,7 +37,7 @@ const args = parseArguments(process.argv.slice(2), {
       // The module must be a properly named test.
       name.endsWith('.spec.js') &&
       // Either all tests should run or the module is the only test to run.
-      (only == null || only === name),
+      (only == null || only === name)
   );
   highlight(`# found ${modules.map(el => `"${el}"`).join(', ')}.`);
 

@@ -20,7 +20,7 @@ export const define = punning(function define(name, factory) {
     throw InvalidArgType(
       { factory },
       'not',
-      'a class constructor, which requires "new")',
+      'a class constructor, which requires "new")'
     );
   } else if (bindings.has(name)) {
     throw DuplicateBinding(name, bindings.get(name), factory);

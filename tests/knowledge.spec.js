@@ -68,7 +68,7 @@ export default harness(__filename, t => {
       t.is(kindOfObject({ '@id': 'http://apparebit.com/' }), 'reference');
       t.is(
         kindOfObject({ '@id': 'http://apparebit.com/', '@type': 'WebSite' }),
-        'node',
+        'node'
       );
 
       t.is(kindOf(665), 'primitive');
@@ -121,20 +121,20 @@ export default harness(__filename, t => {
       t.notOk(
         areEqual(
           { '@value': '665', '@type': 'string' },
-          { '@value': '665', '@type': 'number' },
-        ),
+          { '@value': '665', '@type': 'number' }
+        )
       );
       t.notOk(
         areEqual(
           { '@value': '665', '@type': 'string', '@language': '??' },
-          { '@value': '665', '@type': 'string', '@language': 'en' },
-        ),
+          { '@value': '665', '@type': 'string', '@language': 'en' }
+        )
       );
       t.ok(
         areEqual(
           { '@value': '665', '@type': 'string', '@language': 'en' },
-          { '@value': '665', '@type': 'string', '@language': 'en' },
-        ),
+          { '@value': '665', '@type': 'string', '@language': 'en' }
+        )
       );
       t.notOk(areEqual({}));
 
@@ -143,28 +143,28 @@ export default harness(__filename, t => {
       t.notOk(
         areEqual(
           { '@id': 'http://example.com/n1' },
-          { '@id': 'http://example.com/n2' },
-        ),
+          { '@id': 'http://example.com/n2' }
+        )
       );
       t.ok(
         areEqual(
           { '@id': 'http://example.com/n' },
-          { '@id': 'http://example.com/n' },
-        ),
+          { '@id': 'http://example.com/n' }
+        )
       );
       t.ok(
         areEqual(
           { '@id': 'http://example.com/n' },
-          { '@id': 'http://example.com/n', key: 'value' },
-        ),
+          { '@id': 'http://example.com/n', key: 'value' }
+        )
       );
 
       t.throws(() =>
         addPropertyValue(
           { '@id': 'http://example.com/node.js' },
           'key',
-          'value',
-        ),
+          'value'
+        )
       );
       t.throws(() => addPropertyValue({}, 665, 'value'));
       t.throws(() => addPropertyValue({}, 'key', { '@id': 665 }));
@@ -246,7 +246,7 @@ export default harness(__filename, t => {
               t.same(state.parent, {});
             },
           },
-        },
+        }
       );
 
       // The machinery for tracing handlers as they are invoked.
@@ -384,7 +384,7 @@ export default harness(__filename, t => {
           'with either @context or @vocab being "http://schema.org/"',
         'a JSON-LD document cannot have both a root node and a @graph of nodes',
       ].forEach((expected, index) =>
-        t.is(state.diagnostics[index].message, expected),
+        t.is(state.diagnostics[index].message, expected)
       );
 
       state.nodes = { 'http://example.com/conflict2': {} };
@@ -568,7 +568,7 @@ export default harness(__filename, t => {
         `JSON-LD document places @set at root`,
         `JSON-LD document places @value at root`,
       ].forEach((expected, index) =>
-        t.is(state.diagnostics[index].message, expected),
+        t.is(state.diagnostics[index].message, expected)
       );
 
       t.throws(() => state.throwOnFailure());
@@ -623,7 +623,7 @@ export default harness(__filename, t => {
 
       t.same(
         toSiteAndAccount('https://developers.facebook.com/apps/12345678'),
-        { site: 'fbAppId', account: '12345678' },
+        { site: 'fbAppId', account: '12345678' }
       );
       t.same(toSiteAndAccount('https://github.com/apparebit'), {
         site: 'github',
@@ -643,7 +643,7 @@ export default harness(__filename, t => {
       });
       t.is(
         toUserUrl('facebook', 'apparebit'),
-        'https://www.facebook.com/apparebit',
+        'https://www.facebook.com/apparebit'
       );
 
       t.end();
@@ -676,7 +676,7 @@ export default harness(__filename, t => {
     t.throws(() => corpus.add({ '@set': 665 }));
     t.throws(() => corpus.add({ prop1: 'val1', prop2: 'val2' }));
     t.throws(() =>
-      corpus.add({ '@id': 'https://apparebit.com', prop1: 'val1' }),
+      corpus.add({ '@id': 'https://apparebit.com', prop1: 'val1' })
     );
 
     t.notOk(corpus.has('https://apparebit.com/library/form.css'));
@@ -788,7 +788,7 @@ export default harness(__filename, t => {
       () => {
         wrapped.key = 665;
       }, // No updates, please!
-      `@grr/knowledge's graph view is read-only and prevents modification`,
+      `@grr/knowledge's graph view is read-only and prevents modification`
     );
 
     const result = wrapped.toString();
@@ -829,7 +829,7 @@ export default harness(__filename, t => {
             this.number = number;
           },
         },
-      }),
+      })
     );
 
     // The descriptor for a non-existent property must be `undefined`.

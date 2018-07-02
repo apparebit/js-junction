@@ -55,7 +55,7 @@ export default harness(__filename, t => {
         }),
         `"{ key:${EOL}   ` +
           `'0123456789012345678901234567890123456789` +
-          `012345678901234567890123456789012345678901234 ..."`,
+          `012345678901234567890123456789012345678901234 ..."`
       );
       t.end();
     });
@@ -170,72 +170,72 @@ export default harness(__filename, t => {
     const arg = null;
     t.is(
       ChildProcessError(10, new Error('bad message')).message,
-      'child process 10 raised error: bad message',
+      'child process 10 raised error: bad message'
     );
     t.is(
       ChildProcessExited(10, 0, null).message,
-      'child process 10 exited normally with code "0"',
+      'child process 10 exited normally with code "0"'
     );
     t.is(
       ChildProcessExited(10, 13, null).message,
-      'child process 10 exited abnormally with code "13"',
+      'child process 10 exited abnormally with code "13"'
     );
     t.is(
       ChildProcessExited(10, null, 'SIGALRM').message,
-      'child process 10 exited abnormally with signal "SIGALRM"',
+      'child process 10 exited abnormally with signal "SIGALRM"'
     );
     t.is(
       FunctionNotImplemented('f').message,
-      'function "f" is not implemented',
+      'function "f" is not implemented'
     );
     t.is(
       FunctionNotImplemented('f', 'factory function').message,
-      'factory function "f" is not implemented',
+      'factory function "f" is not implemented'
     );
     t.is(
       InvalidArgType({ arg }, 'a number').message,
-      'argument "arg" is "null", but should be a number',
+      'argument "arg" is "null", but should be a number'
     );
     t.is(
       InvalidArgType({ arg }, 'not', 'a number').message,
-      'argument "arg" is "null", but should not be a number',
+      'argument "arg" is "null", but should not be a number'
     );
     t.is(InvalidArgValue({ arg }).message, 'argument "arg" is "null"');
     t.is(
       InvalidArgValue({ arg }, 'should be an even number').message,
-      'argument "arg" is "null", but should be an even number',
+      'argument "arg" is "null", but should be an even number'
     );
     t.is(
       InvalidArrayLength('a', 1, 3).message,
-      'array "a" has 1 element, but should have 3',
+      'array "a" has 1 element, but should have 3'
     );
     t.is(
       InvalidArrayLength('a', 2, 3).message,
-      'array "a" has 2 elements, but should have 3',
+      'array "a" has 2 elements, but should have 3'
     );
     t.is(
       InvalidCallback('callback').message,
-      'callback "callback" is not a function',
+      'callback "callback" is not a function'
     );
     t.is(
       MalstructuredData('JSON-LD at path "[42][665]" is not an object').message,
-      'JSON-LD at path "[42][665]" is not an object',
+      'JSON-LD at path "[42][665]" is not an object'
     );
     t.is(
       MultipleCallback('cb').message,
-      'repeated invocation of callback "cb"',
+      'repeated invocation of callback "cb"'
     );
     t.is(
       MultipleCallback('cb', 'from same handler context').message,
-      'repeated invocation of callback "cb" from same handler context',
+      'repeated invocation of callback "cb" from same handler context'
     );
     t.is(
       ResourceBusy('the Proact driver').message,
-      'the Proact driver is busy',
+      'the Proact driver is busy'
     );
     t.is(
       ResourceNotFound('"package.json" not found').message,
-      '"package.json" not found',
+      '"package.json" not found'
     );
     t.is(UnsupportedOperation('op').message, 'operation "op" is not supported');
 

@@ -36,7 +36,7 @@ function checkPropertyKeys(value, state, keys) {
     state.emitBadValue(
       `is a @${state.current.kind} object with superfluous key${
         superfluous.length !== 1 ? 's' : ''
-      } ${asElements(quote(superfluous))}`,
+      } ${asElements(quote(superfluous))}`
     );
   }
 }
@@ -54,7 +54,7 @@ function checkIdentifier(value, state) {
     state.emitBadValue(`has @id ${asValue(iri)}, which is not an IRI`);
   } else if (iri.startsWith('_:')) {
     state.emitBadValue(
-      `has blank node identifier "${iri}" unsupported by ${PACKAGE}`,
+      `has blank node identifier "${iri}" unsupported by ${PACKAGE}`
     );
   }
 }
@@ -78,10 +78,10 @@ function checkValueIgnoringArray(value, state, label) {
       default:
         state.emitBadValue(
           `is ${label} with invalid value ${asValue(
-            entity,
+            entity
           )},\nwhich should be null, a boolean, number, string, @value, ${
             areSetAndListAllowed ? '@set, @list, ' : ''
-          }reference, or node`,
+          }reference, or node`
         );
     }
   };
@@ -111,8 +111,8 @@ function createReversePropertyChecker(state) {
       state.ancestors.push({ key });
       state.emitBadValue(
         `is @reverse property value ${asValue(
-          value,
-        )} but should be a node, reference, or URL`,
+          value
+        )} but should be a node, reference, or URL`
       );
       state.ancestors.pop();
     }
@@ -164,8 +164,8 @@ const handlers = {
     if (!isPrimitive(v)) {
       state.emitBadValue(
         `is invalid @value ${asValue(
-          v,
-        )}, which is neither null, a boolean, a number, or a string`,
+          v
+        )}, which is neither null, a boolean, a number, or a string`
       );
     }
 
@@ -195,11 +195,11 @@ const handlers = {
       const id = value['@id'];
       if (state.corpus.has(id)) {
         state.emitBadValue(
-          `is duplicate of node with @id "${id}" in knowledge base`,
+          `is duplicate of node with @id "${id}" in knowledge base`
         );
       } else if (id in state.nodes) {
         state.emitBadValue(
-          `is duplicate of node with @id "${id}" in same document`,
+          `is duplicate of node with @id "${id}" in same document`
         );
       } else {
         state.nodes[id] = value;
@@ -247,7 +247,7 @@ const handlers = {
 
   invalid(value, state) {
     state.emitBadValue(
-      `has value ${asValue(value)}, which is not supported by JSON-LD`,
+      `has value ${asValue(value)}, which is not supported by JSON-LD`
     );
   },
 };
@@ -255,12 +255,12 @@ const handlers = {
 function doParse(value, state) {
   if (value == null || typeof value !== 'object') {
     state.emitBadDocument(
-      'a JSON-LD document must have a JSON object as content',
+      'a JSON-LD document must have a JSON object as content'
     );
     value = { '@id': 'http://example.com/' };
   } else if (isArray(value)) {
     state.emitBadDocument(
-      'a JSON-LD document must have a JSON object, not an array, as content',
+      'a JSON-LD document must have a JSON object, not an array, as content'
     );
     value = { '@graph': value };
   }
@@ -269,7 +269,7 @@ function doParse(value, state) {
   if (context != null && !isSchemaOrgContext(context)) {
     state.emitBadDocument(
       `${PACKAGE} requires @context to be based on Schema.org,\n` +
-        `with either @context or @vocab being "http://schema.org/"`,
+        `with either @context or @vocab being "http://schema.org/"`
     );
   }
 
@@ -277,7 +277,7 @@ function doParse(value, state) {
   if (graph != null) {
     if (keysOf(rest).length !== 0) {
       state.emitBadDocument(
-        `a JSON-LD document cannot have both a root node and a @graph of nodes`,
+        `a JSON-LD document cannot have both a root node and a @graph of nodes`
       );
     }
 
@@ -319,7 +319,7 @@ class ParseState extends State {
   throwOnFailure() {
     if (this.hasDiagnostics()) {
       const x = MalstructuredData(
-        `JSON-LD document with ${this.diagnostics.length} errors`,
+        `JSON-LD document with ${this.diagnostics.length} errors`
       );
       x.diagnostics = this.diagnostics;
       throw x;

@@ -16,7 +16,7 @@ export default function renderToHtml(tag, object) {
       const rendered = object.render(
         object.properties,
         object.children,
-        this.context,
+        this.context
       );
 
       // Since replaceChildren() does not accept `undefined` for its `children`
@@ -69,12 +69,12 @@ export default function renderToHtml(tag, object) {
   } else if (tag === 'unknown') {
     throw InvalidArgType(
       { object },
-      'text, a Proact node, or an array thereof',
+      'text, a Proact node, or an array thereof'
     );
   } else {
     throw InvalidArgValue(
       { tag },
-      'should be "text", "enter", "exit", or "unknown"',
+      'should be "text", "enter", "exit", or "unknown"'
     );
   }
 }

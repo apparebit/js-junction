@@ -9,7 +9,7 @@ const WITH_INSPECTOR = new RegExp(
     .map(suffix => [`--inspect${suffix}`, `--debug${suffix}`])
     .reduce((flags, pair) => [...flags, ...pair])
     .join('|')})(?:=(\\d+))?$`,
-  'u',
+  'u'
 );
 
 export function withoutInspector(args = execArgv) {

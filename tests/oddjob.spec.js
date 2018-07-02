@@ -93,7 +93,7 @@ export default harness(__filename, t => {
       t.throws(() => withKeyPath(0, '', () => {}), CODE_INVALID_ARG_TYPE);
       t.throws(
         () => withKeyPath({ a: { b: 665 } }, 'a.b.c'),
-        CODE_INVALID_ARG_TYPE,
+        CODE_INVALID_ARG_TYPE
       );
 
       const root = {};
@@ -296,7 +296,7 @@ export default harness(__filename, t => {
     t.test('.escapeAttribute()', t => {
       t.is(
         escapeAttribute('mayhem: <&`\'">'),
-        'mayhem: &lt;&amp;&#x60;&#x27;&quot;&gt;',
+        'mayhem: &lt;&amp;&#x60;&#x27;&quot;&gt;'
       );
       t.end();
     });
@@ -305,7 +305,7 @@ export default harness(__filename, t => {
       t.is(escapeHTML('&lt;'), '&amp;lt;');
       t.is(
         escapeHTML('<script>evil()</script>'),
-        '&lt;script&gt;evil()&lt;/script&gt;',
+        '&lt;script&gt;evil()&lt;/script&gt;'
       );
       t.end();
     });
@@ -314,7 +314,7 @@ export default harness(__filename, t => {
       // Picture the string between <script> and </script>.
       t.is(
         escapeScript(`<!-- ooh -->'<script></script>'`),
-        `<\\!-- ooh -->'<\\script><\\/script>'`,
+        `<\\!-- ooh -->'<\\script><\\/script>'`
       );
       t.end();
     });
@@ -366,7 +366,7 @@ export default harness(__filename, t => {
           },
           rating: 'very stable genius',
         }),
-        '{"rating":"completely nuts"}',
+        '{"rating":"completely nuts"}'
       );
 
       t.end();

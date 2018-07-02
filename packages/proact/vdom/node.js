@@ -28,13 +28,13 @@ export default function Node(...args) {
     throw InvalidArgValue(
       'properties',
       props,
-      'should not have a "context" property',
+      'should not have a "context" property'
     );
   } else if ('children' in props) {
     throw InvalidArgValue(
       'properties',
       props,
-      'should not have a "children" property',
+      'should not have a "children" property'
     );
   }
 
