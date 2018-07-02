@@ -8,6 +8,7 @@ import {
   readPackageFrom,
   toPackageEssentials,
   updateDependency,
+  findCoveredModules,
 } from '@grr/inventory';
 
 import chalk from 'chalk';
@@ -299,6 +300,28 @@ export default harness(__filename, t => {
       t.ok(instrumented.includes(`${path}1.js`));
       t.ok(instrumented.includes(`${path}2.js`));
       t.ok(instrumented.includes(`${path}3.js`));
+    }
+
+    t.end();
+  });
+
+  t.test('findCoveredModules()', async function test(t) {
+    // #1: No directory with coverage data.
+    t.same(await findCoveredModules({ start: FAUX_PAQUET_DIR, logger }), []);
+
+    // #2: Directory with coverage data.
+    const modules = await findCoveredModules({ start: FIXTURES, logger });
+
+    for (const file of [
+      'oddjob/descriptors.js',
+      'err/types.js',
+      'err/format.js',
+      'err/system.js',
+      'err/index.js',
+      'oddjob/processes.js',
+      'mark-of-dev/index.js',
+    ]) {
+      t.ok(modules.includes(`/dev/js-junction/packages/${file}`));
     }
 
     t.end();

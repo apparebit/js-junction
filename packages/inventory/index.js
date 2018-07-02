@@ -139,6 +139,7 @@ export function getDependencyVersions(manifest, name) {
 export async function updateDependency(
   name,
   version,
+  /* istanbul ignore next */
   { logger = () => {}, start = parentDirectory } = {}
 ) {
   // Read in the repo's package manifests.
@@ -207,7 +208,7 @@ export async function findInstrumentedModules({
   const mapping = create(null);
 
   for (const instrumented of paths) {
-    logger('instrumented module "%s"', instrumented);
+    logger('inspecting instrumented module "%s"', instrumented);
     const text = await readFile(instrumented, 'utf8');
     const original = originalPath(text);
     if (original) {
@@ -229,11 +230,13 @@ export async function findInstrumentedModules({
 }
 
 /** Determine the modules, for which NYC has collected coverage information. */
-/* istanbul ignore next */
-export async function findCoveredModules({
-  start = parentDirectory,
-  coverdir = '.nyc_output',
-} = {}) {
+export async function findCoveredModules(
+  /* istanbul ignore next */ {
+    start = parentDirectory,
+    coverdir = '.nyc_output',
+    logger = () => {},
+  } = {}
+) {
   const { directory: root } = await findPackage({ start });
   const coverageDirectory = resolve(root, coverdir);
 
@@ -243,6 +246,7 @@ export async function findCoveredModules({
       name.endsWith('.json')
     );
   } catch (x) {
+    /* istanbul ignore if */
     if (x.code !== 'ENOENT') throw x;
     return [];
   }
@@ -250,6 +254,8 @@ export async function findCoveredModules({
   const coverset = new Set();
   for (const file of files) {
     const path = resolve(coverageDirectory, file);
+    logger('inspecting coverage data "%s"', path);
+
     const text = await readFile(path, 'utf8');
     for (const key of keysOf(parse(text))) {
       coverset.add(key);
