@@ -5,7 +5,7 @@
 // for a script, which seeks to delete all such caches.
 
 const doReadDirectory = require('fs').readdir;
-const { resolve } = require('path');
+const { join, resolve } = require('path');
 const rimraf = require('rimraf');
 const { promisify } = require('util');
 
@@ -37,7 +37,7 @@ async function removeNamedDirectories() {
     ];
   }
 
-  await all(patterns.map(pattern => remove(resolve(ROOT, pattern))));
+  await all(patterns.map(pattern => remove(join(ROOT, pattern))));
 }
 
 async function removeEmptyDirectories() {
@@ -63,7 +63,7 @@ async function removeEmptyDirectories() {
 }
 
 async function removeNestedNodeModules() {
-  await remove(resolve(ROOT, 'packages/*/node_modules'));
+  await remove(join(ROOT, 'packages', '*', 'node_modules'));
 }
 
 removeNamedDirectories();

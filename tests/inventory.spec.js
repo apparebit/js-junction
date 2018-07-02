@@ -15,7 +15,7 @@ import chalk from 'chalk';
 import { EOL } from 'os';
 import { format, promisify } from 'util';
 import harness from './harness';
-import { dirname, resolve } from 'path';
+import { dirname, join } from 'path';
 import { readdir as doReadDirectory, readFile as doReadFile } from 'fs';
 
 const { isArray } = Array;
@@ -24,7 +24,7 @@ const readDirectory = promisify(doReadDirectory);
 const readFile = promisify(doReadFile);
 
 const REPO_ROOT = dirname(__dirname);
-const PKG_DIR = resolve(REPO_ROOT, 'packages');
+const PKG_DIR = join(REPO_ROOT, 'packages');
 
 const DRECK = 'Dreck';
 
@@ -94,7 +94,7 @@ export default harness(__filename, t => {
 
         t.ok(entry != null);
         t.is(entry.name, name);
-        t.is(entry.directory, resolve(PKG_DIR, directory));
+        t.is(entry.directory, join(PKG_DIR, directory));
         t.is(entry.data.name, name);
         t.is(entry.data.author, 'Robert Grimm');
         t.is(entry.data.license, 'MIT');
@@ -103,11 +103,11 @@ export default harness(__filename, t => {
 
     {
       const { root, text, data, packages } = await findAllPackages({
-        start: resolve(PKG_DIR, 'proact'),
+        start: join(PKG_DIR, 'proact'),
         withText: true,
       });
 
-      t.is(root, resolve(PKG_DIR, 'proact'));
+      t.is(root, join(PKG_DIR, 'proact'));
       t.ok(
         text.startsWith(
           '{\n  "name": "@grr/proact",\n  ' +
@@ -147,11 +147,11 @@ export default harness(__filename, t => {
     t.end();
   });
 
-  const FIXTURES = resolve(__dirname, 'fixtures');
-  const FAUX_REPO = resolve(FIXTURES, 'package.json');
-  const FAUX_PAKET = resolve(FIXTURES, 'packages', 'das-paket', 'package.json');
-  const FAUX_PAQUET_DIR = resolve(FIXTURES, 'packages', 'le-paquet');
-  const FAUX_PAQUET = resolve(FAUX_PAQUET_DIR, 'package.json');
+  const FIXTURES = join(__dirname, 'fixtures');
+  const FAUX_REPO = join(FIXTURES, 'package.json');
+  const FAUX_PAKET = join(FIXTURES, 'packages', 'das-paket', 'package.json');
+  const FAUX_PAQUET_DIR = join(FIXTURES, 'packages', 'le-paquet');
+  const FAUX_PAQUET = join(FAUX_PAQUET_DIR, 'package.json');
   const MY_PRECIOUS = 'my-precious';
 
   t.test('updateDependency()', async function test(t) {
@@ -290,7 +290,7 @@ export default harness(__filename, t => {
       t.ok(isArray(instrumented));
       t.is(instrumented.length, 3);
 
-      const path = resolve(
+      const path = join(
         FIXTURES,
         'node_modules',
         '.cache',

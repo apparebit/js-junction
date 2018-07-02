@@ -1,7 +1,7 @@
 /* (c) Copyright 2018 Robert Grimm */
 
 import chalk from 'chalk';
-import { dirname, relative, resolve } from 'path';
+import { dirname, join, relative, resolve } from 'path';
 import { EOL } from 'os';
 import { findInstrumentedModules, findCoveredModules } from '@grr/inventory';
 
@@ -11,7 +11,7 @@ const { keys: keysOf } = Object;
 
 (async function run() {
   const root = resolve(__dirname, '..');
-  const pkgs = resolve(root, 'packages');
+  const pkgs = join(root, 'packages');
   const mapping = await findInstrumentedModules(root);
   const originals = keysOf(mapping).sort();
 

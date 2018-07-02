@@ -1,6 +1,6 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import { dirname, resolve } from 'path';
+import { dirname, join } from 'path';
 import { default as doGlob } from 'fast-glob';
 import { promisify } from 'util';
 import {
@@ -23,7 +23,7 @@ const writeFile = promisify(doWriteFile);
  * the empty object if no such manifest exists.
  */
 export async function readPackageFrom(directory) {
-  const path = resolve(directory, 'package.json');
+  const path = join(directory, 'package.json');
 
   try {
     const text = await readFile(path, 'utf8');
@@ -160,7 +160,7 @@ export async function updateDependency(
   // Do the actual updating.
   let count = 0;
 
-  const path = resolve(root, 'package.json');
+  const path = join(root, 'package.json');
   logger('checking root manifest "%s"', path);
   if (getDependencyVersions(data, name)) {
     await update(path, text);
@@ -169,7 +169,7 @@ export async function updateDependency(
 
   for (const packageName of keysOf(packages)) {
     const { directory, text, data } = packages[packageName];
-    const path = resolve(directory, 'package.json');
+    const path = join(directory, 'package.json');
 
     logger('checking package manifest "%s"', path);
     if (getDependencyVersions(data, name)) {
@@ -188,6 +188,8 @@ function originalPath(text) {
   return match != null ? match[1] : null;
 }
 
+const INSTRUMENTED = join('node_modules', '.cache', 'nyc', '*.js');
+
 /** Determine which modules have been instrumented by NYC and cached. */
 export async function findInstrumentedModules({
   logger = () => {},
@@ -197,11 +199,9 @@ export async function findInstrumentedModules({
   const packageNames = keysOf(packages);
 
   const patterns = [];
-  patterns.push(resolve(root, 'node_modules/.cache/nyc/*.js'));
+  patterns.push(join(root, INSTRUMENTED));
   for (const name of packageNames) {
-    patterns.push(
-      resolve(packages[name].directory, 'node_modules/.cache/nyc/*.js')
-    );
+    patterns.push(join(packages[name].directory, INSTRUMENTED));
   }
 
   const paths = await glob(patterns, root, { onlyFiles: true });
@@ -238,7 +238,7 @@ export async function findCoveredModules(
   } = {}
 ) {
   const { directory: root } = await findPackage({ start });
-  const coverageDirectory = resolve(root, coverdir);
+  const coverageDirectory = join(root, coverdir);
 
   let files;
   try {
@@ -253,7 +253,7 @@ export async function findCoveredModules(
 
   const coverset = new Set();
   for (const file of files) {
-    const path = resolve(coverageDirectory, file);
+    const path = join(coverageDirectory, file);
     logger('inspecting coverage data "%s"', path);
 
     const text = await readFile(path, 'utf8');
