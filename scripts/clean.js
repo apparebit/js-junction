@@ -15,6 +15,9 @@ const doRemove = promisify(rimraf);
 const readDirectory = promisify(doReadDirectory);
 const remove = pattern => doRemove(pattern, {});
 const deep = argv.includes('--deep');
+const clobber = argv.includes('--clobber');
+
+const ROOT = resolve(__dirname, '..');
 
 async function removeNamedDirectories() {
   // Beware of accidentally deleting the test fixtures via `**/node_modules`!
@@ -34,15 +37,16 @@ async function removeNamedDirectories() {
     ];
   }
 
-  await all(patterns.map(pattern => remove(resolve(__dirname, '..', pattern))));
+  await all(patterns.map(pattern => remove(resolve(ROOT, pattern))));
 }
 
-/* eslint-disable global-require */
 async function removeEmptyDirectories() {
   // Sort the directories from longest to shortest path so that a child is
   // always considered before its parent and the child's deletion also enables
   // the parent's deletion if it is an only child — directory of course.
-  const paths = (await require('fast-glob')('packages/*/node_modules/**/', {
+  const glob = require('fast-glob'); // eslint-disable-line global-require
+
+  const paths = (await glob('packages/*/node_modules/**/', {
     absolute: true,
     cwd: resolve(__dirname, '..'),
     dot: true,
@@ -58,5 +62,10 @@ async function removeEmptyDirectories() {
   }
 }
 
+async function removeNestedNodeModules() {
+  await remove(resolve(ROOT, 'packages/*/node_modules'));
+}
+
 removeNamedDirectories();
-if (deep) removeEmptyDirectories();
+if (deep || clobber) removeEmptyDirectories();
+if (clobber) removeNestedNodeModules();
