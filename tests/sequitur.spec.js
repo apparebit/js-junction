@@ -127,11 +127,12 @@ export default harness(__filename, t => {
       t.is(getPrototypeOf(EmptyIterator), IteratorPrototype);
 
       const descriptors = getOwnPropertyDescriptors(EmptyIterator);
-      ['next', toStringTag].forEach(name =>
-        ['configurable', 'enumerable', 'writable'].forEach(prop =>
+      ['next', toStringTag].forEach(name => {
+        t.ok(descriptors[name].configurable);
+        ['enumerable', 'writable'].forEach(prop =>
           t.notOk(descriptors[name][prop])
-        )
-      );
+        );
+      });
 
       const { value, done } = EmptyIterator.next();
       t.is(value, void 0);
@@ -142,16 +143,17 @@ export default harness(__filename, t => {
 
     t.test('toIteratorFactory()', t => {
       const NUMBERS = [42, 665, 13];
+      const materialize = fact => [...{ [iterator]: fact }];
 
       // (if-else clause 1) No argument.
       let fact = toIteratorFactory();
-      t.same([...fact()], []);
-      t.same([...fact()], []);
+      t.same(materialize(fact), []);
+      t.same(materialize(fact), []);
 
       // (if-else clause 2) An iterator that nominally also is an iterable.
       fact = toIteratorFactory(NUMBERS[iterator]());
-      t.same([...fact()], NUMBERS);
-      t.same([...fact()], []);
+      t.same(materialize(fact), NUMBERS);
+      t.same(materialize(fact), []);
 
       // (if-else clause 2) An iterator that is not iterable.
       const iter = NUMBERS[iterator]();
@@ -160,18 +162,18 @@ export default harness(__filename, t => {
           return iter.next();
         },
       });
-      t.same([...fact()], NUMBERS);
-      t.same([...fact()], []);
+      t.same(materialize(fact), NUMBERS);
+      t.same(materialize(fact), []);
 
       // (if-else clause 3) A true iterable.
       fact = toIteratorFactory(NUMBERS);
-      t.same([...fact()], NUMBERS);
-      t.same([...fact()], NUMBERS);
+      t.same(materialize(fact), NUMBERS);
+      t.same(materialize(fact), NUMBERS);
 
       // (if-else clause 4) An iterator factory.
       fact = toIteratorFactory(() => NUMBERS[iterator]());
-      t.same([...fact()], NUMBERS);
-      t.same([...fact()], NUMBERS);
+      t.same(materialize(fact), NUMBERS);
+      t.same(materialize(fact), NUMBERS);
 
       // (if-else clause 4) A generator.
       fact = toIteratorFactory(function* gen() {
@@ -179,13 +181,13 @@ export default harness(__filename, t => {
         yield 665;
         yield 13;
       });
-      t.same([...fact()], NUMBERS);
-      t.same([...fact()], NUMBERS);
+      t.same(materialize(fact), NUMBERS);
+      t.same(materialize(fact), NUMBERS);
 
       // (if-else clause 5) Some other arbitrary value.
       fact = toIteratorFactory(665);
-      t.same([...fact()], [665]);
-      t.same([...fact()], [665]);
+      t.same(materialize(fact), [665]);
+      t.same(materialize(fact), [665]);
 
       t.end();
     });
