@@ -280,6 +280,22 @@ export default harness(__filename, t => {
       t.end();
     });
 
+    t.test('#toObject()', t => {
+      t.same(
+        Sq.from(NUMBERS)
+          .entries()
+          .toObject(),
+        { '0': 42, '1': 665, '2': 13 }
+      );
+      t.same(
+        Sq.from(NUMBERS)
+          .entries()
+          .toObject({ length: 3 }),
+        { '0': 42, '1': 665, '2': 13, length: 3 }
+      );
+      t.end();
+    });
+
     t.end();
   });
 

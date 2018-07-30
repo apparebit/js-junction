@@ -123,4 +123,11 @@ export default class Sq {
     }
     return array;
   }
+
+  toObject(object = {}) {
+    for (const [key, value] of this) {
+      object[key] = value;
+    }
+    return object;
+  }
 }
