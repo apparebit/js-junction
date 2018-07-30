@@ -9,10 +9,12 @@ import {
   toIteratorFactory,
 } from '@grr/sequitur/iterations';
 
+import Sq from '@grr/sequitur';
 import harness from './harness';
 
 const { create, getOwnPropertyDescriptors, getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
+const NUMBERS = [42, 665, 13];
 
 export default harness(__filename, t => {
   t.test('iterations', t => {
@@ -142,7 +144,6 @@ export default harness(__filename, t => {
     });
 
     t.test('toIteratorFactory()', t => {
-      const NUMBERS = [42, 665, 13];
       const materialize = fact => [...{ [iterator]: fact }];
 
       // (if-else clause 1) No argument.
@@ -189,6 +190,93 @@ export default harness(__filename, t => {
       t.same(materialize(fact), [665]);
       t.same(materialize(fact), [665]);
 
+      t.end();
+    });
+
+    t.end();
+  });
+
+  t.test('Sq', t => {
+    t.test('.of()', t => {
+      t.same([...Sq.of()], []);
+      t.same([...Sq.of(42, 665, 13)], NUMBERS);
+      t.end();
+    });
+
+    t.test('.from()', t => {
+      t.same([...Sq.from()], []);
+      t.same([...Sq.from(null)], []);
+      t.same([...Sq.from(NUMBERS)], NUMBERS);
+      t.end();
+    });
+
+    t.test('.entries()', t => {
+      const o = {};
+      const sq = Sq.entries(o);
+
+      // Check that sequence reflects object's properties.
+      t.same([...sq], []);
+
+      // Check that sequence includes all keys at time of terminal operation.
+      o.mark = 665;
+      t.same([...sq], [['mark', 665]]);
+      o.beast = 13;
+      t.same([...sq], [['mark', 665], ['beast', 13]]);
+
+      // Check that sequence includes values at time of yielding property.
+      const iter = sq[iterator]();
+      t.same(iter.next(), { value: ['mark', 665], done: false });
+      o.beast = 42;
+      t.same(iter.next(), { value: ['beast', 42], done: false });
+
+      t.end();
+    });
+
+    t.test('#entries()', t => {
+      t.same([...Sq.from(NUMBERS).entries()], [[0, 42], [1, 665], [2, 13]]);
+      t.end();
+    });
+
+    t.test('#filter()', t => {
+      t.same([...Sq.from(NUMBERS).filter(el => el <= 42)], [42, 13]);
+      t.end();
+    });
+
+    t.test('#map()', t => {
+      t.same([...Sq.from(NUMBERS).map(el => el + 1)], [43, 666, 14]);
+      t.end();
+    });
+
+    t.test('#flatMap()', t => {
+      t.same([...Sq.from(NUMBERS).flatMap(el => [el])], NUMBERS);
+      t.end();
+    });
+
+    t.test('#tap()', t => {
+      let count = 0;
+      t.same([...Sq.from(NUMBERS).tap(_ => count++)], NUMBERS);
+      t.is(count, 3);
+      t.end();
+    });
+
+    t.test('#reduce()', t => {
+      t.is(
+        Sq.from(NUMBERS).reduce((acc, el) => acc + el, 1),
+        1 + 42 + 665 + 13
+      );
+      t.end();
+    });
+
+    t.test('#join()', t => {
+      t.is(Sq.from().join(), '');
+      t.is(Sq.from(NUMBERS).join(), '4266513');
+      t.is(Sq.from(NUMBERS).join(', '), '42, 665, 13');
+      t.end();
+    });
+
+    t.test('#toArray()', t => {
+      t.same(Sq.from(NUMBERS).toArray(), NUMBERS);
+      t.same(Sq.from(NUMBERS).toArray([0]), [0, 42, 665, 13]);
       t.end();
     });
 

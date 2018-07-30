@@ -1,5 +1,6 @@
 /* (C) Copyright 2018 Robert Grimm */
 
+const { bind } = Function.prototype;
 const { create, getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
 
@@ -40,11 +41,11 @@ export function toIteratorFactory(value) {
   } else if (isIterator(value)) {
     return () => value;
   } else if (isIterable(value)) {
-    return value[iterator].bind(value);
+    return bind.call(value[iterator], value);
   } else if (typeof value === 'function') {
     return value;
   } else {
     value = [value];
-    return value[iterator].bind(value);
+    return bind.call(value[iterator], value);
   }
 }
