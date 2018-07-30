@@ -1,10 +1,8 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
 import {
-  constant,
   dehyphenate,
   deobjectify,
-  enumerable,
   escapeAttribute,
   escapeHTML,
   escapeScript,
@@ -18,7 +16,6 @@ import {
   toStableJSON,
   toKeyPath,
   toSymbolKey,
-  value,
   withExistingKeyPath,
   withKeyPath,
   withoutInspector,
@@ -31,47 +28,6 @@ import { Writable } from 'stream';
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };
 
 export default harness(__filename, t => {
-  t.test('descriptors', t => {
-    t.test('.constant()', t => {
-      t.same(constant(665), {
-        configurable: false,
-        enumerable: false,
-        value: 665,
-        writable: false,
-      });
-
-      t.same(constant(665, enumerable), {
-        configurable: false,
-        enumerable: true,
-        value: 665,
-        writable: false,
-      });
-
-      t.end();
-    });
-
-    t.test('.value()', t => {
-      t.same(value(665), {
-        configurable: true,
-        enumerable: false,
-        value: 665,
-        writable: false,
-      });
-
-      t.same(value(665, { enumerable, numeric: true }), {
-        configurable: true,
-        enumerable: true,
-        numeric: true,
-        value: 665,
-        writable: false,
-      });
-
-      t.end();
-    });
-
-    t.end();
-  });
-
   t.test('key-path', t => {
     const sym = Symbol('ooh special');
 

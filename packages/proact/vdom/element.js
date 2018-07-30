@@ -1,10 +1,10 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
 import { InvalidArgType, MissingArgs } from '@grr/err';
-import { constant, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 
 const { apply } = Reflect;
+const configurable = true;
 const { create, defineProperty } = Object;
 const { toStringTag } = Symbol;
 
@@ -24,9 +24,9 @@ export default function Element(...args) {
 }
 
 const ElementPrototype = create(Node.prototype, {
-  constructor: value(Element),
-  isViewElement: value(true), // Flag to detect view element type.
-  [toStringTag]: value('Proact.Element'),
+  constructor: { configurable, value: Element },
+  isViewElement: { configurable, value: true }, // Flag to detect view element type.
+  [toStringTag]: { configurable, value: 'Proact.Element' },
 });
 
-defineProperty(Element, 'prototype', constant(ElementPrototype));
+defineProperty(Element, 'prototype', { value: ElementPrototype });

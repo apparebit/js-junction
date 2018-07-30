@@ -1,7 +1,6 @@
 /* (C) Copyright 2017–2018 Robert Grimm */
 
 import { InvalidArgValue } from '@grr/err';
-import { constant } from '@grr/oddjob/descriptors';
 import { normalize } from '../driver/children';
 
 const { defineProperty } = Object;
@@ -46,4 +45,4 @@ export default function Node(...args) {
   this.children = normalize(args);
 }
 
-defineProperty(Node, 'isPropsObject', constant(isPropsObject));
+defineProperty(Node, 'isPropsObject', { value: isPropsObject });

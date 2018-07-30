@@ -5,12 +5,13 @@ import {
   InvalidArgType,
   InvalidArgValue,
 } from '@grr/err';
-import { constant, enumerable, value } from '@grr/oddjob/descriptors';
 import Node from './node';
 import driver from '../driver/hook';
 
 const { apply } = Reflect;
+const configurable = true;
 const { create, defineProperties } = Object;
+const enumerable = true;
 const { toStringTag } = Symbol;
 const NodePrototype = Node.prototype;
 
@@ -55,23 +56,23 @@ function from(renderFn, name = renderFn.name) {
   // shared prototype. While that may reduce memory pressure, it also increases
   // the length of the prototype chain and thus property lookup latency.
   const RenderFunctionPrototype = create(NodePrototype, {
-    constructor: value(RenderFunction),
-    isViewComponent: value(true), // Flag to detect view component type.
-    [toStringTag]: value('Proact.Component'),
-    name: value(name, { enumerable }),
-    render: value(renderFn),
-    provideContext: value(provideContext),
+    constructor: { configurable, value: RenderFunction },
+    isViewComponent: { configurable, value: true }, // Flag to detect view component type.
+    [toStringTag]: { configurable, value: 'Proact.Component' },
+    name: { configurable, enumerable, value: name },
+    render: { configurable, value: renderFn },
+    provideContext: { configurable, value: provideContext },
   });
 
   defineProperties(RenderFunction, {
-    prototype: constant(RenderFunctionPrototype),
-    name: value(name),
+    prototype: { value: RenderFunctionPrototype },
+    name: { configurable, enumerable, value: name },
   });
 
   return RenderFunction;
 }
 
 defineProperties(Component, {
-  prototype: constant(null), // Nothing to see here for now.
-  from: value(from),
+  prototype: { value: null }, // Nothing to see here for now.
+  from: { configurable, value: from },
 });

@@ -5,7 +5,6 @@ import { InvalidArgType, InvalidArgValue, ResourceBusy } from '@grr/err';
 import { isIterable } from '@grr/sequitur/iterations';
 import { next, pushAll } from './children';
 import { setDriver } from './hook';
-import { value } from '@grr/oddjob/descriptors';
 
 const { bind } = Function.prototype;
 const { defineProperty } = Object;
@@ -119,7 +118,11 @@ export default class Driver {
         throw InvalidArgType({ handler }, 'undefined or a function');
       }
 
-      defineProperty(this, 'handle', value(handler, { writable: true }));
+      defineProperty(this, 'handle', {
+        configurable: true,
+        writable: true,
+        value: handler,
+      });
     }
 
     // Fix shape of class.

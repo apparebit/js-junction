@@ -1,6 +1,5 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import { constant } from '@grr/oddjob/descriptors';
 import { default as harness, load } from './harness';
 import { withoutInspector } from '@grr/oddjob/processes';
 
@@ -28,7 +27,7 @@ const CASES = [
 export default harness(__filename, async function run(t) {
   // Protect against this module becoming a fork bomb!
   if (mode === void 0 && !global[RUNNING]) {
-    defineProperty(global, RUNNING, constant(true));
+    defineProperty(global, RUNNING, { value: true });
 
     for (const [expected, actual] of CASES) {
       const options = {
