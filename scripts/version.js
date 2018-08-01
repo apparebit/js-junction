@@ -10,6 +10,7 @@ import {
 } from '@grr/inventory';
 
 const { keys: keysOf } = Object;
+const { max } = Math;
 
 const args = parseArguments(process.argv.slice(2), {
   boolean: ['debug'],
@@ -22,7 +23,7 @@ if (args._.length !== 1 && args._.length !== 2) {
   process.exit(13); // eslint-disable-line no-process-exit
 }
 
-const [name, version] = args._;
+const [dependency, version] = args._;
 if (version && !/^\d+\.\d+.\d+$/u.test(version)) {
   console.error(
     chalk.red(
@@ -32,41 +33,33 @@ if (version && !/^\d+\.\d+.\d+$/u.test(version)) {
   process.exit(13); // eslint-disable-line no-process-exit
 }
 
-function reportDependency(from, to, versions) {
-  if (versions) {
-    for (const grouping of keysOf(versions)) {
-      const version = versions[grouping];
-      console.error(
-        chalk.bold.blue(`${from} :: ${grouping} :: ${to}@${version}`)
-      );
+async function getVersions() {
+  const { packages } = await findAllPackages({ select: v => v });
+  const pkgNames = keysOf(packages);
+  const pkgNameLength = pkgNames.reduce((acc, n) => max(acc, n.length), 0);
+
+  for (const pkgName of pkgNames) {
+    const n = pkgName.padEnd(pkgNameLength);
+
+    const versions = getDependencyVersions(packages[pkgName].data, dependency);
+    for (const kind of keysOf(versions || {})) {
+      const k = kind.padEnd(16);
+      const v = versions[kind];
+      console.error(chalk.bold.blue(`${n} :: ${k} :: ${dependency}@${v}`));
     }
-  }
-}
-
-async function getVersion() {
-  const { packages } = await findAllPackages({
-    select: v => v,
-  });
-
-  for (const packageName of keysOf(packages)) {
-    reportDependency(
-      packageName,
-      name,
-      getDependencyVersions(packages[packageName].data, name)
-    );
   }
 }
 
 async function setVersion() {
   let count;
   if (args.debug) {
-    count = await updateDependency(name, version, {
+    count = await updateDependency(dependency, version, {
       logger(...args) {
         console.error(chalk.grey(`# ${format(...args)}`));
       },
     });
   } else {
-    count = await updateDependency(name, version);
+    count = await updateDependency(dependency, version);
   }
 
   const color = count ? chalk.green : chalk.grey;
@@ -76,5 +69,5 @@ async function setVersion() {
 if (version) {
   setVersion();
 } else {
-  getVersion();
+  getVersions();
 }
