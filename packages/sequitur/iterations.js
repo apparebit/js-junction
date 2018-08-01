@@ -1,6 +1,5 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-const { bind } = Function.prototype;
 const { create, getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
 
@@ -18,6 +17,15 @@ export function isGeneratorFunction(value) {
 /** Determine whether the value is an iterable. */
 export function isIterable(value) {
   return value != null && typeof value[iterator] === 'function';
+}
+
+/** Determine whether the value is a non-string iterable. */
+export function isNonStringIterable(value) {
+  return (
+    value != null &&
+    typeof value !== 'string' &&
+    typeof value[iterator] === 'function'
+  );
 }
 
 /** Determine whether the value is an iterator. */
@@ -41,11 +49,11 @@ export function toIteratorFactory(value) {
   } else if (isIterator(value)) {
     return () => value;
   } else if (isIterable(value)) {
-    return bind.call(value[iterator], value);
+    return () => value[iterator]();
   } else if (typeof value === 'function') {
     return value;
   } else {
     value = [value];
-    return bind.call(value[iterator], value);
+    return () => value[iterator]();
   }
 }

@@ -1,23 +1,22 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-import { toIteratorFactory } from './iterations.js';
+import { isNonStringIterable, toIteratorFactory } from './iterations.js';
 
 // A private sentinel indicating a definitely undefined accumulator.
 const UNDEFINED = Symbol('undefined');
 
-const { bind } = Function.prototype;
 const { iterator } = Symbol;
 const { keys: keysOf } = Object;
 
 export default class Sq {
-  constructor(factory) {
+  /* private */ constructor(factory) {
     this.factory = factory;
   }
 
   // === Static Factory Methods (Usable as Functions) ===
 
   static of(...values) {
-    return new Sq(bind.call(values[iterator], values));
+    return new Sq(() => values[iterator]());
   }
 
   static from(value) {
@@ -45,6 +44,19 @@ export default class Sq {
   }
 
   // === Lazy and Chainable Operations ===
+
+  flatten() {
+    const source = this;
+    return new Sq(function* flattening(iterable = source) {
+      for (const element of iterable) {
+        if (isNonStringIterable(element)) {
+          yield* flattening(element);
+        } else {
+          yield element;
+        }
+      }
+    });
+  }
 
   entries() {
     const source = this;
@@ -109,22 +121,22 @@ export default class Sq {
     let text = UNDEFINED;
     for (const element of this) {
       if (text === UNDEFINED) {
-        text = element.toString();
+        text = String(element);
       } else {
-        text += separator + element.toString();
+        text += separator + String(element);
       }
     }
     return text === UNDEFINED ? '' : text;
   }
 
-  toArray(array = []) {
+  collect(array = []) {
     for (const element of this) {
       array.push(element);
     }
     return array;
   }
 
-  toObject(object = {}) {
+  collectEntries(object = {}) {
     for (const [key, value] of this) {
       object[key] = value;
     }

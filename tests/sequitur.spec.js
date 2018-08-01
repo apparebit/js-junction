@@ -5,6 +5,7 @@ import {
   isGeneratorFunction,
   isIterable,
   isIterator,
+  isNonStringIterable,
   IteratorPrototype,
   toIteratorFactory,
 } from '@grr/sequitur/iterations';
@@ -69,6 +70,22 @@ export default harness(__filename, t => {
         })
       );
 
+      t.end();
+    });
+
+    t.test('.isNonStringIterable()', t => {
+      t.notOk(isNonStringIterable(void 0));
+      t.notOk(isNonStringIterable(null));
+      t.notOk(isNonStringIterable(false));
+      t.notOk(isNonStringIterable(true));
+      t.notOk(isNonStringIterable(665));
+      t.notOk(isNonStringIterable({}));
+      t.notOk(isNonStringIterable(''));
+
+      t.ok(isNonStringIterable([]));
+      t.ok(isNonStringIterable((function* gen() {})()));
+      t.ok(isNonStringIterable(new Map()));
+      t.ok(isNonStringIterable(new Set()));
       t.end();
     });
 
@@ -232,6 +249,12 @@ export default harness(__filename, t => {
       t.end();
     });
 
+    t.test('#flatten()', t => {
+      t.same([...Sq.of(42, [[665], [[13]]]).flatten()], NUMBERS);
+      t.same([...Sq.of('abc').flatten()], ['abc']);
+      t.end();
+    });
+
     t.test('#entries()', t => {
       t.same([...Sq.from(NUMBERS).entries()], [[0, 42], [1, 665], [2, 13]]);
       t.end();
@@ -271,26 +294,27 @@ export default harness(__filename, t => {
       t.is(Sq.from().join(), '');
       t.is(Sq.from(NUMBERS).join(), '4266513');
       t.is(Sq.from(NUMBERS).join(', '), '42, 665, 13');
+      t.is(Sq.of(Symbol('a'), Symbol('b')).join('--'), 'Symbol(a)--Symbol(b)');
       t.end();
     });
 
-    t.test('#toArray()', t => {
-      t.same(Sq.from(NUMBERS).toArray(), NUMBERS);
-      t.same(Sq.from(NUMBERS).toArray([0]), [0, 42, 665, 13]);
+    t.test('#collect()', t => {
+      t.same(Sq.from(NUMBERS).collect(), NUMBERS);
+      t.same(Sq.from(NUMBERS).collect([0]), [0, 42, 665, 13]);
       t.end();
     });
 
-    t.test('#toObject()', t => {
+    t.test('#collectEntries()', t => {
       t.same(
         Sq.from(NUMBERS)
           .entries()
-          .toObject(),
+          .collectEntries(),
         { '0': 42, '1': 665, '2': 13 }
       );
       t.same(
         Sq.from(NUMBERS)
           .entries()
-          .toObject({ length: 3 }),
+          .collectEntries({ length: 3 }),
         { '0': 42, '1': 665, '2': 13, length: 3 }
       );
       t.end();
