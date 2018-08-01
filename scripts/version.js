@@ -44,12 +44,10 @@ function reportDependency(from, to, versions) {
 }
 
 async function getVersion() {
-  const { data, packages } = await findAllPackages({
+  const { packages } = await findAllPackages({
     select: v => v,
   });
-  const repo = data.name;
 
-  reportDependency(repo, name, getDependencyVersions(data, name));
   for (const packageName of keysOf(packages)) {
     reportDependency(
       packageName,

@@ -45,8 +45,9 @@ export default harness(__filename, t => {
   }
 
   t.test('readPackage()', async function test(t) {
-    const { directory, text, data } = await readPackageFrom(REPO_ROOT);
+    const { name, directory, text, data } = await readPackageFrom(REPO_ROOT);
 
+    t.is(name, 'js-junction');
     t.is(directory, REPO_ROOT);
     checkTopLevelPackage(t, directory, data);
     t.ok(text.startsWith('{\n  "name": "js-junction",\n  "private": true,\n'));
@@ -58,7 +59,8 @@ export default harness(__filename, t => {
       code: 'ERR_RESOURCE_NOT_FOUND',
     });
 
-    const { directory, text, data } = await findPackage();
+    const { name, directory, text, data } = await findPackage();
+    t.is(name, 'js-junction');
     checkTopLevelPackage(t, directory, data);
     t.ok(text.startsWith('{\n  "name": "js-junction",\n  "private": true,\n'));
     t.end();
@@ -82,12 +84,16 @@ export default harness(__filename, t => {
         name => name[0] !== '.'
       );
 
-      const { root, name, data, packages } = await findAllPackages();
-      t.is(root, REPO_ROOT);
-      t.is(name, 'js-junction');
-      checkTopLevelPackage(t, root, data);
+      const { root, packages } = await findAllPackages();
+      t.is(root, 'js-junction');
+      t.is(keysOf(packages).length, directoryNames.length + 1);
 
-      t.is(keysOf(packages).length, directoryNames.length);
+      const entry = packages['js-junction'];
+      t.ok(entry != null);
+      t.is(entry.name, 'js-junction');
+      t.is(entry.directory, REPO_ROOT);
+      checkTopLevelPackage(t, entry.directory, entry.data);
+
       for (const directory of directoryNames) {
         const name = `@grr/${directory}`;
         const entry = packages[name];
@@ -102,21 +108,28 @@ export default harness(__filename, t => {
     }
 
     {
-      const { root, text, data, packages } = await findAllPackages({
+      const { root, packages } = await findAllPackages({
         start: join(PKG_DIR, 'proact'),
         withText: true,
       });
 
-      t.is(root, join(PKG_DIR, 'proact'));
+      t.is(root, '@grr/proact');
+      t.is(keysOf(packages).length, 1);
+
+      const entry = packages['@grr/proact'];
+      t.ok(entry != null);
+      t.is(entry.name, '@grr/proact');
+      t.is(entry.directory, join(PKG_DIR, 'proact'));
+      t.is(entry.data.name, '@grr/proact');
+      t.is(entry.data.description, 'Making server-side rendering great again!');
+      t.is(entry.data.author, 'Robert Grimm');
+      t.is(entry.data.license, 'MIT');
       t.ok(
-        text.startsWith(
+        entry.text.startsWith(
           '{\n  "name": "@grr/proact",\n  ' +
             '"description": "Making server-side rendering great again!",'
         )
       );
-      t.is(data.name, '@grr/proact');
-      t.is(data.description, 'Making server-side rendering great again!');
-      t.is(keysOf(packages).length, 0);
     }
 
     t.end();

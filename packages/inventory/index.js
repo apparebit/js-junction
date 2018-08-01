@@ -28,7 +28,7 @@ export async function readPackageFrom(directory) {
   try {
     const text = await readFile(path, 'utf8');
     const data = parse(text);
-    return { directory, text, data };
+    return { name: data.name, directory, text, data };
   } catch (x) {
     /* istanbul ignore if or we need to inject errors into readFile(). */
     if (x.code !== 'ENOENT') throw x;
@@ -42,8 +42,8 @@ export async function findPackage({ start = parentDirectory } = {}) {
   let directory = start;
 
   while (true) {
-    const { text, data } = await readPackageFrom(directory);
-    if (text && data) return { directory, text, data };
+    const pkg = await readPackageFrom(directory);
+    if (pkg.data !== void 0) return pkg;
 
     const parent = dirname(directory);
     if (parent === directory) {
@@ -88,32 +88,28 @@ export async function findAllPackages({
   withText = false,
   select = toPackageEssentials,
 } = {}) {
-  const { directory: root, text, data } = await findPackage({ start });
+  const pkg = await findPackage({ start });
+  const { name: root, directory: rootdir } = pkg;
+  const { workspaces } = pkg.data;
 
-  const result = {
-    root,
-    name: data.name,
-    data: select(data),
-    packages: create(null),
-  };
-  if (withText) result.text = text;
+  const packages = create(null);
 
-  if (has(data, 'workspaces')) {
-    const directories = await glob(data.workspaces, root);
+  if (!withText) delete pkg.text;
+  pkg.data = select(pkg.data);
+  packages[pkg.name] = pkg;
+
+  if (workspaces !== void 0) {
+    const directories = await glob(workspaces, rootdir);
     for (const directory of directories) {
-      const { text, data } = await readPackageFrom(directory);
-      const { name } = data;
+      const pkg = await readPackageFrom(directory);
 
-      result.packages[name] = {
-        name,
-        directory,
-        data: select(data),
-      };
-      if (withText) result.packages[name].text = text;
+      if (!withText) delete pkg.text;
+      pkg.data = select(pkg.data);
+      packages[pkg.name] = pkg;
     }
   }
 
-  return result;
+  return { root, packages };
 }
 
 const GROUPINGS = ['dependencies', 'devDependencies', 'peerDependencies'];
@@ -143,7 +139,7 @@ export async function updateDependency(
   { logger = () => {}, start = parentDirectory } = {}
 ) {
   // Read in the repo's package manifests.
-  const { root, text, data, packages } = await findAllPackages({
+  const { packages } = await findAllPackages({
     start,
     withText: true,
     select: id => id,
@@ -159,13 +155,6 @@ export async function updateDependency(
 
   // Do the actual updating.
   let count = 0;
-
-  const path = join(root, 'package.json');
-  logger('checking root manifest "%s"', path);
-  if (getDependencyVersions(data, name)) {
-    await update(path, text);
-    count++;
-  }
 
   for (const packageName of keysOf(packages)) {
     const { directory, text, data } = packages[packageName];
@@ -196,17 +185,15 @@ export async function findInstrumentedModules({
   start = parentDirectory,
 } = {}) {
   const { root, packages } = await findAllPackages({ start });
-  const packageNames = keysOf(packages);
+  const patterns = keysOf(packages).map(name =>
+    join(packages[name].directory, INSTRUMENTED)
+  );
 
-  const patterns = [];
-  patterns.push(join(root, INSTRUMENTED));
-  for (const name of packageNames) {
-    patterns.push(join(packages[name].directory, INSTRUMENTED));
-  }
+  const paths = await glob(patterns, packages[root].directory, {
+    onlyFiles: true,
+  });
 
-  const paths = await glob(patterns, root, { onlyFiles: true });
   const mapping = create(null);
-
   for (const instrumented of paths) {
     logger('inspecting instrumented module "%s"', instrumented);
     const text = await readFile(instrumented, 'utf8');
@@ -225,7 +212,6 @@ export async function findInstrumentedModules({
       }
     }
   }
-
   return mapping;
 }
 
