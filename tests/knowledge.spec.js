@@ -654,7 +654,7 @@ export default harness(__filename, t => {
 
   t.test('Knowledge', async function test(t) {
     // >>> Check ingestion of a non-trivial JSON-LD document.
-    const file = join(__dirname, '..', 'apparebit-com', 'site.jsonld');
+    const file = join(__dirname, 'fixtures', 'site.jsonld');
     const json = await readFile(file, 'utf8').then(parseJSON);
 
     const corpus = new Knowledge();
