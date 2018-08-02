@@ -18,6 +18,9 @@ open source packages:
  *  [@grr/err](https://github.com/apparebit/js-junction/tree/master/packages/err):
     The joy of refined errors — with code, pun, and Oxford comma.
 
+ *  [@grr/sequitur](https://github.com/apparebit/js-junction/tree/master/packages/sequitur):
+    Refined iterators, iterables, and generator functions.
+
  *  [@grr/oddjob](https://github.com/apparebit/js-junction/tree/master/packages/oddjob):
     Letting you focus on the flying circus.
 
@@ -30,8 +33,8 @@ open source packages:
  *  [@grr/proact](https://github.com/apparebit/js-junction/tree/master/packages/proact):
     Making server-side rendering great again.
 
- *  [@grr/sequitur](https://github.com/apparebit/js-junction/tree/master/packages/sequitur):
-    Refined iterators, iterables, and generator functions.
+ *  [@grr/proact](https://github.com/apparebit/js-junction/tree/master/packages/enact):
+    Making server-side rendering progressively scalable.
 
 All these packages have 100% test coverage across statements, branches,
 functions, and lines alike. Anything less would be uncivilized — and a tad
