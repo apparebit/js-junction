@@ -14,11 +14,9 @@ function normalize(values) {
     .filter(hasDisplay);
 }
 
-const BETWEEN = />\s+</gu;
-const INSIDE = /\s+/gu;
-
 export function html(strings, ...values) {
   let [text] = strings;
+
   for (const [index, value] of values.entries()) {
     if (isArray(value)) {
       text += normalize(value).join();
@@ -28,18 +26,7 @@ export function html(strings, ...values) {
     text += strings[index + 1];
   }
 
-  // Since `<` must be escaped almost anywhere in a HTML document, we
-  // use the simplest regex imaginable for detecting the space between
-  // two elements. Of course, that means it may just go horribly
-  // wrong!
-  return (
-    text
-      .trim()
-      // Remove *all* whitespace between elements.
-      .replace(BETWEEN, '><')
-      // But leave one space everywhere else.
-      .replace(INSIDE, ' ')
-  );
+  return text;
 }
 
 // Igoring flattening and filtering, the plain-text engine's

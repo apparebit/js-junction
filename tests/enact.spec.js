@@ -25,13 +25,16 @@ export default harness(__filename, t => {
         html`${void 0} ${null} ${false} ${true} ${'Hello'}${[
           null,
           null,
-          [[[', ']]],
+          [[[',']]],
         ]} World!\n    \n`,
-        'Hello, World!'
+        '    Hello, World!\n    \n'
       );
 
       // Check that unnecessary whitespace is correctly removed.
-      t.is(html`  \n\t <br>      \n     <br>   `, '<br><br>');
+      t.is(
+        html`  \n\t <br>      \n     <br>   `,
+        '  \n\t <br>      \n     <br>   '
+      );
       t.end();
     });
 
