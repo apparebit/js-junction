@@ -98,6 +98,12 @@ export default harness(__filename, t => {
         const name = `@grr/${directory}`;
         const entry = packages[name];
 
+        if (entry == null) {
+          console.error(
+            `check directory "${directory}" for manifest and manifest for name "${name}"!`
+          );
+        }
+
         t.ok(entry != null);
         t.is(entry.name, name);
         t.is(entry.directory, join(PKG_DIR, directory));
