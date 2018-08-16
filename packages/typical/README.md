@@ -17,6 +17,7 @@ modelling. In contrast, __tcomb__ is for modelling only and the separate
 [tcomb-validation](https://github.com/gcanti/tcomb-validation) package takes on
 validation duties.
 
+
 ## API
 
 Add __@grr/typical__ to your project.
@@ -61,6 +62,7 @@ Conveniently, you don't need to define a string type in your own projects, since
 the built-in `typical.String` corresponds to JavaScript strings. Its definition
 is pretty much the same as for my string.
 
+
 ### Configuration
 
 To accommodate better accommodate different use cases, __@grr/typical__ supports
@@ -91,6 +93,7 @@ If both `ignoreExtraProps` and `validateAndCopy` are enabled, then the copy
 returned from a _typical_ record type does _not_ include extra properties, even
 if they are present in the original object.
 
+
 ### Constants
 
 Typical's API object includes three constants to be used with the
@@ -109,6 +112,7 @@ This description of typing checks is _not_ exhaustive. Notably, to match a list
 type, every element of a non-empty array must also match the list's element
 type.
 
+
 ### Built-In Types
 
 Conveniently, this package pre-defines a number of generally useful _typical_
@@ -126,6 +130,7 @@ types:
   + `typical.URL` is a refinement of `String` and represents all [WHATWG
     URL](https://url.spec.whatwg.org) values, whether they are relative or
     absolute.
+
 
 ### Combinators
 
@@ -203,23 +208,41 @@ may only have the properties described when invoking this combinator or further
 arbitrary properties. In the latter case, extra properties are not copied in the
 freshly allocated record object.
 
+
 ## Debugging
 
-To help debug code when data validations fail, this package can optionally log
-every single predicate test, full data validation, and full validation plus
-copy with the [debug](https://www.npmjs.com/package/debug) module. You enable
-logging with __debug__ by enabling logging for the `@grr:typical` scope:
+To help with debug failing data validations, this package optionally logs every
+single test, validation, and validation & copy using the lightweight
+[debug](https://www.npmjs.com/package/debug) package. You enable logging by
+adding this package's scope to the `DEBUG` environment variable:
 
 ```bash
 DEBUG=@grr:typical yarn test
 ```
 
-That will produce many a line looking like this:
+That will produce many a line looking like the following two:
 
 ```
-  @grr:typical FAIL validate value "665" with option type "StringOption" +1ms
-  @grr:typical PASS     test value "13" with refinement type "Integer" +4ms
+@grr:typical FAIL validate value "665" with option type "StringOption" +1ms
+@grr:typical PASS     test value "13" with refinement type "Integer" +4ms
 ```
+
+Each line represents a single invocation of a _typical_ type on a value,
+including all recursive invocations. __@grr/typical__ logs whether type and
+value were a match, the kind of match, the value, and the kind and name of
+the type. The kind of match is one of three:
+
+  + `test` when matching type and value for a basic binary `true`/`false` result
+    only;
+  + `validate` when producing detailed information about either match or failure
+    to match, i.e., by returning the now validated value from the type function
+    or throwing an error whose `causes` lists all encountered errors.
+  + `recreate` when also copying all objects and arrays into newly allocated
+    containers.
+
+To copy properties between objects, this package let `Object.assign()` do the
+heavy lifting. However, that also means that only enumerable own-properties can
+be copied and only so if they do not include getters or setters.
 
 
 ## ECMAScript Only
@@ -229,6 +252,7 @@ may not run natively on Node.js without a suitable [loader
 hook](https://nodejs.org/dist/latest-v9.x/docs/api/esm.html#esm_loader_hooks).
 It does, however, run with [esm](https://github.com/standard-things/esm), a
 light-weight just-in-time transpiler for Node.js 6 or later.
+
 
 ## Copyright and License
 
