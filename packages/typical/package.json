@@ -1,0 +1,25 @@
+{
+  "name": "@grr/typical",
+  "description": "Type combinators for data validation and modelling",
+  "keywords": [
+    "data model",
+    "modelling",
+    "validation",
+    "predicate",
+    "type",
+    "type combinator"
+  ],
+  "version": "0.1.0",
+  "author": "Robert Grimm",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "dependencies": {
+    "debug": "3.1.0",
+    "esm": "3.0.61",
+    "@grr/mark-of-dev": "0.1.0"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/apparebit/js-junction/tree/master/packages/sequitur"
+}

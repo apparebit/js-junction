@@ -21,6 +21,9 @@ open source packages:
  *  [@grr/sequitur](https://github.com/apparebit/js-junction/tree/master/packages/sequitur):
     Refined iterators, iterables, and generator functions.
 
+ *  [@grr/typical](https://github.com/apparebit/js-junction/tree/master/packages/typical):
+    Type combinators for data validation and modelling.
+
  *  [@grr/oddjob](https://github.com/apparebit/js-junction/tree/master/packages/oddjob):
     Letting you focus on the flying circus.
 
@@ -39,6 +42,20 @@ open source packages:
 All these packages have 100% test coverage across statements, branches,
 functions, and lines alike. Anything less would be uncivilized — and a tad
 reckless for a dynamically typed programming language!
+
+All packages in this repository adhere to [semantic
+versioning](https://semver.org). As a widely followed standard, semantic
+versioning certainly is helpful, since it conveys a reasonable expectation about
+the scope and impact of a package upgrade. However, it is impossible for
+semantic versioning by itself to guarantee that the actual artifact meets the
+expectation of the change in version number. In fact, given enough time and
+sufficiently many dependencies, it is far more likely for the opposite to happen
+upon a package upgrade. For that reason, all package manifests in this
+repository spell out the complete versions of all dependencies. No wildcard
+matching is allowed. Consequently, upgrades always require explicit manifest
+changes. The [version](scripts/version.js) script makes such changes
+straight-forward and hopefully keeps the versions of dependencies consistent
+across the repository.
 
 ## Modules End With .js
 
