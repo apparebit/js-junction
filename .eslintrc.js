@@ -69,7 +69,7 @@ module.exports = {
     'no-buffer-constructor': 'error',
     'no-caller': 'error',
     'no-catch-shadow': 'error',
-    'no-confusing-arrow': 'error',
+    'no-confusing-arrow': ['error', { allowParens: true }],
     'no-console': 'off',
     'no-constant-condition': [
       'error',
@@ -199,7 +199,6 @@ module.exports = {
     'prefer-promise-reject-errors': 'error',
     'prefer-rest-params': 'error',
     'prefer-spread': 'error',
-    'prefer-template': 'error',
     quotes: 'off',
     radix: 'error',
     'require-await': 'error',
