@@ -46,6 +46,7 @@ export default class Context {
     return result;
   }
 
+  // The effective main entry point for all typical types.
   static with(value, type, callConfig, apiConfig) {
     if (!pool.length) {
       assert(pooled === 0, 'context pool already has one reusable object');
@@ -62,21 +63,33 @@ export default class Context {
       const pass = context.errors.length === 0;
       const asPredicate = callConfig && callConfig.asPredicate;
 
-      // This method effectively is the main entry point for all types. Hence,
-      // we optionally trace execution and check internal state.
+      /* istanbul ignore else */
+      if (__DEV__) {
+        const unwrapped = !isErrorWrapper(result);
+
+        /* istanbul ignore if */
+        if (unwrapped !== pass) {
+          const num = context.errors.length;
+          assert.fail(
+            `context recorded ${num} error${
+              num !== 1 ? 's' : ''
+            } yet type returned a ${unwrapped ? 'non-' : ''}error value`
+          );
+        }
+      }
+
       debug(
         '%s %s value "%o" with %s type "%s"',
         pass ? PASS : FAIL,
         asPredicate
-          ? '    test'
+          ? '  attest'
           : context.validateAndCopy
-            ? 'recreate'
+            ? '  create'
             : 'validate',
         value,
         type.meta.kind,
         type.name
       );
-      //if (__DEV__) assert(context.isError(result) === !pass);
 
       if (pass) {
         return asPredicate ? true : result;

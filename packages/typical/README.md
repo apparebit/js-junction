@@ -2,20 +2,29 @@
 
 > Type combinators for data validation and modelling.
 
-This package is as much an adverse reaction to overly complex and strangely
+This package is as much an adverse reaction to overly complex yet strangely
 permissive validation libraries — such as [ajv](https://ajv.js.org) and
 [joi](https://github.com/hapijs/joi) — as it is sincere flattery for Giulio
-Canti's [tcomb](https://github.com/gcanti/tcomb). It is the latter, since
-__@grr/typical__ blatantly imitates __tcomb__'s design by also enabling the
-expression of complex type constraints by recursively applying combinators on
-the result of other combinators. The recursion bottoms out for type constraints
-created with the `base()` combinator, which relies on a plain JavaScript
-predicate to anchor express __@grr/typical__'s types based on JavaScript values.
-Having said that, the similarity between the two packages is only API-deep.
-Notably, this package reuses the same traversal code for both validation and
-modelling. In contrast, __tcomb__ is for modelling only and the separate
-[tcomb-validation](https://github.com/gcanti/tcomb-validation) package takes on
-validation duties.
+Canti's [tcomb](https://github.com/gcanti/tcomb). __@grr/typical__ blatantly
+imitates __tcomb__'s overall design and provides currently six combinators that
+build executable type specifications from simpler ones. A seventh combinator
+provides the base types, with each delegating to a JavaScript function that
+determines whether a value of a given type.
+
+Beyond that, the two packages differ quite a bit. Most importantly,
+__@grr/typical__ seeks to be a self-contained solution for data validation and
+modelling but no more. Hence it makes different trade-offs in what does and does
+not warrant inclusion in the package. For example, __tcomb__ separates
+validation into the
+[tcomb-validation](https://github.com/gcanti/tcomb-validation) package, leading
+to some code duplication because both __tcomb__ and __tcomb-validation__ include
+code for traversing types. __@grr/typical__ uses the exact same code for both —
+modulo four simple conditionals out of 700 lines of JavaScript in
+[Prettier](https://prettier.io) format. At the same time, this package does not
+support __tcomb__'s `func()` and `interface()` combinators nor the `match()` and
+`update()` functions. In fact, it probably will never support them, since none
+seems strictly necessary for validating and instantiating plain data, as is
+necessary when processing configuration state or application-level messages.
 
 
 ## API
@@ -120,14 +129,14 @@ types:
 
   + `typical.Any` is the type representing the universe of all possible values,
     i.e., _top_.
-  + `typical.Nil` is the opposite type, representing only the `undefined` and
+  + `typical.Void` is the opposite type, representing only the `undefined` and
     `null` values, i.e., _bottom_.
   + `typical.Boolean`, `typical.Number`, `typical.String`, and `typical.Symbol`
     are _typical_ types that are equivalent to the namesake primitive types in
     JavaScript (but not the boxed versions).
-  + `typical.Integer` is a refinement of `Number` and represents all safe
-    integers, as determined by `Number.isSafeInteger()`.
-  + `typical.URL` is a refinement of `String` and represents all [WHATWG
+  + `typical.Integer` is a refinement of `typical.Number` and represents all
+    safe integers, as determined by JavaScript's `Number.isSafeInteger()`.
+  + `typical.URL` is a refinement of `typical.String` and represents all [WHATWG
     URL](https://url.spec.whatwg.org) values, whether they are relative or
     absolute.
 
@@ -155,7 +164,7 @@ of a _typical_ type. They also are expressed in terms of restrictions on host
 language values. In other words, this ensures that every _typical_ type
 ultimately is grounded in JavaScript.
 
-#### `typical.refine(type, name, predicate)`
+#### `typical.refinement(type, name, predicate)`
 
 Define a new refinement type, which matches a value if the value matches the
 base type and futher matches the refinement's predicate.

@@ -76,7 +76,7 @@ function decorate(type, info) {
  * Combinators that Produce Primitive Types:
  *
  *  +  base(): A type capturing all values matching a predicate.
- *  +  refine(): Some subset of values of another type.
+ *  +  refinement(): Some subset of values of another type.
  *  +  option(): undefined, null, or the values of another type.
  *  +  enum(): Some values, all of another type.
  * ================================================================================ */
@@ -99,10 +99,10 @@ function base(name, predicate) {
 
 /* -------------------------------------------------------------------------------- */
 
-function refine(type, name, predicate) {
+function refinement(type, name, predicate) {
   /* istanbul ignore else */
   if (__DEV__) {
-    assert(type[TYPICAL], 'refine() type argument must be a typical type');
+    assert(type[TYPICAL], 'refinement() type argument must be a typical type');
   }
 
   const api = this;
@@ -421,7 +421,7 @@ const Typical = {
 
   // Combinators.
   base,
-  refine,
+  refinement,
   option,
   enum: enumeration,
   list,
@@ -430,13 +430,13 @@ const Typical = {
 };
 
 Typical.Any = Typical.base('Any', () => true);
-Typical.Nil = Typical.base('Nil', v => v == null);
+Typical.Void = Typical.base('Void', v => v == null);
 Typical.Boolean = Typical.base('Boolean', v => typeof v === 'boolean');
 Typical.Number = Typical.base('Number', v => typeof v === 'number');
-Typical.Integer = Typical.refine(Typical.Number, 'Integer', isSafeInteger);
+Typical.Integer = Typical.refinement(Typical.Number, 'Integer', isSafeInteger);
 Typical.String = Typical.base('String', v => typeof v === 'string');
 Typical.Symbol = Typical.base('Symbol', v => typeof v === 'symbol');
-Typical.URL = Typical.refine(Typical.String, 'URL', v => {
+Typical.URL = Typical.refinement(Typical.String, 'URL', v => {
   try {
     // eslint-disable-next-line no-new
     new URL(v, 'apocalypse://demon:lover@hell.com:665');

@@ -245,16 +245,16 @@ export default harness(__filename, t => {
       t.end();
     });
 
-    t.test('.Nil()', t => {
-      t.is(tip.Nil.name, 'Nil');
-      t.is(tip.Nil.meta.name, 'Nil');
-      t.is(tip.Nil.meta.kind, 'base');
-      t.is(tip.Nil.toString(), '[Typical-Base-Type Nil]');
+    t.test('.Void()', t => {
+      t.is(tip.Void.name, 'Void');
+      t.is(tip.Void.meta.name, 'Void');
+      t.is(tip.Void.meta.kind, 'base');
+      t.is(tip.Void.toString(), '[Typical-Base-Type Void]');
 
-      t.ok(tip.Nil.is());
-      t.ok(tip.Nil.is(null));
-      t.notOk(tip.Nil.is(0));
-      t.notOk(tip.Nil.is(''));
+      t.ok(tip.Void.is());
+      t.ok(tip.Void.is(null));
+      t.notOk(tip.Void.is(0));
+      t.notOk(tip.Void.is(''));
 
       t.end();
     });
@@ -354,7 +354,7 @@ export default harness(__filename, t => {
       t.end();
     });
 
-    // The above tests more than cover base() and refine().
+    // The above tests more than cover base() and refinement().
 
     t.test('.option()', t => {
       const type = tip.option(tip.String);
