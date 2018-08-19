@@ -36,7 +36,7 @@ open source packages:
  *  [@grr/proact](https://github.com/apparebit/js-junction/tree/master/packages/proact):
     Making server-side rendering great again.
 
- *  [@grr/proact](https://github.com/apparebit/js-junction/tree/master/packages/enact):
+ *  [@grr/enact](https://github.com/apparebit/js-junction/tree/master/packages/enact):
     Making server-side rendering progressively scalable.
 
 All these packages have 100% test coverage across statements, branches,
