@@ -47,7 +47,7 @@ async function testcase() {
   const hasMark = has(global, '__DEV__');
   if (mode === 'oops') global.__DEV__ = 'oops';
 
-  await load('@grr/mark-of-dev');
+  await load('mark-of-dev');
 
   await harness(mode, t => {
     t.is(hasMark, false);

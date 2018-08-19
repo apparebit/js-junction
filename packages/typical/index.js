@@ -1,6 +1,6 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import '@grr/mark-of-dev';
+import 'mark-of-dev';
 import assert from 'assert';
 import Context from './context.js';
 

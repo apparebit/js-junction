@@ -95,7 +95,8 @@ export default harness(__filename, t => {
       checkTopLevelPackage(t, entry.directory, entry.data);
 
       for (const directory of directoryNames) {
-        const name = `@grr/${directory}`;
+        const name =
+          directory === 'mark-of-dev' ? directory : `@grr/${directory}`;
         const entry = packages[name];
 
         if (entry == null) {

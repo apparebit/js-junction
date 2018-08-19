@@ -12,7 +12,7 @@ experiences with Node.js.
 Conveniently, the latter name also serves as namespace for this repository's
 open source packages:
 
- *  [@grr/mark-of-dev](https://github.com/apparebit/js-junction/tree/master/packages/mark-of-dev):
+ *  [mark-of-dev](https://github.com/apparebit/js-junction/tree/master/packages/mark-of-dev):
     Advancing the globalization of `__DEV__`.
 
  *  [@grr/err](https://github.com/apparebit/js-junction/tree/master/packages/err):
