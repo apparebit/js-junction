@@ -4,9 +4,9 @@ const { create } = Object;
 const ERROR = Symbol('error');
 const { isArray } = Array;
 
-export function unwrapErrors(wrapper, delist) {
+export function unwrapErrors(wrapper, unwrapSingleton) {
   const errors = wrapper[ERROR];
-  return delist && errors.length === 1 ? errors[0] : errors;
+  return unwrapSingleton && errors.length === 1 ? errors[0] : errors;
 }
 
 export function isErrorWrapper(value) {

@@ -1,6 +1,6 @@
 # @grr/typical
 
-> Type combinators for data validation and modelling.
+> Light-weight type combinators for data validation and modelling.
 
 This package is as much an adverse reaction to overly complex yet strangely
 permissive validation libraries — such as [ajv](https://ajv.js.org) and
@@ -24,7 +24,8 @@ modulo four simple conditionals out of 700 lines of JavaScript in
 support __tcomb__'s `func()` and `interface()` combinators nor the `match()` and
 `update()` functions. In fact, it probably will never support them, since none
 seems strictly necessary for validating and instantiating plain data, as is
-necessary when processing configuration state or application-level messages.
+necessary when processing, say, configuration state or application-level
+messages.
 
 
 ## API
@@ -72,7 +73,7 @@ the built-in `typical.String` corresponds to JavaScript strings. Its definition
 is pretty much the same as for my string.
 
 
-### Configuration
+### 1. Configuration
 
 To accommodate better accommodate different use cases, __@grr/typical__ supports
 a few configuration options. You configure them either by setting the namesake
@@ -84,7 +85,23 @@ MyString('hello', { continueAfterError: false });
 ```
 
 In this case, we are disabling the `continueAfterError` option again, but that
-only lasts for the duration of the call. Supported options are:
+only lasts for the duration of the call. All options default to not being set
+and, more importantly, not even be specified, i.e., `undefined`, and thus
+ignored. __@grr/typical__ uses this simple technique to help maximize
+flexibility in configuration management without resulting in undue complexity.
+Concretely, this package combines options specified in different
+
+  but in code default to `void 0`.
+That is intended to help produce predictable behavior since __@grr/typical__
+combines option values specified at different times and must do so in some
+order. To maximize expressivity and remain easily predictable, this package
+employs two simple rules:
+
+ 1. Given an object with configuration options, ignore all properties that are
+    either missing or have `undefined` as value.
+
+
+Supported options are:
 
   + `continueAfterError` determines whether the recursive traversal of type and
     value continues after encountering an error. The default is to terminate
@@ -93,39 +110,42 @@ only lasts for the duration of the call. Supported options are:
     objects, may have additional properties beyond those specified for the
     record type. The default is not to allow extra properties.
   + `validateAndCopy` determines whether to recursively copy the values of
-    compound types, i.e., lists, tuples, and records. The default is to validate
-    values only.
-  + `recognizeAsList` determines what values are recognized as valid list
+    compound types, i.e., arrays, tuples, and records. The default is to
+    validate values only.
+  + `recognizeAsArray` determines what values are recognized as valid array
     values. There are three options, described next under Constants.
 
 If both `ignoreExtraProps` and `validateAndCopy` are enabled, then the copy
 returned from a _typical_ record type does _not_ include extra properties, even
-if they are present in the original object.
+if they are present in the object passed into the function representing a
+record type.
 
 
-### Constants
+### 2. Useful Constants
 
 Typical's API object includes three constants to be used with the
-`recognizeAsList` option.
+`recognizeAsArray` option.
 
-  + `LIST_ONLY` indicates to only accept an array value as a list. This is the
-    default.
-  + `ELEMENT_OR_LIST` indicates to also accept a value that matches the list's
-    element type. In that case, the value is automatically coerced to a
-    well-formed list by creating a new array with the value as its only element.
-  + `NONE_ELEMENT_OR_LIST` indicates to also accept `undefined` or `null` as a
-    list. Iin that case, the value is automatically coerced to a well-formed
-    list by creating a new empty array.
+  + `ARRAY_ONLY` indicates to only accept an array value as an array type. This
+    is the default.
+  + `ELEMENT_OR_ARRAY` indicates to also accept a value that matches the array
+    type's element type. In that case, the value is automatically coerced to a
+    well-formed array by creating a new array with the value as its only element.
+  + `NONE_ELEMENT_OR_ARRAY` indicates to also accept `undefined` or `null` as an
+    array. In that case, the value is automatically coerced to a well-formed
+    array by creating a new empty array.
 
-This description of typing checks is _not_ exhaustive. Notably, to match a list
-type, every element of a non-empty array must also match the list's element
-type.
+This description of type checks is _not_ exhaustive. Notably, to match an array
+type, every element of a non-empty array value must also match the array type's
+element type.
 
 
-### Built-In Types
+### 3. Built-In Types
 
 Conveniently, this package pre-defines a number of generally useful _typical_
-types:
+types. Their names are nouns by this package's convention (not imperative verbs)
+and, where possible, are the same as those of corresponding TypeScript types,
+with the first letter capitalized.
 
   + `typical.Any` is the type representing the universe of all possible values,
     i.e., _top_.
@@ -140,8 +160,7 @@ types:
     URL](https://url.spec.whatwg.org) values, whether they are relative or
     absolute.
 
-
-### Combinators
+### 4. Type-Creating Combinators
 
 __@grr/typical__'s combinators create new _typical_ types, with each type being
 a function that validates and possibly copies a values. Additionally, every
@@ -152,7 +171,7 @@ several properties that describe how a type was constructed.
   + `type.meta.name` specifies the _typical_ type's name.
   + `type.meta.kind` specifies the lower-case combinator name.
   + `type.meta.base` specifies the lone type argument for refinements, options,
-    enumerations, and lists.
+    enumerations, and arrays.
   + `type.meta.components` specifies the components for enumerations, tuples,
     and records.
 
@@ -162,41 +181,90 @@ Define a new base type, which matches a value if the predicate returns a
 non-falsy value. Base types are the only possible leafs in the combinator tree
 of a _typical_ type. They also are expressed in terms of restrictions on host
 language values. In other words, this ensures that every _typical_ type
-ultimately is grounded in JavaScript.
+ultimately is grounded in JavaScript, just like this definition of a number
+type:
+
+```js
+const MyNumber = typical.base('MyNumber', v => typeof v === 'Number');
+assert(MyNumber.is(42)); // 👍
+```
 
 #### `typical.refinement(type, name, predicate)`
 
 Define a new refinement type, which matches a value if the value matches the
-base type and futher matches the refinement's predicate.
+base type and futher matches the refinement's predicate. For example, the
+following code snippet derives an integer type from the above number type:
+
+```js
+const MyInteger = typical.refinement('MyInteger', Number.isSafeInteger);
+assert(MyInteger.is(42)); // 👍
+```
 
 #### `typical.option(type, name = type.name + 'Option')`
 
 Define a new option type, which matches a value if the value is `undefined` or
-`null`, or if the value matches the base type.
+`null`, or if the value matches the base type. Using the `MyString` type from
+way above, we can now make the text value optional:
+
+```js
+const MyOptionalString = typical.option(MyString);
+assert(MyOptionalString.is(null)); // 👍
+assert(MyOptionalString.is('hello')); // 👍
+```
 
 #### `typical.enum(type, name, ...constants)`
 
 Define a new enumeration type, which matches a value if, recursively, the value
 is the same as one of the constants. For the enumeration to be valid, every
-constant must match the base type. The implementation of an enumeration type
-uses `===` for equality, which strongly suggests using only `typical.Number`,
-`typical.String`, and `typical.Symbol` as base types.
+constant must match the base type. The implementation of enumeration types uses
+`Object.is()` for equality testing. That works well for enumeration constants
+that are JavaScript numbers and strings (`typical.Number` and `typical.String`)
+but does not work well for objects and arrays. After all, `Object.is()` only
+detects identity for the latter two types. In scenarios where this is in fact
+desired, JavaScript symbols (`typical.Symbol`) are the better alternative since
+they are explicitly designed for this use case.
 
-#### `typical.list(type, name = type.name + 'List', { recognizeAsList } = {})`
+When compared to the `===` operator, `Object.is()` not only has cleaner
+semantics but also turns `NaN` into a perfectly [valid enumeration
+constant](https://github.com/apparebit/js-junction/tests/typical.spec.js#L391).
+In case that this does not impress you, I can only state that I never jest about
+`NaN`. In fact, I am certain that, if one built a trading platform with IEEE
+floating point double precision numbers as the primary numeric datatype, then
+`NaN` would become a ubiquitous error sentinel. NaN FTW!
 
-Define a new list type, which matches JavaScript array values if, recursively,
-all array elements match the list's element type.
+```js
+const NotANumber = typical.enum(MyNumber, 'NotANumber', NaN);
+assert(NotANumber.is(NaN)); // 👍
+```
 
-As already detailed above, the `recognizeAsList` option can take on one of three
-values:
+#### `typical.array(type, name = type.name + 'Array', { recognizeAsArray } = {})`
 
-  + `typical.LIST_ONLY` is the default and results in the behavior just
-    described, i.e., array elements being matched against the list's element
-    type.
-  + `typical.ELEMENT_OR_LIST` relaxes validation to also treat a single value
-    that matches the list's element type as a singleton list.
-  + `typical.NONE_ELEMENT_OR_LIST` relaxes validation even further and also
-    accepts `undefined` and `null` for an empty list.
+Define a new array type, which matches JavaScript array values if, recursively,
+all array elements match the array type's element type.
+
+As already detailed above, the `recognizeAsArray` option can take on one of
+three values:
+
+  + `typical.ARRAY_ONLY` is the default and results in the behavior just
+    described, i.e., array value elements being matched against the array type's
+    element type.
+  + `typical.ELEMENT_OR_ARRAY` relaxes validation to also treat a single value
+    that matches the array type's element type as a singleton array value.
+  + `typical.NONE_ELEMENT_OR_ARRAY` relaxes validation even further and also
+    accepts `undefined` and `null` for an empty array value.
+
+For example, we can define an array using the last option as follows:
+
+```js
+const MyArray = typical.array(MyInteger, 'MyArray', {
+  recognizedAsArray: typical.NONE_ELEMENT_OR_ARRAY
+});
+
+assert.deepStrictEqual(MyArray(null), []); // 👍
+assert.deepStrictEqual(MyArray(665), [665]); // 👍
+assert.deepStrictEqual(MyArray([665]), [665]); // 👍
+assert.deepStrictEqual(MyArray([13, 42]), [13, 42]); // 👍
+```
 
 #### `typical.tuple(name, ...types)`
 
@@ -204,50 +272,104 @@ Define a new tuple type, which matches JavaScript arrays if, recursively, the
 number and sequence of types matches the number and sequence of elements in the
 array.
 
+```js
+const Twople = typical.tuple('Pair', MyString, MyInteger);
+assert(Twople.is(['lucky', 42])); // 👍
+```
+
 #### `typical.record(components)` — also: `record(name, components, { ignoreExtraProps } = {})`
 
 Define a new record type, which matches JavaScript objects if, recursively, each
-name-to-type mapping matches the name-to-value mapping with, of course, the
-names being equal. The typical record type is named after the first of two or
-three arguments if present and otherwise is named `'SomeRecord'`. Valid
-properties are the enumerable own-properties of the components object.
+name-to-type mapping matches the name-to-value mapping for the same name. The
+typical record type is named after the first combinator argument, if that
+argument is a string; otherwise, the name defaults to `'SomeRecord'`. Only the
+enumerable own-properties of the components object are considered for record
+fields.
 
 As already described above, the `ignoreExtraProps` controls whether an object
-may only have the properties described when invoking this combinator or further
-arbitrary properties. In the latter case, extra properties are not copied in the
-freshly allocated record object.
+may have only properties explicitly defined as components or extra, arbitrary
+properties, which are ignored. In the latter case, the extra properties are not
+copied into the freshly created record object. If `typical.record()` returns
+some type function `MyRecord()`, the prototype of newly created records returned
+from `MyRecord()` is the same value as `MyRecord.prototype`:
+
+```js
+const MyURL = ...; // Ooh, an exercise for the reader! 😎
+
+const Person = typical.record('Person', {
+  name: MyString,
+  url: typical.option(MyURL),
+});
+
+// Passing a true validateAndCopy option to Person() makes sure
+// that reachable objects and arrays are recursively recreated.
+const dt = { name: 'Robert Grimm', url: 'https://apparebit.com' }
+const me = Person(dt, { validateAndCopy: true });
+
+assert(Object.getPrototypeOf(me) === Person.prototype); // 👍
+assert(me !== dt); // 👍
+assert(me.name === me.name); // 👍
+assert(me.url === me.url); // 👍
+```
 
 
-## Debugging
+## 5. Introspection
 
-To help with debug failing data validations, this package optionally logs every
-single test, validation, and validation & copy using the lightweight
-[debug](https://www.npmjs.com/package/debug) package. You enable logging by
-adding this package's scope to the `DEBUG` environment variable:
+To help debug failing typical operations, this package optionally logs every
+single assertion, validation, and validating creation with the
+[debug](https://www.npmjs.com/package/debug) log package. As usual, you enable
+logging by adding the scope corresponding to this package's registry name to the
+`DEBUG` environment variable:
 
 ```bash
 DEBUG=@grr:typical yarn test
 ```
 
-That will produce many a line looking like the following two:
+That should produce many lines looking like the following two:
 
 ```
 @grr:typical FAIL validate value "665" with option type "StringOption" +1ms
-@grr:typical PASS     test value "13" with refinement type "Integer" +4ms
+@grr:typical PASS   assert value "13" with refinement type "Integer" +4ms
 ```
 
-Each line represents a single invocation of a _typical_ type on a value,
-including all recursive invocations. __@grr/typical__ logs whether type and
-value were a match, the kind of match, the value, and the kind and name of
-the type. The kind of match is one of three:
+__@grr/typical__ creates one log entry for every call to a _typical_ type.
+Recursive calls to _typical_ types made as part of that invocation are not
+logged, since their result figures into the overall result anyway. This package
+records, in order, the state of the match, the kind of the match, the value, and
+the kind and name of the type.
 
-  + `test` when matching type and value for a basic binary `true`/`false` result
-    only;
-  + `validate` when producing detailed information about either match or failure
-    to match, i.e., by returning the now validated value from the type function
-    or throwing an error whose `causes` lists all encountered errors.
-  + `recreate` when also copying all objects and arrays into newly allocated
-    containers.
+The state of the match is either `PASS` or `FAIL`.
+
+The kind of the match is one of three tokens:
+
+  + `assert` when matching type and value through the _typical_ type's `is()`
+    predicate.
+
+    ```js
+    Boolean.is(665); // 💥  @grr:typical FAIL assert value "665" ...
+    ```
+
+  + `validate` when the `validateAndCopy` option is `false`. In that case, the
+    call to the _typical_ type is expect to produce detailed error information
+    yet return any valid value. In case of a validation failure, the type throws
+    an error, whose `causes` property is an array with either the first error
+    encountered or all errors encountered depending on the `continueAfterError`
+    option.
+
+    ```js
+    const o = { name: 'Robert Grimm', url: 'https://apparebit.com' };
+    const p = Person(o); // 👍  @grr:typical PASS validate value "{ ... }"
+    assert(o === p); // ℹ️  Person() just passes valid value through.
+    ```
+
+  + `create` when the `validateAndCopy` option is `true` and all JavaScript
+    objects and arrays are copied into newly allocated containers.
+
+    ```js
+    const p = Person(o); // 👍  @grr:typical PASS create value "{ ... }"
+    assert(o !== p); // ℹ️  Person() creates a new record with proper prototype.
+    assert(Object.getPrototypeOf(p) === Person.prototype);
+    ```
 
 To copy properties between objects, this package let `Object.assign()` do the
 heavy lifting. However, that also means that only enumerable own-properties can

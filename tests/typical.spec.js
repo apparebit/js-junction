@@ -5,7 +5,7 @@ import Context from '@grr/typical/context.js';
 import harness from './harness';
 import { isArray } from 'util';
 
-const { assign, getOwnPropertySymbols, getPrototypeOf } = Object;
+const { assign, getOwnPropertySymbols, getPrototypeOf, is } = Object;
 const { iterator, toStringTag } = Symbol;
 const { MAX_SAFE_INTEGER } = Number;
 
@@ -47,7 +47,7 @@ export default harness(__filename, t => {
       t.is(context.validateAndCopy, void 0);
       t.is(context.continueAfterError, void 0);
       t.is(context.ignoreExtraProps, void 0);
-      t.is(context.recognizeAsList, void 0);
+      t.is(context.recognizeAsArray, void 0);
       t.same(context.path, []);
       t.same(context.errors, []);
 
@@ -72,21 +72,21 @@ export default harness(__filename, t => {
       t.end();
     });
 
-    t.test('#isList()', t => {
-      t.ok(context.isList([]));
-      t.ok(context.isList([0]));
-      t.ok(context.isList(['']));
-      t.notOk(context.isList());
-      t.notOk(context.isList(null));
-      t.notOk(context.isList(0));
-      t.notOk(context.isList(''));
+    t.test('#isArray()', t => {
+      t.ok(context.isArray([]));
+      t.ok(context.isArray([0]));
+      t.ok(context.isArray(['']));
+      t.notOk(context.isArray());
+      t.notOk(context.isArray(null));
+      t.notOk(context.isArray(0));
+      t.notOk(context.isArray(''));
       t.end();
     });
 
-    t.test('#toList()', t => {
-      t.same(context.toList(0), []);
-      t.same(context.toList(1, 'element'), ['element']);
-      t.same(context.toList(2, ['my', 'precious']), ['my', 'precious']);
+    t.test('#toArray()', t => {
+      t.same(context.toArray(0), []);
+      t.same(context.toArray(1, 'element'), ['element']);
+      t.same(context.toArray(2, ['my', 'precious']), ['my', 'precious']);
       t.end();
     });
 
@@ -388,18 +388,26 @@ export default harness(__filename, t => {
       t.is(type(665), 665);
       t.throws(() => type(7));
 
+      const not = tip.enum(tip.Number, 'NotANumber', NaN);
+      t.is(not.name, 'NotANumber');
+      t.is(not.meta.name, 'NotANumber');
+      t.is(not.meta.kind, 'enum');
+
+      t.throws(() => not(0));
+      t.ok(is(not(NaN), NaN));
+
       t.end();
     });
 
     const tip2 = assign({}, tip, {
-      recognizeAsList: tip.NONE_ELEMENT_OR_LIST,
+      recognizeAsArray: tip.NONE_ELEMENT_OR_ARRAY,
       continueAfterError: true,
       ignoreExtraProps: true,
       validateAndCopy: true,
     });
 
-    t.test('.list()', t => {
-      // # Test With Variations of recognizeAsList Option #
+    t.test('.array()', t => {
+      // # Test With Variations of recognizeAsArray Option #
       const testcases = [
         { input: 665, when: false },
         { input: [42, 665], when: false },
@@ -407,40 +415,40 @@ export default harness(__filename, t => {
         {
           input: void 0,
           output: [],
-          when: ral => ral === tip.NONE_ELEMENT_OR_LIST,
+          when: ral => ral === tip.NONE_ELEMENT_OR_ARRAY,
         },
         {
           input: null,
           output: [],
-          when: ral => ral === tip.NONE_ELEMENT_OR_LIST,
+          when: ral => ral === tip.NONE_ELEMENT_OR_ARRAY,
         },
         {
           input: 'hello',
           output: ['hello'],
-          when: ral => ral !== tip.LIST_ONLY,
+          when: ral => ral !== tip.ARRAY_ONLY,
         },
         { input: [], output: [], when: true },
         { input: ['hello'], output: ['hello'], when: true },
         { input: ['hello', 'world'], output: ['hello', 'world'], when: true },
       ];
 
-      for (const ral of [
-        tip.NONE_ELEMENT_OR_LIST,
-        tip.ELEMENT_OR_LIST,
-        tip.LIST_ONLY,
+      for (const raa of [
+        tip.NONE_ELEMENT_OR_ARRAY,
+        tip.ELEMENT_OR_ARRAY,
+        tip.ARRAY_ONLY,
       ]) {
-        const type = tip.list(tip.String, 'StringList', {
-          recognizeAsList: ral,
+        const type = tip.array(tip.String, 'StringArray', {
+          recognizeAsArray: raa,
         });
 
-        t.is(type.name, 'StringList');
-        t.is(type.meta.name, 'StringList');
-        t.is(type.meta.kind, 'list');
+        t.is(type.name, 'StringArray');
+        t.is(type.meta.name, 'StringArray');
+        t.is(type.meta.kind, 'array');
         t.is(type.meta.base, tip.String);
-        t.is(type.toString(), '[Typical-List-Type StringList]');
+        t.is(type.toString(), '[Typical-Array-Type StringArray]');
 
         for (const { input, output, when } of testcases) {
-          const ok = typeof when === 'function' ? when(ral) : when;
+          const ok = typeof when === 'function' ? when(raa) : when;
 
           if (ok) {
             t.ok(type.is(input));
@@ -455,29 +463,29 @@ export default harness(__filename, t => {
       // # Test Variations of Arguments and Options for Full Coverage #
       const NUMBERS = [13, 42, 665];
 
-      let type = tip.list(tip.Number);
-      t.is(type.name, 'NumberList');
+      let type = tip.array(tip.Number);
+      t.is(type.name, 'NumberArray');
       t.ok(type(NUMBERS) === NUMBERS); // Validation only!
       t.notOk(type.is());
       t.notOk(type.is(42));
       t.ok(type.is([42]));
 
-      type = tip.list(tip.Number, {
-        recognizeAsList: tip.NONE_ELEMENT_OR_LIST,
+      type = tip.array(tip.Number, {
+        recognizeAsArray: tip.NONE_ELEMENT_OR_ARRAY,
       });
-      t.is(type.name, 'NumberList');
+      t.is(type.name, 'NumberArray');
       t.ok(type(NUMBERS) === NUMBERS); // Validation only!
       t.same(type(), []);
       t.same(type(42), [42]);
       t.same(type([42]), [42]);
 
-      t.throws(() => tip.list(tip.Number, {}));
+      t.throws(() => tip.array(tip.Number, {}));
       t.throws(() =>
-        tip.list(tip.Number, { recognizeAsList: tip.LIST_ONLY }, 'stuff')
+        tip.array(tip.Number, { recognizeAsArray: tip.ARRAY_ONLY }, 'stuff')
       );
 
-      type = tip2.list(tip.Number);
-      t.is(type.name, 'NumberList');
+      type = tip2.array(tip.Number);
+      t.is(type.name, 'NumberArray');
       t.notOk(type(NUMBERS) === NUMBERS); // Validation and Copying!
       t.ok(type.is());
       t.ok(type.is(42));

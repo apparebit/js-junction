@@ -15,6 +15,7 @@ const {
 
 const configurable = true;
 const enumerable = true;
+const { is } = Object;
 const { isSafeInteger } = Number;
 const TYPICAL = Symbol.for('typical-type');
 
@@ -174,7 +175,7 @@ function enumeration(type, name, ...constants) {
 
     // All constants are guaranteed to have base type. See above.
     for (const constant of constants) {
-      if (constant === value) {
+      if (is(constant, value)) {
         return context.toValue(value, Enumeration);
       }
     }
@@ -194,12 +195,12 @@ defineProperty(enumeration, 'name', { configurable, value: 'enum' });
 /* ================================================================================
  * Combinators that Produce Compound Types:
  *
- *  +  list(): A variable-length array with all elements having the same type.
+ *  +  array(): A variable-length array with all elements having the same type.
  *  +  tuple(): A fixed-length array with each element having a distinct type.
  *  +  record(): An object with each property having a distinct type.
  * ================================================================================ */
 
-// Iterate over properties for list(), tuple(), and record() types alike.
+// Iterate over properties for array(), tuple(), and record() types alike.
 function forEachTypedProperty(container, keys, types, copy, context) {
   let errors;
   for (const key of keys) {
@@ -231,54 +232,54 @@ function forEachTypedProperty(container, keys, types, copy, context) {
 
 /* -------------------------------------------------------------------------------- */
 
-const NONE_ELEMENT_OR_LIST = 2;
-const ELEMENT_OR_LIST = 1;
-const LIST_ONLY = 0;
+const NONE_ELEMENT_OR_ARRAY = 2;
+const ELEMENT_OR_ARRAY = 1;
+const ARRAY_ONLY = 0;
 
-function list(type, name = type.name + 'List', { recognizeAsList } = {}) {
+function array(type, name = type.name + 'Array', { recognizeAsArray } = {}) {
   /* istanbul ignore else */
   if (__DEV__) {
-    assert(type[TYPICAL], 'list() type argument must be a typical type');
+    assert(type[TYPICAL], 'array() type argument must be a typical type');
   }
 
   if (name != null && typeof name === 'object') {
     /* istanbul ignore else */
     if (__DEV__) {
       assert(
-        typeof name.recognizeAsList === 'number' && arguments.length === 2,
-        'list() arguments may omit name and/or options, but options must include "recognizeAsList"'
+        typeof name.recognizeAsArray === 'number' && arguments.length === 2,
+        'array() arguments may omit name and/or options, but options must include "recognizeAsArray"'
       );
     }
 
-    ({ recognizeAsList } = name);
-    name = type.name + 'List';
+    ({ recognizeAsArray } = name);
+    name = type.name + 'Array';
   }
 
   const api = this;
 
-  function List(value, context) {
+  function Array(value, context) {
     if (Context.isRequired(context)) {
-      return Context.with(value, List, context, api);
+      return Context.with(value, Array, context, api);
     }
 
-    if (recognizeAsList === void 0) {
-      recognizeAsList =
-        context.recognizeAsList !== void 0
-          ? context.recognizeAsList
-          : LIST_ONLY;
+    if (recognizeAsArray === void 0) {
+      recognizeAsArray =
+        context.recognizeAsArray !== void 0
+          ? context.recognizeAsArray
+          : ARRAY_ONLY;
     }
-    switch (recognizeAsList) {
-      case NONE_ELEMENT_OR_LIST:
-        if (value == null) return context.toList(0);
+    switch (recognizeAsArray) {
+      case NONE_ELEMENT_OR_ARRAY:
+        if (value == null) return context.toArray(0);
       // Fall through.
-      case ELEMENT_OR_LIST: {
+      case ELEMENT_OR_ARRAY: {
         const copy = context.typeIgnoringErrors(value, type);
-        if (!context.isErrorWrapper(copy)) return context.toList(1, copy);
+        if (!context.isErrorWrapper(copy)) return context.toArray(1, copy);
       }
       // Fall through.
       default:
-        if (!context.isList(value)) {
-          return context.valueIsNotOfType(value, List);
+        if (!context.isArray(value)) {
+          return context.valueIsNotOfType(value, Array);
         } else {
           return forEachTypedProperty(
             value,
@@ -291,7 +292,7 @@ function list(type, name = type.name + 'List', { recognizeAsList } = {}) {
     }
   }
 
-  return decorate(List, { name, kind: 'list', base: type });
+  return decorate(Array, { name, kind: 'array', base: type });
 }
 
 /* -------------------------------------------------------------------------------- */
@@ -309,7 +310,7 @@ function tuple(name, ...types) {
   function Tuple(value, context) {
     if (Context.isRequired(context)) {
       return Context.with(value, Tuple, context, api);
-    } else if (!context.isList(value) || value.length !== types.length) {
+    } else if (!context.isArray(value) || value.length !== types.length) {
       return context.valueIsNotOfType(value, Tuple);
     }
 
@@ -409,22 +410,22 @@ function record(name, components, { ignoreExtraProps } = {}) {
 
 const Typical = {
   // Constants.
-  NONE_ELEMENT_OR_LIST,
-  ELEMENT_OR_LIST,
-  LIST_ONLY,
+  NONE_ELEMENT_OR_ARRAY,
+  ELEMENT_OR_ARRAY,
+  ARRAY_ONLY,
 
   // Configuration.
   validateAndCopy: void 0,
   continueAfterError: void 0,
   ignoreExtraProps: void 0,
-  recognizeAsList: void 0,
+  recognizeAsArray: void 0,
 
   // Combinators.
   base,
   refinement,
   option,
   enum: enumeration,
-  list,
+  array,
   tuple,
   record,
 };

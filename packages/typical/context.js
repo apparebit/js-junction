@@ -26,7 +26,7 @@ export default class Context {
     this.validateAndCopy = void 0;
     this.continueAfterError = void 0;
     this.ignoreExtraProps = void 0;
-    this.recognizeAsList = void 0;
+    this.recognizeAsArray = void 0;
     this.path = [];
     this.errors = [];
   }
@@ -49,7 +49,10 @@ export default class Context {
   // The effective main entry point for all typical types.
   static with(value, type, callConfig, apiConfig) {
     if (!pool.length) {
-      assert(pooled === 0, 'context pool already has one reusable object');
+      assert(
+        pooled === 0,
+        `context pool already has one reusable object, it shouldn't require more`
+      );
       pool.push(new Context());
       pooled++;
     }
@@ -105,12 +108,12 @@ export default class Context {
     validateAndCopy,
     continueAfterError,
     ignoreExtraProps,
-    recognizeAsList,
+    recognizeAsArray,
   } = {}) {
     this.validateAndCopy = validateAndCopy;
     this.continueAfterError = continueAfterError;
     this.ignoreExtraProps = ignoreExtraProps;
-    this.recognizeAsList = recognizeAsList;
+    this.recognizeAsArray = recognizeAsArray;
     this.path.length = 0;
     this.errors.length = 0;
     return this;
@@ -128,11 +131,11 @@ export default class Context {
     return value;
   }
 
-  isList(value) {
+  isArray(value) {
     return isArray(value);
   }
 
-  toList(cardinality, value) {
+  toArray(cardinality, value) {
     switch (cardinality) {
       case 0:
         return [];
@@ -151,8 +154,8 @@ export default class Context {
     return wrapErrors(causes);
   }
 
-  unwrapErrors(wrapper, delist = true) {
-    return unwrapErrors(wrapper, delist);
+  unwrapErrors(wrapper, unwrapSingleton = true) {
+    return unwrapErrors(wrapper, unwrapSingleton);
   }
 
   mergeWrappers(...wrappers) {

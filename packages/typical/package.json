@@ -1,6 +1,6 @@
 {
   "name": "@grr/typical",
-  "description": "Type combinators for data validation and modelling",
+  "description": "Light-weight type combinators for data validation and modelling",
   "keywords": [
     "data model",
     "modelling",
