@@ -1,6 +1,6 @@
 # @grr/sequitur
 
-> Fluent and lazy combinators for iterators and generators
+> Fluent and lazy combinators for `next()` and `yield`
 
 This package rounds up the usual suspects, i.e., functional combinators, and
 makes them available to synchronous iterators and generators in form of a

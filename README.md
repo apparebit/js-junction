@@ -19,7 +19,7 @@ open source packages:
     The joy of refined errors — with code, pun, and Oxford comma.
 
  *  [@grr/sequitur](https://github.com/apparebit/js-junction/tree/master/packages/sequitur):
-    Refined iterators, iterables, and generator functions.
+    Fluent and lazy combinators for `next()` and `yield`.
 
  *  [@grr/typical](https://github.com/apparebit/js-junction/tree/master/packages/typical):
     Type combinators for data validation and modelling.

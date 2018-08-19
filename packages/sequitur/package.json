@@ -1,6 +1,6 @@
 {
   "name": "@grr/sequitur",
-  "description": "Fluent and lazy combinators for iterators and generators",
+  "description": "Fluent and lazy combinators for `next()` and `yield`",
   "keywords": [
     "iterable",
     "iterator",
