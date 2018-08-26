@@ -233,9 +233,9 @@ export default harness(__filename, t => {
   t.test('Typical', t => {
     t.test('.Any()', t => {
       t.is(tip.Any.name, 'Any');
-      t.is(tip.Any.meta.name, 'Any');
-      t.is(tip.Any.meta.kind, 'base');
-      t.is(tip.Any.toString(), '[Typical-Base-Type Any]');
+      t.is(tip.Any.kind, 'base');
+      t.is(tip.Any.combinator, tip.base);
+      t.is(tip.Any.toString(), '[typical-base-type Any]');
 
       t.ok(tip.Any.is());
       t.ok(tip.Any.is(null));
@@ -247,9 +247,9 @@ export default harness(__filename, t => {
 
     t.test('.Void()', t => {
       t.is(tip.Void.name, 'Void');
-      t.is(tip.Void.meta.name, 'Void');
-      t.is(tip.Void.meta.kind, 'base');
-      t.is(tip.Void.toString(), '[Typical-Base-Type Void]');
+      t.is(tip.Void.kind, 'base');
+      t.is(tip.Void.combinator, tip.base);
+      t.is(tip.Void.toString(), '[typical-base-type Void]');
 
       t.ok(tip.Void.is());
       t.ok(tip.Void.is(null));
@@ -261,9 +261,9 @@ export default harness(__filename, t => {
 
     t.test('Boolean()', t => {
       t.is(tip.Boolean.name, 'Boolean');
-      t.is(tip.Boolean.meta.name, 'Boolean');
-      t.is(tip.Boolean.meta.kind, 'base');
-      t.is(tip.Boolean.toString(), '[Typical-Base-Type Boolean]');
+      t.is(tip.Boolean.kind, 'base');
+      t.is(tip.Boolean.combinator, tip.base);
+      t.is(tip.Boolean.toString(), '[typical-base-type Boolean]');
 
       t.notOk(tip.Boolean.is(null));
       t.ok(tip.Boolean.is(false));
@@ -274,9 +274,9 @@ export default harness(__filename, t => {
 
     t.test('.Number()', t => {
       t.is(tip.Number.name, 'Number');
-      t.is(tip.Number.meta.name, 'Number');
-      t.is(tip.Number.meta.kind, 'base');
-      t.is(tip.Number.toString(), '[Typical-Base-Type Number]');
+      t.is(tip.Number.kind, 'base');
+      t.is(tip.Number.combinator, tip.base);
+      t.is(tip.Number.toString(), '[typical-base-type Number]');
 
       t.ok(tip.Number.is(0));
       t.ok(tip.Number.is(1));
@@ -289,10 +289,10 @@ export default harness(__filename, t => {
 
     t.test('.Integer()', t => {
       t.is(tip.Integer.name, 'Integer');
-      t.is(tip.Integer.meta.name, 'Integer');
-      t.is(tip.Integer.meta.kind, 'refinement');
-      t.is(tip.Integer.meta.base, tip.Number);
-      t.is(tip.Integer.toString(), '[Typical-Refinement-Type Integer]');
+      t.is(tip.Integer.kind, 'refinement');
+      t.is(tip.Integer.combinator, tip.refinement);
+      t.is(tip.Integer.terms[0], tip.Number);
+      t.is(tip.Integer.toString(), '[typical-refinement-type Integer]');
 
       t.ok(tip.Integer.is(0));
       t.ok(tip.Integer.is(1));
@@ -307,9 +307,9 @@ export default harness(__filename, t => {
 
     t.test('.String()', t => {
       t.is(tip.String.name, 'String');
-      t.is(tip.String.meta.name, 'String');
-      t.is(tip.String.meta.kind, 'base');
-      t.is(tip.String.toString(), '[Typical-Base-Type String]');
+      t.is(tip.String.kind, 'base');
+      t.is(tip.String.combinator, tip.base);
+      t.is(tip.String.toString(), '[typical-base-type String]');
 
       t.ok(tip.String.is(''));
       t.ok(tip.String.is('string'));
@@ -321,10 +321,10 @@ export default harness(__filename, t => {
 
     t.test('.URL()', t => {
       t.is(tip.URL.name, 'URL');
-      t.is(tip.URL.meta.name, 'URL');
-      t.is(tip.URL.meta.kind, 'refinement');
-      t.is(tip.URL.meta.base, tip.String);
-      t.is(tip.URL.toString(), '[Typical-Refinement-Type URL]');
+      t.is(tip.URL.kind, 'refinement');
+      t.is(tip.URL.combinator, tip.refinement);
+      t.is(tip.URL.terms[0], tip.String);
+      t.is(tip.URL.toString(), '[typical-refinement-type URL]');
 
       t.ok(tip.URL.is('/absolute/path'));
       t.ok(tip.URL.is('relative/path'));
@@ -339,9 +339,9 @@ export default harness(__filename, t => {
 
     t.test('.Symbol()', t => {
       t.is(tip.Symbol.name, 'Symbol');
-      t.is(tip.Symbol.meta.name, 'Symbol');
-      t.is(tip.Symbol.meta.kind, 'base');
-      t.is(tip.Symbol.toString(), '[Typical-Base-Type Symbol]');
+      t.is(tip.Symbol.kind, 'base');
+      t.is(tip.Symbol.combinator, tip.base);
+      t.is(tip.Symbol.toString(), '[typical-base-type Symbol]');
 
       t.notOk(tip.Symbol.is(''));
       t.notOk(tip.Symbol.is('string'));
@@ -354,16 +354,31 @@ export default harness(__filename, t => {
       t.end();
     });
 
-    // The above tests more than cover base() and refinement().
+    t.test('.base()', t => {
+      const reject = () => false;
+      const type = tip.base(reject);
+
+      t.is(type.name, 'reject');
+      t.is(type.combinator, tip.base);
+      t.end();
+    });
+
+    t.test('.refinement()', t => {
+      const type = tip.refinement(tip.Void, v => v === void 0);
+
+      t.is(type.name, 'VoidRefinement');
+      t.is(type.combinator, tip.refinement);
+      t.end();
+    });
 
     t.test('.option()', t => {
-      const type = tip.option(tip.String);
+      let type = tip.option(tip.String);
 
       t.is(type.name, 'StringOption');
-      t.is(type.meta.name, 'StringOption');
-      t.is(type.meta.kind, 'option');
-      t.is(type.meta.base, tip.String);
-      t.is(type.toString(), '[Typical-Option-Type StringOption]');
+      t.is(type.kind, 'option');
+      t.is(type.combinator, tip.option);
+      t.is(type.terms[0], tip.String);
+      t.is(type.toString(), '[typical-option-type StringOption]');
 
       t.is(type(), void 0);
       t.is(type(null), null);
@@ -371,27 +386,37 @@ export default harness(__filename, t => {
       t.is(type('hello'), 'hello');
       t.throws(() => type(665));
 
+      type = tip.option('OptionalText', tip.String);
+
+      t.is(type.name, 'OptionalText');
+      t.is(type.kind, 'option');
+      t.is(type.combinator, tip.option);
+
       t.end();
     });
 
     t.test('.enum()', t => {
-      const type = tip.enum(tip.Integer, 'LuckyNumber', 13, 42, 665);
+      let type = tip.enum('LuckyNumber', tip.Integer, 13, 42, 665);
 
       t.is(type.name, 'LuckyNumber');
-      t.is(type.meta.name, 'LuckyNumber');
-      t.is(type.meta.kind, 'enum');
-      t.same(type.meta.components, [13, 42, 665]);
-      t.is(type.toString(), '[Typical-Enum-Type LuckyNumber]');
+      t.is(type.kind, 'enum');
+      t.same(type.terms, [tip.Integer, 13, 42, 665]);
+      t.is(type.toString(), '[typical-enum-type LuckyNumber]');
 
       t.is(type(13), 13);
       t.is(type(42), 42);
       t.is(type(665), 665);
       t.throws(() => type(7));
 
-      const not = tip.enum(tip.Number, 'NotANumber', NaN);
+      type = tip.enum(tip.Integer, 13, 42);
+
+      t.is(type.name, 'SomeIntegerEnum');
+      t.is(type.kind, 'enum');
+      t.same(type.terms, [tip.Integer, 13, 42]);
+
+      const not = tip.enum('NotANumber', tip.Number, NaN);
       t.is(not.name, 'NotANumber');
-      t.is(not.meta.name, 'NotANumber');
-      t.is(not.meta.kind, 'enum');
+      t.is(not.kind, 'enum');
 
       t.throws(() => not(0));
       t.ok(is(not(NaN), NaN));
@@ -437,15 +462,15 @@ export default harness(__filename, t => {
         tip.ELEMENT_OR_ARRAY,
         tip.ARRAY_ONLY,
       ]) {
-        const type = tip.array(tip.String, 'StringArray', {
+        const type = tip.array('StringArray', tip.String, {
           recognizeAsArray: raa,
         });
 
         t.is(type.name, 'StringArray');
-        t.is(type.meta.name, 'StringArray');
-        t.is(type.meta.kind, 'array');
-        t.is(type.meta.base, tip.String);
-        t.is(type.toString(), '[Typical-Array-Type StringArray]');
+        t.is(type.kind, 'array');
+        t.is(type.combinator, tip.array);
+        t.same(type.terms, [tip.String]);
+        t.is(type.toString(), '[typical-array-type StringArray]');
 
         for (const { input, output, when } of testcases) {
           const ok = typeof when === 'function' ? when(raa) : when;
@@ -479,9 +504,13 @@ export default harness(__filename, t => {
       t.same(type(42), [42]);
       t.same(type([42]), [42]);
 
-      t.throws(() => tip.array(tip.Number, {}));
-      t.throws(() =>
-        tip.array(tip.Number, { recognizeAsArray: tip.ARRAY_ONLY }, 'stuff')
+      t.doesNotThrow(() => tip.array(tip.Number, {}));
+      t.doesNotThrow(() =>
+        tip.array(
+          tip.Number,
+          { recognizeAsArray: tip.ARRAY_ONLY },
+          'ignored-stuff'
+        )
       );
 
       type = tip2.array(tip.Number);
@@ -503,10 +532,10 @@ export default harness(__filename, t => {
         count++;
 
         t.is(type.name, name);
-        t.is(type.meta.name, name);
-        t.is(type.meta.kind, 'tuple');
-        t.same(type.meta.components, components);
-        t.is(type.toString(), `[Typical-Tuple-Type ${name}]`);
+        t.is(type.kind, 'tuple');
+        t.is(type.combinator, tip.tuple);
+        t.same(type.terms, components);
+        t.is(type.toString(), `[typical-tuple-type ${name}]`);
 
         for (const { valid, value } of [
           { valid: true, value: [] },
@@ -525,20 +554,26 @@ export default harness(__filename, t => {
       t.ok(Pair(data) !== data);
       t.same(Pair(data), data);
 
+      const VoidPair = tip2.tuple(tip2.Void, tip2.Void);
+      t.is(VoidPair.name, 'Some2Tuple');
+      t.is(VoidPair.kind, 'tuple');
+      t.same(VoidPair.terms, [tip2.Void, tip2.Void]);
+
       t.end();
     });
 
     t.test('.record()', t => {
-      const User = tip.record({
+      const components = {
         name: tip.String,
         url: tip.option(tip.URL),
-      });
+      };
+      const User = tip.record(components);
 
       t.is(User.name, 'SomeRecord');
-      t.is(User.meta.name, 'SomeRecord');
-      t.is(User.meta.kind, 'record');
-      t.is(typeof User.meta.components, 'object');
-      t.is(User.meta.components.name, tip.String);
+      t.is(User.kind, 'record');
+      t.is(User.combinator, tip.record);
+      t.same(User.terms, [components]);
+      t.is(User.terms[0].name, tip.String);
 
       // Third case matters: Record has two fields, just as type, but doesn't type.
       t.ok(User.is({ name: 'John Doe' }));
@@ -557,9 +592,9 @@ export default harness(__filename, t => {
       });
 
       t.is(Article.name, 'Article');
-      t.is(Article.meta.name, 'Article');
-      t.is(Article.meta.kind, 'record');
-      t.is(Article.meta.components.name, tip2.String);
+      t.is(Article.kind, 'record');
+      t.is(Article.combinator, tip.record);
+      t.is(Article.terms[0].name, tip2.String);
 
       const data = {
         name: 'An Article Title',
@@ -589,7 +624,7 @@ export default harness(__filename, t => {
       ]);
 
       // A few more tests to reach 100% coverage.
-      t.throws(() => tip.record({}, {}));
+      t.doesNotThrow(() => tip.record({}, {}));
 
       const tip3 = assign({}, tip, { ignoreExtraProps: true });
       const rec3 = tip3.record({ one: tip3.Integer, two: tip3.URL });

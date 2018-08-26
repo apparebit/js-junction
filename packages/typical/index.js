@@ -5,84 +5,64 @@ import assert from 'assert';
 import Context from './context.js';
 
 const {
-  assign,
   create,
   defineProperties,
   defineProperty,
+  freeze,
   keys: keysOf,
-  values,
 } = Object;
 
 const configurable = true;
 const enumerable = true;
 const { is } = Object;
 const { isSafeInteger } = Number;
-const TYPICAL = Symbol.for('typical-type');
+const TYPICAL_TYPE = Symbol.for('typical-type');
 
 /* ================================================================================
- * Decorator for Annotating Types with Prototype and Metadata
+ * Decorate an executable type with common properties
  * ================================================================================ */
 
-function decorate(type, info) {
-  // A type's metadata should be non-writable yet enumerable.
-  const meta = {};
-  defineProperties(meta, {
-    name: { configurable, enumerable, value: info.name },
-    kind: { configurable, enumerable, value: info.kind },
-  });
-
-  if (info.base) {
-    defineProperty(meta, 'base', {
-      configurable,
-      enumerable,
-      value: info.base,
-    });
-  }
-  if (info.components) {
-    defineProperty(meta, 'components', {
-      configurable,
-      enumerable,
-      value: info.components,
-    });
-  }
-  if (info.predicate) {
-    defineProperty(meta, 'predicate', {
-      configurable,
-      enumerable,
-      value: info.predicate,
-    });
-  }
-
-  const is = function is(v) {
-    return type(v, { asPredicate: true });
-  };
-
-  const toString = function toString() {
-    const label = this.meta.kind[0].toUpperCase() + this.meta.kind.slice(1);
-    return `[Typical-${label}-Type ${this.name}]`;
-  };
+function decorate(type, name, combinator, ...terms) {
+  /* istanbul ignore else */
+  if (__DEV__) terms = freeze(terms);
 
   defineProperties(type, {
-    [TYPICAL]: { configurable, enumerable, value: true },
-    name: { configurable, value: info.name },
-    is: { configurable, value: is },
-    meta: { configurable, value: meta },
-    toString: { configurable, value: toString },
+    [TYPICAL_TYPE]: { configurable, enumerable, value: true },
+    name: { configurable, value: name },
+    kind: { configurable, value: combinator.name },
+    is: { configurable, value: v => type(v, { asPredicate: true }) },
+    combinator: { configurable, value: combinator },
+    terms: { configurable, value: terms },
+    toString: {
+      configurable,
+      value() {
+        return `[typical-${combinator.name}-type ${this.name}]`;
+      },
+    },
   });
 
   return type;
 }
 
 /* ================================================================================
- * Combinators that Produce Primitive Types:
- *
- *  +  base(): A type capturing all values matching a predicate.
- *  +  refinement(): Some subset of values of another type.
- *  +  option(): undefined, null, or the values of another type.
- *  +  enum(): Some values, all of another type.
+ * The base combinator for defining basic domain knowledge
  * ================================================================================ */
 
 function base(name, predicate) {
+  if (typeof name === 'function') {
+    predicate = name;
+    ({ name } = predicate);
+  }
+
+  /* istanbul ignore else */
+  if (__DEV__) {
+    assert(typeof name === 'string', `base()'s name must be string`);
+    assert(
+      typeof predicate === 'function',
+      `base()'s predicate must be a function`
+    );
+  }
+
   const api = this;
 
   function Base(value, context) {
@@ -95,15 +75,28 @@ function base(name, predicate) {
       : context.valueIsNotOfType(value, Base);
   }
 
-  return decorate(Base, { name, kind: 'base', predicate });
+  return decorate(Base, name, base, predicate);
 }
 
-/* -------------------------------------------------------------------------------- */
+/* ================================================================================
+ * Combinators that modify existing types
+ * ================================================================================ */
 
-function refinement(type, name, predicate) {
+function refinement(name, type, predicate) {
+  if (name[TYPICAL_TYPE]) {
+    predicate = type;
+    type = name;
+    name = `${type.name}Refinement`;
+  }
+
   /* istanbul ignore else */
   if (__DEV__) {
-    assert(type[TYPICAL], 'refinement() type argument must be a typical type');
+    assert(typeof name === 'string', `refinement()'s name must be a string`);
+    assert(type[TYPICAL_TYPE], `refinement()'s type must a type`);
+    assert(
+      typeof predicate === 'function',
+      `refinement()'s predicate must be a function`
+    );
   }
 
   const api = this;
@@ -123,20 +116,21 @@ function refinement(type, name, predicate) {
     }
   }
 
-  return decorate(Refinement, {
-    name,
-    kind: 'refinement',
-    base: type,
-    predicate,
-  });
+  return decorate(Refinement, name, refinement, type, predicate);
 }
 
 /* -------------------------------------------------------------------------------- */
 
-function option(type, name = type.name + 'Option') {
+function option(name, type) {
+  if (name[TYPICAL_TYPE]) {
+    type = name;
+    name = `${type.name}Option`;
+  }
+
   /* istanbul ignore else */
   if (__DEV__) {
-    assert(type[TYPICAL], 'option() type argument must be a typical type');
+    assert(typeof name === 'string', `option()'s name must be a string`);
+    assert(type[TYPICAL_TYPE], `option()'s type must be a type`);
   }
 
   const api = this;
@@ -149,20 +143,24 @@ function option(type, name = type.name + 'Option') {
     return value == null ? context.toValue(value) : type(value, context);
   }
 
-  return decorate(Option, { name, kind: 'option', base: type });
+  return decorate(Option, name, option, type);
 }
 
 /* -------------------------------------------------------------------------------- */
 
-function enumeration(type, name, ...constants) {
+function enumeration(name, type, ...constants) {
+  if (name[TYPICAL_TYPE]) {
+    constants.unshift(type);
+    type = name;
+    name = `Some${type.name}Enum`;
+  }
+
   /* istanbul ignore else */
   if (__DEV__) {
-    assert(type[TYPICAL], 'enum() type argument must be a typical type');
+    assert(typeof name === 'string', `enum()'s name must be a string`);
+    assert(type[TYPICAL_TYPE], `enum()'s type must be a type`);
     for (const constant of constants) {
-      assert(
-        type.is(constant),
-        `enum() constant arguments must have same type as type argument`
-      );
+      assert(type.is(constant), `enum()'s constant must have given type`);
     }
   }
 
@@ -182,22 +180,13 @@ function enumeration(type, name, ...constants) {
     return context.valueIsNotOfType(value, Enumeration);
   }
 
-  return decorate(Enumeration, {
-    name,
-    kind: 'enum',
-    base: type,
-    components: constants,
-  });
+  return decorate(Enumeration, name, enumeration, type, ...constants);
 }
 
 defineProperty(enumeration, 'name', { configurable, value: 'enum' });
 
 /* ================================================================================
- * Combinators that Produce Compound Types:
- *
- *  +  array(): A variable-length array with all elements having the same type.
- *  +  tuple(): A fixed-length array with each element having a distinct type.
- *  +  record(): An object with each property having a distinct type.
+ * Combinators that produce compound types: array(), tuple(), record().
  * ================================================================================ */
 
 // Iterate over properties for array(), tuple(), and record() types alike.
@@ -236,23 +225,21 @@ const NONE_ELEMENT_OR_ARRAY = 2;
 const ELEMENT_OR_ARRAY = 1;
 const ARRAY_ONLY = 0;
 
-function array(type, name = type.name + 'Array', { recognizeAsArray } = {}) {
-  /* istanbul ignore else */
-  if (__DEV__) {
-    assert(type[TYPICAL], 'array() type argument must be a typical type');
+function array(name, type, { recognizeAsArray } = {}) {
+  if (name[TYPICAL_TYPE]) {
+    ({ recognizeAsArray } = Object(type));
+    type = name;
+    name = `${type.name}Array`;
   }
 
-  if (name != null && typeof name === 'object') {
-    /* istanbul ignore else */
-    if (__DEV__) {
-      assert(
-        typeof name.recognizeAsArray === 'number' && arguments.length === 2,
-        'array() arguments may omit name and/or options, but options must include "recognizeAsArray"'
-      );
-    }
-
-    ({ recognizeAsArray } = name);
-    name = type.name + 'Array';
+  /* istanbul ignore else */
+  if (__DEV__) {
+    assert(typeof name === 'string', `array()'s name must be a string`);
+    assert(type[TYPICAL_TYPE], `array()'s type must be a type`);
+    assert(
+      recognizeAsArray == null || typeof recognizeAsArray === 'number',
+      `array()'s recognizeAsArray option must be a number`
+    );
   }
 
   const api = this;
@@ -292,16 +279,22 @@ function array(type, name = type.name + 'Array', { recognizeAsArray } = {}) {
     }
   }
 
-  return decorate(Array, { name, kind: 'array', base: type });
+  return decorate(Array, name, array, type);
 }
 
 /* -------------------------------------------------------------------------------- */
 
 function tuple(name, ...types) {
+  if (name[TYPICAL_TYPE]) {
+    types.unshift(name);
+    name = `Some${types.length}Tuple`;
+  }
+
   /* istanbul ignore else */
   if (__DEV__) {
+    assert(typeof name === 'string', `tuple()'s name must be a string`);
     for (const type of types) {
-      assert(type[TYPICAL], 'tuple() type argument must be a typical type');
+      assert(type[TYPICAL_TYPE], `tuple()'s type must be a typical type`);
     }
   }
 
@@ -323,42 +316,36 @@ function tuple(name, ...types) {
     );
   }
 
-  return decorate(Tuple, { name, kind: 'tuple', components: types });
+  return decorate(Tuple, name, tuple, ...types);
 }
 
 /* -------------------------------------------------------------------------------- */
 
 function record(name, components, { ignoreExtraProps } = {}) {
   if (name != null && typeof name === 'object') {
-    /* istanbul ignore else */
-    if (__DEV__) {
-      assert(
-        arguments.length === 1,
-        `record() arguments must be component spec only or name, component spec, and maybe options`
-      );
-    }
-
-    // Always fix arguments.
+    ({ ignoreExtraProps } = Object(components));
     components = name;
-    name = 'SomeRecord';
+    name = `SomeRecord`;
   }
+
+  const componentKeys = keysOf(components);
 
   /* istanbul ignore else */
   if (__DEV__) {
+    assert(typeof name === 'string', `record()'s name must be a string`);
     assert(
       components != null && typeof components === 'object',
-      `record() component spec must be an object`
+      `record()'s components must be an object`
     );
-    for (const type of values(components)) {
+    for (const key of componentKeys) {
       assert(
-        type[TYPICAL],
-        `record() component spec argument may only have typical types as values`
+        components[key][TYPICAL_TYPE],
+        `record()'s component value must be a type`
       );
     }
   }
 
   const api = this;
-  const componentKeys = keysOf(components);
 
   function Record(value, context) {
     if (Context.isRequired(context)) {
@@ -397,11 +384,7 @@ function record(name, components, { ignoreExtraProps } = {}) {
     return result;
   }
 
-  return decorate(Record, {
-    name,
-    kind: 'record',
-    components: assign({}, components),
-  });
+  return decorate(Record, name, record, { ...components });
 }
 
 /* ================================================================================
@@ -434,10 +417,10 @@ Typical.Any = Typical.base('Any', () => true);
 Typical.Void = Typical.base('Void', v => v == null);
 Typical.Boolean = Typical.base('Boolean', v => typeof v === 'boolean');
 Typical.Number = Typical.base('Number', v => typeof v === 'number');
-Typical.Integer = Typical.refinement(Typical.Number, 'Integer', isSafeInteger);
+Typical.Integer = Typical.refinement('Integer', Typical.Number, isSafeInteger);
 Typical.String = Typical.base('String', v => typeof v === 'string');
 Typical.Symbol = Typical.base('Symbol', v => typeof v === 'symbol');
-Typical.URL = Typical.refinement(Typical.String, 'URL', v => {
+Typical.URL = Typical.refinement('URL', Typical.String, v => {
   try {
     // eslint-disable-next-line no-new
     new URL(v, 'apocalypse://demon:lover@hell.com:665');

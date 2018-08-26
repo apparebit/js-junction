@@ -90,7 +90,7 @@ export default class Context {
             ? '  create'
             : 'validate',
         value,
-        type.meta.kind,
+        type.kind,
         type.name
       );
 
