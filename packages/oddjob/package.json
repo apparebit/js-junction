@@ -7,7 +7,7 @@
     "flying circus"
   ],
   "version": "0.1.0",
-  "author": "Robert Grimm",
+  "author": "Robert Grimm (https://apparebit.com)",
   "license": "MIT",
   "engines": {
     "node": ">=8.3.0"

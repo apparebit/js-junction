@@ -4,7 +4,7 @@
   "version": "6.6.5",
   "description": "@grr's monorepo for all things JavaScript",
   "repository": "https://github.com/apparebit/js-junction",
-  "author": "Robert Grimm",
+  "author": "Robert Grimm (https://apparebit.com)",
   "license": "MIT",
   "engines": {
     "node": ">=8.3.0"

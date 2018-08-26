@@ -37,7 +37,7 @@ export default harness(__filename, t => {
   function checkTopLevelPackage(t, directory, data) {
     t.is(directory, REPO_ROOT);
 
-    t.is(data.author, 'Robert Grimm');
+    t.is(data.author, 'Robert Grimm (https://apparebit.com)');
     t.is(data.description, `@grr's monorepo for all things JavaScript`);
     t.is(data.license, 'MIT');
     t.is(data.name, 'js-junction');
@@ -109,7 +109,7 @@ export default harness(__filename, t => {
         t.is(entry.name, name);
         t.is(entry.directory, join(PKG_DIR, directory));
         t.is(entry.data.name, name);
-        t.is(entry.data.author, 'Robert Grimm');
+        t.is(entry.data.author, 'Robert Grimm (https://apparebit.com)');
         t.is(entry.data.license, 'MIT');
       }
     }
@@ -129,7 +129,7 @@ export default harness(__filename, t => {
       t.is(entry.directory, join(PKG_DIR, 'proact'));
       t.is(entry.data.name, '@grr/proact');
       t.is(entry.data.description, 'Making server-side rendering great again!');
-      t.is(entry.data.author, 'Robert Grimm');
+      t.is(entry.data.author, 'Robert Grimm (https://apparebit.com)');
       t.is(entry.data.license, 'MIT');
       t.ok(
         entry.text.startsWith(
