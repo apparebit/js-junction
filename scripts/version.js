@@ -45,23 +45,24 @@ async function getVersions() {
     for (const kind of keysOf(versions || {})) {
       const k = kind.padEnd(16);
       const v = versions[kind];
-      console.error(chalk.bold.blue(`${n} :: ${k} :: ${dependency}@${v}`));
+      const clr = chalk.bold.blue;
+      console.error(`${clr(n)} :: ${clr(k)} :: ${clr(`${dependency}@${v}`)}`);
     }
   }
 }
 
 async function setVersion() {
-  let count;
-  if (args.debug) {
-    count = await updateDependency(dependency, version, {
-      logger(...args) {
-        console.error(chalk.grey(`# ${format(...args)}`));
-      },
-    });
-  } else {
-    count = await updateDependency(dependency, version);
-  }
-
+  const count = await updateDependency(
+    dependency,
+    version,
+    args.debug
+      ? {
+          logger(...args) {
+            console.error(chalk.grey(`# ${format(...args)}`));
+          },
+        }
+      : void 0
+  );
   const color = count ? chalk.green : chalk.grey;
   console.error(color(`Updated ${count} manifest(s)`));
 }
