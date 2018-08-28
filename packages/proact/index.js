@@ -1,26 +1,38 @@
 /* (C) Copyright 2018 Robert Grimm */
 
 import { Readable } from 'stream';
-import Component from './vdom/component';
-import Driver from './driver';
-import doRenderToHtml from './html/render';
 
-export const H = Component.from;
-export { default as h } from './hyperscript';
+// We mostly import here to export below. That helps with _not_ loading modules
+// more than once, which is very problematic for singleton symbols.
+
+// VDOM.
+import Node from './vdom/node';
+import Element from './vdom/element';
+import Component from './vdom/component';
+
+// VDOM Component Registry.
+import { define, lookup } from './vdom/registry';
+
+// Hyperscript aka h().
+import hyperscript from './hyperscript';
+
+// Driver and rendering callbacks.
+import Driver from './driver';
+import renderAttributes from './html/render-attributes';
+import renderHtml from './html/render';
 
 const defaultDriver = new Driver();
-export const renderToHtml = doRenderToHtml;
 
-export function renderToString(
+function renderToString(
   node,
-  { context = {}, driver = defaultDriver, handler = renderToHtml } = {}
+  { context = {}, driver = defaultDriver, handler = renderHtml } = {}
 ) {
   return [...driver.traverse(node, { context, handler })].join('');
 }
 
-export function renderToStream(
+function renderToStream(
   node,
-  { context = {}, driver = defaultDriver, handler = renderToHtml } = {}
+  { context = {}, driver = defaultDriver, handler = renderHtml } = {}
 ) {
   const renderer = driver.traverse(node, { context, handler });
 
@@ -39,3 +51,17 @@ export function renderToStream(
     },
   });
 }
+
+export {
+  Node,
+  Element,
+  Component,
+  define,
+  lookup,
+  hyperscript,
+  Driver,
+  renderAttributes,
+  renderHtml,
+  renderToStream,
+  renderToString,
+};

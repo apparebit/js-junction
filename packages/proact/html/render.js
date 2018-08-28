@@ -10,7 +10,7 @@ import { hasRawText, isVoidElement } from '../spec/elements';
 import renderAttributes from './render-attributes';
 
 // An effects handler for vDOM traversal that renders to HTML source.
-export default function renderToHtml(tag, object) {
+export default function renderHtml(tag, object) {
   if (tag === 'enter') {
     if (object.isViewComponent) {
       const rendered = object.render(

@@ -1,5 +1,20 @@
 /* (c) Copyright 2017–2018 Robert Grimm */
 
+// Proact's API.
+import {
+  Node,
+  Element,
+  Component,
+  define,
+  lookup,
+  hyperscript as h,
+  Driver,
+  renderAttributes,
+  renderHtml,
+  renderToString,
+  renderToStream,
+} from '@grr/proact';
+
 // Domain Description
 import Tags from '@grr/proact/spec/tags';
 import typeAttribute from '@grr/proact/spec/attributes';
@@ -9,12 +24,6 @@ import {
   hasRawText,
 } from '@grr/proact/spec/elements';
 
-// vDOM
-import Node from '@grr/proact/vdom/node';
-import Element from '@grr/proact/vdom/element';
-import Component from '@grr/proact/vdom/component';
-import { define, lookup } from '@grr/proact/vdom/registry';
-
 // Driver
 import {
   isIgnorable,
@@ -23,14 +32,6 @@ import {
   normalize,
   pushAll,
 } from '@grr/proact/driver/children';
-import Driver from '@grr/proact/driver';
-
-// Render to HTML
-import renderAttributes from '@grr/proact/html/render-attributes';
-import renderToHtml from '@grr/proact/html/render';
-
-// Proact
-import { H, h, renderToString, renderToStream } from '@grr/proact';
 
 // Test Harness
 import harness from './harness';
@@ -238,20 +239,23 @@ export default harness(__filename, t => {
       );
       t.is(Component.from(665, () => {}).prototype.name, '665');
 
-      t.throws(() => H(665), CODE_INVALID_ARG_TYPE);
-      t.throws(() => H(() => {}), CODE_INVALID_ARG_VALUE);
-      t.is(H(function fn() {}).prototype.name, 'fn');
+      t.throws(() => Component.from(665), CODE_INVALID_ARG_TYPE);
+      t.throws(() => Component.from(() => {}), CODE_INVALID_ARG_VALUE);
+      t.is(Component.from(function fn() {}).prototype.name, 'fn');
       t.is(
-        H(function fn() {}, 'SomeComponent').prototype.name,
+        Component.from(function fn() {}, 'SomeComponent').prototype.name,
         'SomeComponent'
       );
-      t.is(H(function fn() {}, 665).prototype.name, '665');
-      t.is(H(() => {}, 'AnotherComponent').prototype.name, 'AnotherComponent');
+      t.is(Component.from(function fn() {}, 665).prototype.name, '665');
       t.is(
-        H('YetAnotherComponent', () => {}).prototype.name,
+        Component.from(() => {}, 'AnotherComponent').prototype.name,
+        'AnotherComponent'
+      );
+      t.is(
+        Component.from('YetAnotherComponent', () => {}).prototype.name,
         'YetAnotherComponent'
       );
-      t.is(H(665, () => {}).prototype.name, '665');
+      t.is(Component.from(665, () => {}).prototype.name, '665');
 
       t.is(Container.name, 'Container');
       t.is(Container.prototype.constructor, Container);
@@ -406,11 +410,11 @@ export default harness(__filename, t => {
 
       // Test late binding between driver and handler through handler option.
       t.is(
-        [...nullDriver.traverse(a, { handler: renderToHtml })].join(''),
+        [...nullDriver.traverse(a, { handler: renderHtml })].join(''),
         '<a href=location>somewhere</a>'
       );
       t.is(
-        [...nullDriver.traverse(container, { handler: renderToHtml })].join(''),
+        [...nullDriver.traverse(container, { handler: renderHtml })].join(''),
         '<div class=custom-container>some text</div>'
       );
 
@@ -517,13 +521,13 @@ export default harness(__filename, t => {
 
     t.test('.render()', t => {
       // >>> Built-in HTML handler invoked with invalid tag.
-      t.throws(() => renderToHtml('mad'), CODE_INVALID_ARG_VALUE);
+      t.throws(() => renderHtml('mad'), CODE_INVALID_ARG_VALUE);
 
       // >>> Custom handler overriding built-in HTML handler.
       t.is(
         [
           ...new Driver(
-            new Proxy(renderToHtml, {
+            new Proxy(renderHtml, {
               apply(target, that, [tag, object]) {
                 try {
                   return Reflect.apply(target, that, [tag, object]);
@@ -571,7 +575,7 @@ export default harness(__filename, t => {
       );
       t.is(renderToString(Link(Link, 'landing page')), '<a>landing page</a>');
 
-      const Unlink = H(function renderLink(props, children) {
+      const Unlink = Component.from(function renderLink(props, children) {
         return Element('a', props, children);
       });
 

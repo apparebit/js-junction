@@ -3,8 +3,6 @@
 import { InvalidArgValue } from '@grr/err';
 import Element from './vdom/element';
 
-const { has, get, set } = Reflect;
-
 /*
  * Unlike the original `hyperscript` package, Proact's node factory `h()` does
  * not support ID and class selectors as part of the first argument:
@@ -18,7 +16,7 @@ const { has, get, set } = Reflect;
  * In short, hyperscript's ID and class selector notation is too limited in use
  * and too complex in implementation.
  */
-function h(type, ...args) {
+function createNode(type, ...args) {
   const kind = typeof type;
   if (kind === 'string') {
     return Element(type, ...args);
@@ -32,17 +30,16 @@ function h(type, ...args) {
   }
 }
 
-export default new Proxy(h, {
-  get(target, key, receiver) {
-    if (has(target, key)) {
-      return get(target, key, receiver);
-    } else {
-      const factory = function factory(...args) {
-        return Element(key, ...args);
-      };
+const h = new Proxy(createNode, {
+  get(target, key /* , receiver */) {
+    // If it exists, we use it.
+    if (key in target) return target[key];
 
-      set(target, key, factory);
-      return factory;
-    }
+    // Make it exist.
+    const factory = (...args) => Element(key, ...args);
+    target[key] = factory;
+    return factory;
   },
 });
+
+export { h as default };

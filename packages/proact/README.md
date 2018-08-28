@@ -28,7 +28,7 @@ Proact's functionality is exposed through a narrow, public API. Currently, it
 only supports server-side rendering. If a feature is not documented here, it is
 internal only and subject to change even between patch revisions.
 
-### `H(renderFn, name = renderFn.name)`, `H(name, renderFn)`
+### `Component.from(renderFn, name = renderFn.name)`, `Component.from(name, renderFn)`
 
 Convert the render function into a functional component. The component's name
 defaults to the function's name. When rendering the component, its render
