@@ -163,17 +163,17 @@ export default harness(__filename, t => {
     t.test('toIteratorFactory()', t => {
       const materialize = fact => [...{ [iterator]: fact }];
 
-      // (if-else clause 1) No argument.
+      // #if-else clause 1: Undefined & null.
       let fact = toIteratorFactory();
       t.same(materialize(fact), []);
       t.same(materialize(fact), []);
 
-      // (if-else clause 2) An iterator that nominally also is an iterable.
+      // #if-else clause 2: An iterator that is iterable.
       fact = toIteratorFactory(NUMBERS[iterator]());
       t.same(materialize(fact), NUMBERS);
       t.same(materialize(fact), []);
 
-      // (if-else clause 2) An iterator that is not iterable.
+      // #if-else clause 2: An iterator that is not iterable.
       const iter = NUMBERS[iterator]();
       fact = toIteratorFactory({
         next() {
@@ -183,17 +183,17 @@ export default harness(__filename, t => {
       t.same(materialize(fact), NUMBERS);
       t.same(materialize(fact), []);
 
-      // (if-else clause 3) A true iterable.
+      // #if-else clause 3: A true iterable.
       fact = toIteratorFactory(NUMBERS);
       t.same(materialize(fact), NUMBERS);
       t.same(materialize(fact), NUMBERS);
 
-      // (if-else clause 4) An iterator factory.
+      // #if-else clause 4: An iterator factory.
       fact = toIteratorFactory(() => NUMBERS[iterator]());
       t.same(materialize(fact), NUMBERS);
       t.same(materialize(fact), NUMBERS);
 
-      // (if-else clause 4) A generator.
+      // #if-else clause 4: A generator and also an iterator factory.
       fact = toIteratorFactory(function* gen() {
         yield 42;
         yield 665;
@@ -202,7 +202,7 @@ export default harness(__filename, t => {
       t.same(materialize(fact), NUMBERS);
       t.same(materialize(fact), NUMBERS);
 
-      // (if-else clause 5) Some other arbitrary value.
+      // #if-else clause 5: Some other arbitrary value.
       fact = toIteratorFactory(665);
       t.same(materialize(fact), [665]);
       t.same(materialize(fact), [665]);

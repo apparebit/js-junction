@@ -13,7 +13,7 @@ Conveniently, the latter name also serves as namespace for this repository's
 open source packages:
 
  *  [mark-of-dev](https://github.com/apparebit/js-junction/tree/master/packages/mark-of-dev):
-    Advancing the globalization of `__DEV__`.
+    Advancing the globalization of `__DEV__` (even without the @grr).
 
  *  [@grr/typical](https://github.com/apparebit/js-junction/tree/master/packages/typical):
     Type combinators for data validation and modelling.
@@ -55,21 +55,16 @@ tad reckless for a dynamically typed programming language!
 ### 🆕  Upgrades Are Deliberate
 
 All packages in this repository follow [semantic
-versioning](https://semver.org). As a widely accepted convention for encoding an
-_expectation_ about the scope and impact of a package upgrade, semantic
-versioning certainly is helpful. However, as a convention, semantic versioning
-cannot provide a _guarantee_ about the impact of an upgrade. In fact, given
-enough time and sufficiently many dependencies, we'd expect semantic versioning
-to fail, for instance, a minor version change for an update that includes a
-breaking API change (which may have slipped into the release).
-
-Given that reality, it would be a bit naive to use version ranges in this
-repository's manifests and then pick up any allowable change more or less by
-chance. Instead, this repository rejects wildcard matching on versions
-altogether and the version numbers of all dependencies must be fully specified.
-As a result, any upgrade, no matter how seemingly minor, requires human
-intervention and testing, though the [version.js](/scripts/version.js) script
-does help.
+versioning](https://semver.org). It serves as a widely accepted convention for
+encoding an _expectation_ about the impact of a package upgrade. However, it
+only is a convention and cannot provide a _guarantee_ that an upgrade won't
+break an application. Even with exacting adherence to the specification, it is
+easy enough to make a mistake and allow an incompatible change to sneak into a
+minor version update. Given that reality, this repository disallows the use of
+version ranges, which may just lead to updates being applied at inopportune
+times. Instead, it requires (periodic) human intervention to upgrade and,
+critically, to test afterwards. The [version.js](/scripts/version.js) script
+helps with inspecting and modifying versions.
 
 ## 2. Modules End With .js
 
