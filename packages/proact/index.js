@@ -1,25 +1,19 @@
 /* (C) Copyright 2018 Robert Grimm */
 
-import { Readable } from 'stream';
+// Import here to export again below. Exposing all functionality through this
+// module prevents side-loading of other modules, which may just result in
+// doubly loaded modules. That is very problematic when said modules contain
+// singletons, such as non-standard symbols.
 
-// We mostly import here to export below. That helps with _not_ loading modules
-// more than once, which is very problematic for singleton symbols.
-
-// VDOM.
 import Node from './vdom/node';
 import Element from './vdom/element';
 import Component from './vdom/component';
-
-// VDOM Component Registry.
 import { define, lookup } from './vdom/registry';
-
-// Hyperscript aka h().
 import hyperscript from './hyperscript';
-
-// Driver and rendering callbacks.
 import Driver from './driver';
 import renderAttributes from './html/render-attributes';
 import renderHtml from './html/render';
+import { Readable } from 'stream';
 
 const defaultDriver = new Driver();
 
