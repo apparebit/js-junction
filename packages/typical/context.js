@@ -3,11 +3,11 @@
 import assert from 'assert';
 import debuggery from 'debug';
 import { EOL } from 'os';
-import { isArray } from 'util';
 import { isErrorWrapper, unwrapErrors, wrapErrors } from './wrapper.js';
 
 const CONTEXT = Symbol('context');
 const debug = debuggery('@grr:typical');
+const { isArray } = Array;
 const { keys: keysOf } = Object;
 
 const PASS = debug.useColors

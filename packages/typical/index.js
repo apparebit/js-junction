@@ -403,6 +403,9 @@ const Typical = {
   ignoreExtraProps: void 0,
   recognizeAsArray: void 0,
 
+  // Not part of the API, use at your own risk!
+  Context,
+
   // Combinators.
   base,
   refinement,

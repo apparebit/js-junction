@@ -1,7 +1,6 @@
 /* (c) Copyright 2018 Robert Grimm */
 
 import tip from '@grr/typical';
-import Context from '@grr/typical/context.js';
 import harness from './harness';
 import { isArray } from 'util';
 
@@ -12,16 +11,16 @@ const { MAX_SAFE_INTEGER } = Number;
 export default harness(__filename, t => {
   t.test('Context', t => {
     t.test('.isRequired()', t => {
-      t.ok(Context.isRequired());
-      t.ok(Context.isRequired(null));
-      t.ok(Context.isRequired({ [Symbol('context')]: true }));
-      t.notOk(Context.isRequired(new Context()));
+      t.ok(tip.Context.isRequired());
+      t.ok(tip.Context.isRequired(null));
+      t.ok(tip.Context.isRequired({ [Symbol('context')]: true }));
+      t.notOk(tip.Context.isRequired(new tip.Context()));
       t.end();
     });
 
     t.test('.mergeConfig()', t => {
       t.same(
-        Context.mergeConfig(
+        tip.Context.mergeConfig(
           { label: 'primary', shadow: false, first: 1, second: void 0 },
           { label: 'secondary', shadow: true, second: 2 }
         ),
@@ -30,7 +29,7 @@ export default harness(__filename, t => {
       t.end();
     });
 
-    const context = new Context();
+    const context = new tip.Context();
     context.continueAfterError = true;
     context.path.push(new Error());
     context.path.push(new Error());
