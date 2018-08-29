@@ -30,7 +30,7 @@ function createNode(type, ...args) {
   }
 }
 
-const h = new Proxy(createNode, {
+const hyperscript = new Proxy(createNode, {
   get(target, key /* , receiver */) {
     // If it exists, we use it.
     if (key in target) return target[key];
@@ -42,4 +42,4 @@ const h = new Proxy(createNode, {
   },
 });
 
-export { h as default };
+export { hyperscript as default };
