@@ -3,6 +3,8 @@
 import chalk from 'chalk';
 import { format } from 'util';
 import parseArguments from 'mri';
+import { spawn } from 'child_process';
+
 import {
   findAllPackages,
   getDependencyVersions,
@@ -67,8 +69,49 @@ async function setVersion() {
   console.error(color(`Updated ${count} manifest(s)`));
 }
 
+function run(cmd, args) {
+  const cap = {};
+  cap.promise = new Promise((resolve, reject) => {
+    cap.resolve = resolve;
+    cap.reject = reject;
+  });
+
+  const child = spawn(cmd, args, {
+    stdio: 'inherit',
+  });
+
+  child.on('error', cap.reject);
+  child.on('exit', (code, signal) => {
+    if (code === 0) {
+      cap.resolve();
+    } else if (signal !== null) {
+      cap.reject(
+        new Error(
+          `"${cmd} ${args.join(' ')}" terminated with signal "${signal}"`
+        )
+      );
+    } else {
+      cap.reject(
+        new Error(`"${cmd} ${args.join(' ')}" exited with code "${code}"`)
+      );
+    }
+  });
+
+  return cap.promise;
+}
+
+async function installAndTest() {
+  try {
+    await run('yarn', ['install']);
+    await run('yarn', ['test']);
+  } catch (x) {
+    console.error(`version.js: ${x.message}`);
+  }
+}
+
 if (version) {
   setVersion();
+  installAndTest();
 } else {
   getVersions();
 }
