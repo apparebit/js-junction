@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "debug": "3.1.0",
-    "esm": "3.0.61",
+    "esm": "3.0.81",
     "mark-of-dev": "0.1.0"
   },
   "main": "index.js",
