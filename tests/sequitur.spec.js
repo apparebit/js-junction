@@ -8,10 +8,10 @@ import {
   isNonStringIterable,
   IteratorPrototype,
   toIteratorFactory,
-} from '@grr/sequitur/iterations';
+} from '../packages/sequitur/iterations.js';
 
 import Sq from '@grr/sequitur';
-import harness from './harness';
+import harness from './harness.js';
 
 const { create, getOwnPropertyDescriptors, getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;

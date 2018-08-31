@@ -16,13 +16,14 @@ import {
 } from '@grr/proact';
 
 // Domain Description
-import Tags from '@grr/proact/spec/tags';
-import typeAttribute from '@grr/proact/spec/attributes';
+import Tags from '../packages/proact/spec/tags.js';
+import typeAttribute from '../packages/proact/spec/attributes.js';
+
 import {
   isHtmlElement,
   isVoidElement,
   hasRawText,
-} from '@grr/proact/spec/elements';
+} from '../packages/proact/spec/elements.js';
 
 // Driver
 import {
@@ -31,10 +32,10 @@ import {
   next,
   normalize,
   pushAll,
-} from '@grr/proact/driver/children';
+} from '../packages/proact/driver/children.js';
 
 // Test Harness
-import harness from './harness';
+import harness from './harness.js';
 import { inspect } from 'util';
 
 const { Attribute } = Tags.HTML;

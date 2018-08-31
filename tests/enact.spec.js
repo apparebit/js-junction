@@ -1,6 +1,6 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import { h, html } from '@grr/enact/engines/plain-text.js';
+import { h, html } from '../packages/enact/engines/plain-text.js';
 import harness from './harness';
 
 function Adder(...args) {

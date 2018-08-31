@@ -1,32 +1,39 @@
 /* (c) Copyright 2018 Robert Grimm */
 
 import 'mark-of-dev';
+import { constant } from '../packages/knowledge/json-ld/util.js';
+import harness from './harness.js';
+import { join } from 'path';
+import Knowledge from '@grr/knowledge';
+import parse from '../packages/knowledge/json-ld/parse.js';
+import { promisify } from 'util';
+import { readFile as doReadFile } from 'fs';
+import State from '../packages/knowledge/json-ld/state.js';
+import walk from '../packages/knowledge/json-ld/walk.js';
+
 import {
   addPropertyValue,
   areEqual,
   forEachPropertyValue,
-} from '@grr/knowledge/json-ld/values';
-import { constant } from '@grr/knowledge/json-ld/util';
-import harness from './harness';
+} from '../packages/knowledge/json-ld/values.js';
+
 import {
   inverseOf,
   isSchemaOrgContext,
-} from '@grr/knowledge/semantics/schema-org';
-import { join } from 'path';
+} from '../packages/knowledge/semantics/schema-org.js';
+
 import {
   kindOf,
   isInvalid,
   isPrimitive,
   isValue,
   kindOfObject,
-} from '@grr/knowledge/json-ld/kind';
-import Knowledge from '@grr/knowledge';
-import parse from '@grr/knowledge/json-ld/parse';
-import { promisify } from 'util';
-import { readFile as doReadFile } from 'fs';
-import State from '@grr/knowledge/json-ld/state';
-import { toSiteAndAccount, toUserUrl } from '@grr/knowledge/semantics/social';
-import walk from '@grr/knowledge/json-ld/walk';
+} from '../packages/knowledge/json-ld/kind.js';
+
+import {
+  toSiteAndAccount,
+  toUserUrl,
+} from '../packages/knowledge/semantics/social.js';
 
 const {
   create,

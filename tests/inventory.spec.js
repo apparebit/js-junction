@@ -14,7 +14,7 @@ import {
 import chalk from 'chalk';
 import { EOL } from 'os';
 import { format, promisify } from 'util';
-import harness from './harness';
+import harness from './harness.js';
 import { dirname, join } from 'path';
 import { readdir as doReadDirectory, readFile as doReadFile } from 'fs';
 

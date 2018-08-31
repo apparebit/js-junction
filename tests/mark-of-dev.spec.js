@@ -1,7 +1,7 @@
 /* (c) Copyright 2018 Robert Grimm */
 
-import { default as harness, load } from './harness';
-import { withoutInspector } from '@grr/oddjob/processes';
+import { default as harness, load } from './harness.js';
+import { withoutInspector } from '../packages/oddjob/processes.js';
 
 const { defineProperty } = Object;
 const { env, execPath } = process;

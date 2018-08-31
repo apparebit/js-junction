@@ -22,7 +22,7 @@ import {
 } from '@grr/oddjob';
 
 import Emitter from 'events';
-import harness from './harness';
+import harness from './harness.js';
 import { Writable } from 'stream';
 
 const CODE_INVALID_ARG_TYPE = { code: 'ERR_INVALID_ARG_TYPE' };

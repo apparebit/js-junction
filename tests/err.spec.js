@@ -2,12 +2,12 @@
 
 import { EOL } from 'os';
 
-import { quote, asArgId, asValue, asElements } from '@grr/err/format';
+import { quote, asArgId, asValue, asElements } from '../packages/err/format.js';
 import {
   default as punning,
   isPropertyKey,
   toKeyValue,
-} from '@grr/err/punning';
+} from '../packages/err/punning.js';
 
 import {
   ChildProcessError,

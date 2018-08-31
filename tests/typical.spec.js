@@ -1,7 +1,7 @@
 /* (c) Copyright 2018 Robert Grimm */
 
 import tip from '@grr/typical';
-import harness from './harness';
+import harness from './harness.js';
 import { isArray } from 'util';
 
 const { assign, getOwnPropertySymbols, getPrototypeOf, is } = Object;
