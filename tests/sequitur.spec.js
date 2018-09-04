@@ -8,7 +8,7 @@ import {
   isNonStringIterable,
   IteratorPrototype,
   toIteratorFactory,
-} from '../packages/sequitur/iterations.js';
+} from '@grr/sequitur/iterations.js';
 
 import Sq from '@grr/sequitur';
 import harness from './harness.js';

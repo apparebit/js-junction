@@ -14,7 +14,7 @@
     "node": ">=8.3.0"
   },
   "dependencies": {
-    "esm": "3.0.81"
+    "esm": "3.0.82"
   },
   "main": "index.js",
   "repository": "https://github.com/apparebit/js-junction/tree/master/packages/err"
